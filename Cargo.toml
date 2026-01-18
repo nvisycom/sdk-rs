@@ -1,0 +1,32 @@
+# https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[package]
+name = "nvisy-sdk"
+description = "Nvisy REST/HTTP API client library"
+version = "0.1.0"
+rust-version = "1.89"
+edition = "2024"
+license = "MIT"
+publish = true
+readme = "./README.md"
+
+authors = ["Nvisy <support@nvisy.com>"]
+repository = "https://github.com/nvisycom/sdk-rs"
+homepage = "https://nvisy.com"
+documentation = "https://docs.nvisy.com"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+default = []
+
+[dependencies]
+reqwest = { version = "0.12", features = ["json"] }
+serde = { version = "1.0" }
+serde_json = { version = "1.0" }
+thiserror = { version = "2.0" }
+tokio = { version = "1", features = ["rt", "fs"] }
+async-trait = { version = "0.1" }
+derive_builder = { version = "0.20" }
