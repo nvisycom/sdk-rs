@@ -35,6 +35,19 @@ pub enum Error {
     /// This occurs when a provided URL string is invalid or cannot be parsed.
     #[error("URL parse error: {0}")]
     UrlParse(#[from] url::ParseError),
+
+    /// I/O error.
+    ///
+    /// This occurs during file operations or other I/O tasks.
+    #[error("I/O error: {0}")]
+    Io(#[from] std::io::Error),
+
+    /// API error.
+    ///
+    /// This occurs when the API returns an unexpected response format
+    /// or missing data that was expected.
+    #[error("API error: {0}")]
+    Api(String),
 }
 
 /// Result type for Nvisy API operations.

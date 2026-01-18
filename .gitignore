@@ -18,6 +18,8 @@ target/
 *.backup
 coverage/
 *.lcov
+openapi.json
+nvisy-api/
 
 # Build output
 dist/
