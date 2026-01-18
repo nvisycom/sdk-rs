@@ -1,4 +1,4 @@
-name: Build & Test
+name: Build
 
 on:
   push:
@@ -31,34 +31,22 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUSTFLAGS: -Dwarnings
 
 jobs:
-  test:
-    name: Test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        rust: [stable]
+  check:
+    name: Check
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: ${{ matrix.rust }}
 
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
-        with:
-          shared-key: ${{ runner.os }}-${{ matrix.rust }}
-
-      - name: Run tests (all features)
-        run: cargo test --all-features
-
-      - name: Run tests (no default features)
-        run: cargo test --lib --no-default-features --features rustls-tls
+      - run: cargo check --all-features
 
   fmt:
     name: Format
@@ -92,12 +80,19 @@ jobs:
 
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --all-features --all-targets
 
-      - name: Run clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --all-features
 
   docs:
-    name: Documentation
+    name: Docs
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -108,9 +103,7 @@ jobs:
 
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
-
-      - name: Check documentation
-        run: cargo doc --no-deps --all-features
+      - run: cargo doc --no-deps --all-features
         env:
           RUSTDOCFLAGS: -D warnings
 

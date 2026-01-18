@@ -1,25 +1,40 @@
-//! Error types for the Nvisy client.
+//! Error types for the Nvisy SDK.
 
-use thiserror::Error;
+use crate::client::NvisyConfigBuilderError;
 
-/// Errors that can occur when using the Nvisy client.
-#[derive(Debug, Error)]
+/// Error type for Nvisy API operations.
+///
+/// This enum represents all possible errors that can occur when using the Nvisy SDK,
+/// from HTTP transport errors to API-specific failures and configuration issues.
+#[non_exhaustive]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
-    /// HTTP request failed.
-    #[error("HTTP request failed: {0}")]
-    Request(#[from] reqwest::Error),
+    /// HTTP transport error from the underlying HTTP client.
+    ///
+    /// This includes network connectivity issues, DNS resolution failures,
+    /// timeout errors, and other transport-layer problems.
+    #[error("HTTP error: {0}")]
+    Http(#[from] reqwest::Error),
 
-    /// JSON serialization/deserialization failed.
-    #[error("JSON error: {0}")]
-    Json(#[from] serde_json::Error),
+    /// JSON serialization/deserialization error.
+    ///
+    /// This occurs when the SDK fails to parse API responses or serialize
+    /// request payloads to/from JSON.
+    #[error("Serialization error: {0}")]
+    Serialization(#[from] serde_json::Error),
 
-    /// Configuration builder error.
+    /// Configuration error.
+    ///
+    /// This occurs when configuration parameters are invalid or when using
+    /// the configuration builder and validation fails during the build process.
     #[error("Configuration error: {0}")]
-    Builder(#[from] crate::client::NvisyConfigBuilderError),
+    Config(#[from] NvisyConfigBuilderError),
 
-    /// IO error.
-    #[error("IO error: {0}")]
-    Io(#[from] std::io::Error),
+    /// URL parsing error.
+    ///
+    /// This occurs when a provided URL string is invalid or cannot be parsed.
+    #[error("URL parse error: {0}")]
+    UrlParse(#[from] url::ParseError),
 }
 
 /// Result type for Nvisy API operations.

@@ -35,7 +35,10 @@ tracing = ["dep:tracing"]
 
 [dependencies]
 # HTTP client
-reqwest = { version = "0.12", default-features = false, features = ["json"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "multipart"] }
+
+# URL parsing
+url = { version = "2.5", features = [] }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
@@ -44,12 +47,15 @@ serde_json = { version = "1.0", features = [] }
 # Error handling
 thiserror = { version = "2.0", features = [] }
 
-# Async runtime
-tokio = { version = "1", features = ["rt", "fs"] }
-async-trait = { version = "0.1", features = [] }
-
 # Code generation
 derive_builder = { version = "0.20", features = [] }
 
 # Observability (optional)
 tracing = { version = "0.1", features = [], optional = true }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros"] }
+
+[[example]]
+name = "basic"
+path = "examples/basic.rs"

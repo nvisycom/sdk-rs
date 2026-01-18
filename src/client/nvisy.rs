@@ -6,8 +6,8 @@
 use std::fmt;
 use std::sync::Arc;
 
+use reqwest::multipart::Form;
 use reqwest::{Client, Method, RequestBuilder, Response};
-use serde::de::DeserializeOwned;
 
 use super::config::NvisyConfig;
 #[cfg(feature = "tracing")]
@@ -33,7 +33,7 @@ use crate::error::Result;
 /// ```no_run
 /// use nvisy_sdk::{NvisyClient, Result};
 ///
-/// # async fn example() -> Result<()> {
+/// # fn example() -> Result<()> {
 /// let client = NvisyClient::with_api_key("your-api-key")?;
 /// # Ok(())
 /// # }
@@ -45,7 +45,7 @@ use crate::error::Result;
 /// use nvisy_sdk::{NvisyConfig, NvisyClient, Result};
 /// use std::time::Duration;
 ///
-/// # async fn example() -> Result<()> {
+/// # fn example() -> Result<()> {
 /// let client = NvisyConfig::builder()
 ///     .with_api_key("your-api-key")
 ///     .with_base_url("https://api.nvisy.com")
@@ -86,9 +86,10 @@ pub struct NvisyClient {
 }
 
 /// Inner client state that is shared via Arc for cheap cloning.
+#[derive(Debug)]
 pub(crate) struct NvisyClientInner {
     pub(crate) config: NvisyConfig,
-    pub(crate) http: Client,
+    pub(crate) client: Client,
 }
 
 impl NvisyClient {
@@ -98,7 +99,7 @@ impl NvisyClient {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_CLIENT, "Creating Nvisy client");
 
-        let http = if let Some(custom_client) = config.client() {
+        let client = if let Some(custom_client) = config.client() {
             custom_client
         } else {
             Client::builder().timeout(config.timeout()).build()?
@@ -114,7 +115,7 @@ impl NvisyClient {
             "Nvisy client created successfully"
         );
 
-        let inner = Arc::new(NvisyClientInner { config, http });
+        let inner = Arc::new(NvisyClientInner { config, client });
         Ok(Self { inner })
     }
 
@@ -161,85 +162,97 @@ impl NvisyClient {
         &self.inner.config
     }
 
-    /// Builds a request with authentication headers.
-    pub(crate) fn request(&self, method: Method, path: &str) -> RequestBuilder {
+    /// Parses the base URL and appends the given path.
+    fn parse_url(&self, path: &str) -> Result<url::Url> {
+        let mut url = url::Url::parse(self.inner.config.base_url())?;
+        url.set_path(&format!("{}{}", url.path().trim_end_matches('/'), path));
+        Ok(url)
+    }
+
+    /// Builds a URL with the given path and optional query parameters.
+    fn build_url(&self, path: &str, params: &[(&str, &str)]) -> Result<url::Url> {
+        let mut url = self.parse_url(path)?;
+
+        if !params.is_empty() {
+            url.query_pairs_mut().extend_pairs(params);
+        }
+
+        Ok(url)
+    }
+
+    /// Creates an HTTP request with the specified method.
+    fn request(&self, method: Method, url: url::Url) -> RequestBuilder {
         #[cfg(feature = "tracing")]
         tracing::trace!(
             target: TRACING_TARGET_CLIENT,
-            path = %path,
+            url = %url,
             method = %method,
             "Creating HTTP request"
         );
 
-        let url = format!("{}{}", self.inner.config.base_url(), path);
         self.inner
-            .http
-            .request(method, &url)
+            .client
+            .request(method, url)
+            .timeout(self.inner.config.timeout())
             .header(
                 "Authorization",
                 format!("Bearer {}", self.inner.config.api_key()),
             )
-            .header("Content-Type", "application/json")
-            .header("Accept", "application/json")
     }
 
-    /// Builds a GET request.
-    pub(crate) fn get(&self, path: &str) -> RequestBuilder {
-        self.request(Method::GET, path)
+    /// Sends a request and returns the response.
+    #[allow(dead_code)]
+    pub(crate) async fn send(&self, method: Method, path: &str) -> Result<Response> {
+        let url = self.parse_url(path)?;
+        let response = self.request(method, url).send().await?;
+        Ok(response)
     }
 
-    /// Builds a POST request.
-    pub(crate) fn post(&self, path: &str) -> RequestBuilder {
-        self.request(Method::POST, path)
+    /// Sends a request with JSON body.
+    #[allow(dead_code)]
+    pub(crate) async fn send_json<T: serde::Serialize>(
+        &self,
+        method: Method,
+        path: &str,
+        data: &T,
+    ) -> Result<Response> {
+        let url = self.parse_url(path)?;
+        let response = self.request(method, url).json(data).send().await?;
+        Ok(response)
     }
 
-    /// Builds a PUT request.
-    pub(crate) fn put(&self, path: &str) -> RequestBuilder {
-        self.request(Method::PUT, path)
+    /// Sends a request with query parameters.
+    #[allow(dead_code)]
+    pub(crate) async fn send_with_params(
+        &self,
+        method: Method,
+        path: &str,
+        params: &[(&str, &str)],
+    ) -> Result<Response> {
+        let url = self.build_url(path, params)?;
+        let response = self.request(method, url).send().await?;
+        Ok(response)
     }
 
-    /// Builds a DELETE request.
-    pub(crate) fn delete_req(&self, path: &str) -> RequestBuilder {
-        self.request(Method::DELETE, path)
+    /// Sends a request with multipart form data.
+    #[allow(dead_code)]
+    pub(crate) async fn send_multipart(
+        &self,
+        method: Method,
+        path: &str,
+        form: Form,
+    ) -> Result<Response> {
+        let url = self.parse_url(path)?;
+        let response = self.request(method, url).multipart(form).send().await?;
+        Ok(response)
     }
 
-    /// Sends a request and parses the JSON response.
-    pub(crate) async fn send<T: DeserializeOwned>(&self, request: RequestBuilder) -> Result<T> {
-        let response = request.send().await?;
-        self.handle_response(response).await
-    }
-
-    /// Handles API response, checking for errors and parsing JSON.
-    async fn handle_response<T: DeserializeOwned>(&self, response: Response) -> Result<T> {
-        let body = response.error_for_status()?.json().await?;
-        Ok(body)
-    }
-
-    /// Sends a request with a JSON body.
-    pub(crate) async fn send_json<T, B>(&self, request: RequestBuilder, body: &B) -> Result<T>
-    where
-        T: DeserializeOwned,
-        B: serde::Serialize,
-    {
-        self.send(request.json(body)).await
-    }
-
-    /// Sends a DELETE request (no response body expected).
-    pub(crate) async fn send_delete(&self, request: RequestBuilder) -> Result<()> {
-        request.send().await?.error_for_status()?;
-        Ok(())
-    }
-
-    /// Sends a request expecting raw bytes response.
-    pub(crate) async fn send_bytes(&self, request: RequestBuilder) -> Result<Vec<u8>> {
-        let response = request.send().await?.error_for_status()?;
-        Ok(response.bytes().await?.to_vec())
-    }
-
-    /// Sends a request expecting a text response.
-    pub(crate) async fn send_text(&self, request: RequestBuilder) -> Result<String> {
-        let response = request.send().await?.error_for_status()?;
-        Ok(response.text().await?)
+    /// Creates a request builder for custom query parameter building.
+    /// Use this for complex query scenarios that need conditional parameters.
+    #[allow(dead_code)]
+    pub(crate) fn request_builder(&self, method: Method, path: &str) -> Result<RequestBuilder> {
+        let url = self.parse_url(path)?;
+        Ok(self.request(method, url))
     }
 }
 
@@ -255,18 +268,33 @@ impl fmt::Debug for NvisyClient {
 
 #[cfg(test)]
 mod tests {
+    use std::time::Duration;
+
     use super::*;
 
     #[test]
-    fn test_client_creation() {
-        let client = NvisyClient::with_api_key("test-key");
-        assert!(client.is_ok());
+    fn test_client_creation() -> Result<()> {
+        let client = NvisyClient::with_api_key("test-key")?;
+        assert_eq!(client.config().api_key(), "test-key");
+        assert_eq!(client.config().base_url(), "https://api.nvisy.com");
+        Ok(())
     }
 
     #[test]
-    fn test_client_config_access() {
-        let client = NvisyClient::with_api_key("test-key").unwrap();
-        assert_eq!(client.config().api_key(), "test-key");
+    fn test_client_creation_with_custom_config() -> Result<()> {
+        let config = NvisyConfig::builder()
+            .with_api_key("custom_key")
+            .with_base_url("https://custom.api.com")
+            .with_timeout(Duration::from_secs(60))
+            .build()?;
+
+        let client = NvisyClient::new(config)?;
+
+        assert_eq!(client.config().api_key(), "custom_key");
+        assert_eq!(client.config().base_url(), "https://custom.api.com");
+        assert_eq!(client.config().timeout(), Duration::from_secs(60));
+
+        Ok(())
     }
 
     #[test]
