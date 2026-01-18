@@ -1,6 +1,6 @@
 //! Health and monitoring models.
 
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 
 /// Service operational status.
@@ -20,7 +20,7 @@ pub enum ServiceStatus {
 #[serde(rename_all = "camelCase")]
 pub struct MonitorStatus {
     /// Timestamp when this status was generated.
-    pub checked_at: DateTime<Utc>,
+    pub checked_at: Timestamp,
     /// Overall system health status.
     pub status: ServiceStatus,
     /// Application version.

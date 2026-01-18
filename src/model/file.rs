@@ -1,5 +1,6 @@
 //! File-related data models.
 
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -26,9 +27,9 @@ pub struct File {
     /// Account ID of the uploader.
     pub uploaded_by: Uuid,
     /// Creation timestamp.
-    pub created_at: String,
+    pub created_at: Timestamp,
     /// Last update timestamp.
-    pub updated_at: String,
+    pub updated_at: Timestamp,
 }
 
 /// Processing status of a file.

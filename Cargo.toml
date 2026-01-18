@@ -45,7 +45,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = [] }
 
 # Date/time
-chrono = { version = "0.4", features = ["serde"] }
+jiff = { version = "0.2", features = ["serde"] }
 
 # UUID
 uuid = { version = "1.8", features = ["serde", "v4"] }
@@ -65,3 +65,7 @@ tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros"] }
 [[example]]
 name = "basic"
 path = "examples/basic.rs"
+
+[[example]]
+name = "files"
+path = "examples/files.rs"

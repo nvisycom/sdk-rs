@@ -1,6 +1,6 @@
 //! Integration models.
 
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -57,13 +57,13 @@ pub struct Integration {
     pub sync_status: Option<IntegrationStatus>,
     /// Timestamp of the most recent successful synchronization.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub last_sync_at: Option<DateTime<Utc>>,
+    pub last_sync_at: Option<Timestamp>,
     /// Account that originally created this integration.
     pub created_by: Uuid,
     /// Timestamp when this integration was first created.
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
     /// Timestamp when this integration was last modified.
-    pub updated_at: DateTime<Utc>,
+    pub updated_at: Timestamp,
 }
 
 /// Paginated list of integrations.

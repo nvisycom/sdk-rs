@@ -1,5 +1,6 @@
 //! Workspace-related data models.
 
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -25,9 +26,9 @@ pub struct Workspace {
     /// Account ID of the creator.
     pub created_by: Uuid,
     /// Creation timestamp.
-    pub created_at: String,
+    pub created_at: Timestamp,
     /// Last update timestamp.
-    pub updated_at: String,
+    pub updated_at: Timestamp,
 }
 
 /// Role of a member in a workspace.

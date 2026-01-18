@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use chrono::{DateTime, Utc};
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -89,13 +89,13 @@ pub struct Webhook {
     pub integration_id: Option<Uuid>,
     /// Timestamp of the most recent webhook trigger.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub last_triggered_at: Option<DateTime<Utc>>,
+    pub last_triggered_at: Option<Timestamp>,
     /// Account that originally created this webhook.
     pub created_by: Uuid,
     /// Timestamp when this webhook was first created.
-    pub created_at: DateTime<Utc>,
+    pub created_at: Timestamp,
     /// Timestamp when this webhook was last modified.
-    pub updated_at: DateTime<Utc>,
+    pub updated_at: Timestamp,
 }
 
 /// Paginated list of webhooks.
