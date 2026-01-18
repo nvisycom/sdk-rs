@@ -1,4 +1,4 @@
-//! Service traits defining API operations.
+//! Service traits and implementations for Nvisy API operations.
 
 mod documents;
 mod workspaces;

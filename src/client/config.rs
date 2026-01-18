@@ -28,7 +28,7 @@ pub const DEFAULT_TIMEOUT: Duration = Duration::from_secs(30);
 ///
 /// Creating a config with API key:
 /// ```no_run
-/// use nvisy_studio_client::NvisyConfig;
+/// use nvisy_sdk::NvisyConfig;
 ///
 /// let config = NvisyConfig::builder()
 ///     .with_api_key("your-api-key")
@@ -39,7 +39,7 @@ pub const DEFAULT_TIMEOUT: Duration = Duration::from_secs(30);
 /// Creating a config with custom settings:
 /// ```no_run
 /// use std::time::Duration;
-/// use nvisy_studio_client::NvisyConfig;
+/// use nvisy_sdk::NvisyConfig;
 ///
 /// let config = NvisyConfig::builder()
 ///     .with_api_key("your-api-key")
@@ -133,7 +133,7 @@ impl NvisyConfigBuilder {
     /// # Examples
     ///
     /// ```no_run
-    /// # use nvisy_studio_client::NvisyConfig;
+    /// # use nvisy_sdk::NvisyConfig;
     /// let client = NvisyConfig::builder()
     ///     .with_api_key("your-api-key")
     ///     .build_client()
@@ -153,7 +153,7 @@ impl NvisyConfig {
     /// # Examples
     ///
     /// ```no_run
-    /// # use nvisy_studio_client::NvisyConfig;
+    /// # use nvisy_sdk::NvisyConfig;
     /// let config = NvisyConfig::builder()
     ///     .with_api_key("your-api-key")
     ///     .build()
@@ -168,7 +168,7 @@ impl NvisyConfig {
     /// # Examples
     ///
     /// ```no_run
-    /// # use nvisy_studio_client::NvisyConfig;
+    /// # use nvisy_sdk::NvisyConfig;
     /// let config = NvisyConfig::builder()
     ///     .with_api_key("your-api-key")
     ///     .build()

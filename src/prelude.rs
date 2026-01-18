@@ -6,8 +6,6 @@
 //! use nvisy_studio_client::prelude::*;
 //! ```
 
-#![doc(hidden)]
-
 pub use crate::client::{NvisyClient, NvisyConfig, NvisyConfigBuilder};
 pub use crate::error::{Error, Result};
 pub use crate::model::{

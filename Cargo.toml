@@ -20,13 +20,36 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
-default = []
+## Default features enabled by default
+default = ["rustls-tls"]
+
+# TLS backends (mutually exclusive - pick one)
+## Enable rustls-tls for HTTPS requests (default)
+rustls-tls = ["reqwest/rustls-tls"]
+## Enable native-tls for HTTPS requests
+native-tls = ["reqwest/native-tls"]
+
+# Observability
+## Enable tracing support for HTTP requests and client operations
+tracing = ["dep:tracing"]
 
 [dependencies]
-reqwest = { version = "0.12", features = ["json"] }
-serde = { version = "1.0" }
-serde_json = { version = "1.0" }
-thiserror = { version = "2.0" }
+# HTTP client
+reqwest = { version = "0.12", default-features = false, features = ["json"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0", features = [] }
+
+# Error handling
+thiserror = { version = "2.0", features = [] }
+
+# Async runtime
 tokio = { version = "1", features = ["rt", "fs"] }
-async-trait = { version = "0.1" }
-derive_builder = { version = "0.20" }
+async-trait = { version = "0.1", features = [] }
+
+# Code generation
+derive_builder = { version = "0.20", features = [] }
+
+# Observability (optional)
+tracing = { version = "0.1", features = [], optional = true }

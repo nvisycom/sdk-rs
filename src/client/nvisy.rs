@@ -1,110 +1,222 @@
 //! Nvisy API client implementation.
+//!
+//! This module contains the main [`NvisyClient`] struct and its implementation,
+//! providing the core HTTP client functionality for interacting with the Nvisy API.
 
-use std::path::Path;
+use std::fmt;
 use std::sync::Arc;
 
-use async_trait::async_trait;
-use reqwest::{Client, RequestBuilder, Response};
+use reqwest::{Client, Method, RequestBuilder, Response};
 use serde::de::DeserializeOwned;
 
-use super::NvisyConfig;
+use super::config::NvisyConfig;
+#[cfg(feature = "tracing")]
+use crate::TRACING_TARGET_CLIENT;
 use crate::error::Result;
-use crate::model::{
-    CreateDocumentRequest, CreateWorkspaceRequest, Document, DocumentVersion, Id,
-    PaginatedResponse, Pagination, UpdateDocumentRequest, UpdateWorkspaceRequest, Workspace,
-};
-use crate::service::{DocumentService, WorkspaceService};
 
-/// The main Nvisy API client.
-#[derive(Debug, Clone)]
+/// Main Nvisy API client for interacting with all Nvisy services.
+///
+/// The `NvisyClient` provides access to all Nvisy API endpoints through specialized
+/// service interfaces. It handles authentication, request/response serialization,
+/// and provides a consistent async interface for all operations.
+///
+/// # Features
+///
+/// - **Thread-safe**: Safe to use across multiple threads
+/// - **Cheap to clone**: Uses `Arc` internally for efficient cloning
+/// - **Automatic authentication**: Handles API key authentication automatically
+///
+/// # Examples
+///
+/// ## Basic usage with API key
+///
+/// ```no_run
+/// use nvisy_sdk::{NvisyClient, Result};
+///
+/// # async fn example() -> Result<()> {
+/// let client = NvisyClient::with_api_key("your-api-key")?;
+/// # Ok(())
+/// # }
+/// ```
+///
+/// ## Custom configuration with builder pattern
+///
+/// ```no_run
+/// use nvisy_sdk::{NvisyConfig, NvisyClient, Result};
+/// use std::time::Duration;
+///
+/// # async fn example() -> Result<()> {
+/// let client = NvisyConfig::builder()
+///     .with_api_key("your-api-key")
+///     .with_base_url("https://api.nvisy.com")
+///     .with_timeout(Duration::from_secs(30))
+///     .build_client()?;
+/// # Ok(())
+/// # }
+/// ```
+///
+/// ## Multi-threaded usage
+///
+/// The client is cheap to clone (uses `Arc` internally):
+///
+/// ```no_run
+/// use nvisy_sdk::{NvisyClient, Result};
+/// use tokio::task;
+///
+/// # async fn example() -> Result<()> {
+/// let client = NvisyClient::with_api_key("your-api-key")?;
+///
+/// let handles: Vec<_> = (0..3).map(|_| {
+///     let client = client.clone();
+///     task::spawn(async move {
+///         // Use client here
+///         Ok::<(), nvisy_sdk::Error>(())
+///     })
+/// }).collect();
+///
+/// for handle in handles {
+///     handle.await.unwrap()?;
+/// }
+/// # Ok(())
+/// # }
+/// ```
+#[derive(Clone)]
 pub struct NvisyClient {
-    config: Arc<NvisyConfig>,
-    http: Client,
+    pub(crate) inner: Arc<NvisyClientInner>,
+}
+
+/// Inner client state that is shared via Arc for cheap cloning.
+pub(crate) struct NvisyClientInner {
+    pub(crate) config: NvisyConfig,
+    pub(crate) http: Client,
 }
 
 impl NvisyClient {
-    /// Create a new client with the given configuration.
+    /// Creates a new Nvisy API client with the given configuration.
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(config), fields(api_key = %config.masked_api_key())))]
     pub fn new(config: NvisyConfig) -> Result<Self> {
-        let http = config.client().unwrap_or_else(|| {
-            Client::builder()
-                .timeout(config.timeout())
-                .build()
-                .expect("Failed to build HTTP client")
-        });
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_CLIENT, "Creating Nvisy client");
 
-        Ok(Self {
-            config: Arc::new(config),
-            http,
-        })
+        let http = if let Some(custom_client) = config.client() {
+            custom_client
+        } else {
+            Client::builder().timeout(config.timeout()).build()?
+        };
+
+        #[cfg(feature = "tracing")]
+        tracing::info!(
+            target: TRACING_TARGET_CLIENT,
+            base_url = %config.base_url(),
+            timeout = ?config.timeout(),
+            api_key = %config.masked_api_key(),
+            custom_client = config.client().is_some(),
+            "Nvisy client created successfully"
+        );
+
+        let inner = Arc::new(NvisyClientInner { config, http });
+        Ok(Self { inner })
     }
 
-    /// Create a new client with just an API key using default settings.
+    /// Creates a new client with just an API key using default settings.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use nvisy_sdk::{NvisyClient, Result};
+    /// # fn example() -> Result<()> {
+    /// let client = NvisyClient::with_api_key("your-api-key")?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn with_api_key(api_key: impl Into<String>) -> Result<Self> {
         let config = NvisyConfig::builder().with_api_key(api_key).build()?;
         Self::new(config)
     }
 
-    /// Get a reference to the client configuration.
+    /// Creates a new configuration builder for constructing a Nvisy client.
+    ///
+    /// This is a convenience method that returns a `NvisyConfigBuilder` for building
+    /// a custom client configuration.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use nvisy_sdk::{NvisyClient, Result};
+    /// # use std::time::Duration;
+    /// # fn example() -> Result<()> {
+    /// let client = NvisyClient::builder()
+    ///     .with_api_key("your-api-key")
+    ///     .with_timeout(Duration::from_secs(60))
+    ///     .build_client()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn builder() -> super::config::NvisyConfigBuilder {
+        NvisyConfig::builder()
+    }
+
+    /// Returns a reference to the client configuration.
     pub fn config(&self) -> &NvisyConfig {
-        &self.config
+        &self.inner.config
     }
 
-    /// Build a GET request.
-    fn get(&self, path: &str) -> RequestBuilder {
-        self.request(reqwest::Method::GET, path)
-    }
+    /// Builds a request with authentication headers.
+    pub(crate) fn request(&self, method: Method, path: &str) -> RequestBuilder {
+        #[cfg(feature = "tracing")]
+        tracing::trace!(
+            target: TRACING_TARGET_CLIENT,
+            path = %path,
+            method = %method,
+            "Creating HTTP request"
+        );
 
-    /// Build a POST request.
-    fn post(&self, path: &str) -> RequestBuilder {
-        self.request(reqwest::Method::POST, path)
-    }
-
-    /// Build a PUT request.
-    fn put(&self, path: &str) -> RequestBuilder {
-        self.request(reqwest::Method::PUT, path)
-    }
-
-    /// Build a DELETE request.
-    fn delete_req(&self, path: &str) -> RequestBuilder {
-        self.request(reqwest::Method::DELETE, path)
-    }
-
-    /// Build a request with authentication headers.
-    fn request(&self, method: reqwest::Method, path: &str) -> RequestBuilder {
-        let url = format!("{}{}", self.config.base_url(), path);
-        self.http
+        let url = format!("{}{}", self.inner.config.base_url(), path);
+        self.inner
+            .http
             .request(method, &url)
-            .header("Authorization", format!("Bearer {}", self.config.api_key()))
+            .header(
+                "Authorization",
+                format!("Bearer {}", self.inner.config.api_key()),
+            )
             .header("Content-Type", "application/json")
             .header("Accept", "application/json")
     }
 
-    /// Send a request and parse the response.
-    async fn send<T: DeserializeOwned>(&self, request: RequestBuilder) -> Result<T> {
+    /// Builds a GET request.
+    pub(crate) fn get(&self, path: &str) -> RequestBuilder {
+        self.request(Method::GET, path)
+    }
+
+    /// Builds a POST request.
+    pub(crate) fn post(&self, path: &str) -> RequestBuilder {
+        self.request(Method::POST, path)
+    }
+
+    /// Builds a PUT request.
+    pub(crate) fn put(&self, path: &str) -> RequestBuilder {
+        self.request(Method::PUT, path)
+    }
+
+    /// Builds a DELETE request.
+    pub(crate) fn delete_req(&self, path: &str) -> RequestBuilder {
+        self.request(Method::DELETE, path)
+    }
+
+    /// Sends a request and parses the JSON response.
+    pub(crate) async fn send<T: DeserializeOwned>(&self, request: RequestBuilder) -> Result<T> {
         let response = request.send().await?;
         self.handle_response(response).await
     }
 
-    /// Send a request and parse as a paginated response.
-    async fn send_paginated<T: DeserializeOwned>(
-        &self,
-        mut request: RequestBuilder,
-        pagination: Option<Pagination>,
-    ) -> Result<PaginatedResponse<T>> {
-        if let Some(ref p) = pagination {
-            request = request.query(p);
-        }
-        self.send(request).await
-    }
-
-    /// Handle API response.
+    /// Handles API response, checking for errors and parsing JSON.
     async fn handle_response<T: DeserializeOwned>(&self, response: Response) -> Result<T> {
         let body = response.error_for_status()?.json().await?;
         Ok(body)
     }
 
-    /// Send a request with a JSON body.
-    async fn send_json<T, B>(&self, request: RequestBuilder, body: &B) -> Result<T>
+    /// Sends a request with a JSON body.
+    pub(crate) async fn send_json<T, B>(&self, request: RequestBuilder, body: &B) -> Result<T>
     where
         T: DeserializeOwned,
         B: serde::Serialize,
@@ -112,138 +224,32 @@ impl NvisyClient {
         self.send(request.json(body)).await
     }
 
-    /// Send a DELETE request (no response body expected).
-    async fn send_delete(&self, request: RequestBuilder) -> Result<()> {
+    /// Sends a DELETE request (no response body expected).
+    pub(crate) async fn send_delete(&self, request: RequestBuilder) -> Result<()> {
         request.send().await?.error_for_status()?;
         Ok(())
     }
 
-    /// Send request expecting raw bytes response.
-    async fn send_bytes(&self, request: RequestBuilder) -> Result<Vec<u8>> {
+    /// Sends a request expecting raw bytes response.
+    pub(crate) async fn send_bytes(&self, request: RequestBuilder) -> Result<Vec<u8>> {
         let response = request.send().await?.error_for_status()?;
         Ok(response.bytes().await?.to_vec())
     }
 
-    /// Send request expecting a string response.
-    async fn send_text(&self, request: RequestBuilder) -> Result<String> {
+    /// Sends a request expecting a text response.
+    pub(crate) async fn send_text(&self, request: RequestBuilder) -> Result<String> {
         let response = request.send().await?.error_for_status()?;
         Ok(response.text().await?)
     }
 }
 
-// Workspace service implementation
-#[async_trait]
-impl WorkspaceService for NvisyClient {
-    async fn get(&self, id: &Id) -> Result<Workspace> {
-        self.send(self.get(&format!("/workspaces/{}", id))).await
-    }
-
-    async fn list(&self, pagination: Option<Pagination>) -> Result<PaginatedResponse<Workspace>> {
-        self.send_paginated(self.get("/workspaces"), pagination)
-            .await
-    }
-
-    async fn create(&self, request: CreateWorkspaceRequest) -> Result<Workspace> {
-        self.send_json(self.post("/workspaces"), &request).await
-    }
-
-    async fn update(&self, id: &Id, request: UpdateWorkspaceRequest) -> Result<Workspace> {
-        self.send_json(self.put(&format!("/workspaces/{}", id)), &request)
-            .await
-    }
-
-    async fn delete(&self, id: &Id) -> Result<()> {
-        self.send_delete(self.delete_req(&format!("/workspaces/{}", id)))
-            .await
-    }
-}
-
-// Document service implementation
-#[async_trait]
-impl DocumentService for NvisyClient {
-    async fn get(&self, id: &Id) -> Result<Document> {
-        self.send(self.get(&format!("/documents/{}", id))).await
-    }
-
-    async fn list(&self, pagination: Option<Pagination>) -> Result<PaginatedResponse<Document>> {
-        self.send_paginated(self.get("/documents"), pagination)
-            .await
-    }
-
-    async fn list_in_workspace(
-        &self,
-        workspace_id: &Id,
-        pagination: Option<Pagination>,
-    ) -> Result<PaginatedResponse<Document>> {
-        self.send_paginated(
-            self.get(&format!("/workspaces/{}/documents", workspace_id)),
-            pagination,
-        )
-        .await
-    }
-
-    async fn create(&self, request: CreateDocumentRequest) -> Result<Document> {
-        self.send_json(self.post("/documents"), &request).await
-    }
-
-    async fn update(&self, id: &Id, request: UpdateDocumentRequest) -> Result<Document> {
-        self.send_json(self.put(&format!("/documents/{}", id)), &request)
-            .await
-    }
-
-    async fn delete(&self, id: &Id) -> Result<()> {
-        self.send_delete(self.delete_req(&format!("/documents/{}", id)))
-            .await
-    }
-
-    async fn upload(&self, id: &Id, path: &Path) -> Result<Document> {
-        let content = tokio::fs::read(path).await?;
-        self.upload_bytes(id, content).await
-    }
-
-    async fn upload_bytes(&self, id: &Id, content: Vec<u8>) -> Result<Document> {
-        let request = self
-            .http
-            .put(format!(
-                "{}/documents/{}/content",
-                self.config.base_url(),
-                id
-            ))
-            .header("Authorization", format!("Bearer {}", self.config.api_key()))
-            .header("Content-Type", "application/octet-stream")
-            .body(content);
-
-        self.send(request).await
-    }
-
-    async fn download(&self, id: &Id, path: &Path) -> Result<()> {
-        let bytes = self.download_bytes(id).await?;
-        tokio::fs::write(path, bytes).await?;
-        Ok(())
-    }
-
-    async fn download_bytes(&self, id: &Id) -> Result<Vec<u8>> {
-        self.send_bytes(self.get(&format!("/documents/{}/content", id)))
-            .await
-    }
-
-    async fn download_url(&self, id: &Id) -> Result<String> {
-        self.send_text(self.get(&format!("/documents/{}/url", id)))
-            .await
-    }
-
-    async fn list_versions(
-        &self,
-        id: &Id,
-        pagination: Option<Pagination>,
-    ) -> Result<PaginatedResponse<DocumentVersion>> {
-        self.send_paginated(self.get(&format!("/documents/{}/versions", id)), pagination)
-            .await
-    }
-
-    async fn restore_version(&self, id: &Id, version: u32) -> Result<Document> {
-        self.send(self.post(&format!("/documents/{}/versions/{}/restore", id, version)))
-            .await
+impl fmt::Debug for NvisyClient {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("NvisyClient")
+            .field("api_key", &self.inner.config.masked_api_key())
+            .field("base_url", &self.inner.config.base_url())
+            .field("timeout", &self.inner.config.timeout())
+            .finish()
     }
 }
 
@@ -261,5 +267,38 @@ mod tests {
     fn test_client_config_access() {
         let client = NvisyClient::with_api_key("test-key").unwrap();
         assert_eq!(client.config().api_key(), "test-key");
+    }
+
+    #[test]
+    fn test_client_clone() -> Result<()> {
+        let client = NvisyClient::with_api_key("test-key")?;
+        let cloned = client.clone();
+
+        assert_eq!(client.config().api_key(), cloned.config().api_key());
+        assert_eq!(client.config().base_url(), cloned.config().base_url());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_builder_convenience_method() -> Result<()> {
+        let client = NvisyClient::builder()
+            .with_api_key("test_key")
+            .build_client()?;
+
+        assert_eq!(client.config().api_key(), "test_key");
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_debug_impl_masks_api_key() -> Result<()> {
+        let client = NvisyClient::with_api_key("secret_api_key_12345")?;
+        let debug_output = format!("{:?}", client);
+
+        assert!(debug_output.contains("secr****"));
+        assert!(!debug_output.contains("secret_api_key_12345"));
+
+        Ok(())
     }
 }

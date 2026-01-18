@@ -2,9 +2,6 @@
 
 use thiserror::Error;
 
-/// Result type alias for Nvisy client operations.
-pub type Result<T> = std::result::Result<T, Error>;
-
 /// Errors that can occur when using the Nvisy client.
 #[derive(Debug, Error)]
 pub enum Error {
@@ -18,9 +15,15 @@ pub enum Error {
 
     /// Configuration builder error.
     #[error("Configuration error: {0}")]
-    Builder(#[from] crate::client::config::NvisyConfigBuilderError),
+    Builder(#[from] crate::client::NvisyConfigBuilderError),
 
     /// IO error.
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
 }
+
+/// Result type for Nvisy API operations.
+///
+/// This is a convenience type alias for `std::result::Result<T, Error>` that is used
+/// throughout the Nvisy SDK. All SDK methods that can fail return this Result type.
+pub type Result<T, E = Error> = std::result::Result<T, E>;
