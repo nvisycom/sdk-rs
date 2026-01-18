@@ -21,28 +21,6 @@ pub trait WorkspacesService {
     /// # Arguments
     ///
     /// * `options` - Optional listing options (pagination)
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::WorkspacesService;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    ///
-    /// // List all workspaces
-    /// let page = client.list_workspaces(None).await?;
-    /// for ws in page.items {
-    ///     println!("Workspace: {} ({})", ws.display_name, ws.workspace_id);
-    /// }
-    ///
-    /// // With pagination
-    /// let options = nvisy_sdk::service::ListWorkspacesOptions::new().limit(10);
-    /// let page = client.list_workspaces(Some(options)).await?;
-    /// # Ok(())
-    /// # }
-    /// ```
     fn list_workspaces(
         &self,
         options: Option<ListWorkspacesOptions>,
@@ -53,20 +31,6 @@ pub trait WorkspacesService {
     /// # Arguments
     ///
     /// * `workspace_id` - The workspace identifier
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::WorkspacesService;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    /// let workspace = client.get_workspace("workspace-id").await?;
-    /// println!("Workspace: {}", workspace.display_name);
-    /// # Ok(())
-    /// # }
-    /// ```
     fn get_workspace(&self, workspace_id: Uuid) -> impl Future<Output = Result<Workspace>>;
 
     /// Creates a new workspace.
@@ -76,26 +40,6 @@ pub trait WorkspacesService {
     /// # Arguments
     ///
     /// * `request` - The workspace creation request
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::WorkspacesService;
-    /// use nvisy_sdk::model::CreateWorkspace;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    ///
-    /// let request = CreateWorkspace::new("My Workspace")
-    ///     .with_description("A workspace for my documents")
-    ///     .with_tags(vec!["project-a".into(), "documents".into()]);
-    ///
-    /// let workspace = client.create_workspace(request).await?;
-    /// println!("Created: {}", workspace.workspace_id);
-    /// # Ok(())
-    /// # }
-    /// ```
     fn create_workspace(&self, request: CreateWorkspace)
     -> impl Future<Output = Result<Workspace>>;
 
@@ -107,24 +51,6 @@ pub trait WorkspacesService {
     ///
     /// * `workspace_id` - The workspace identifier
     /// * `update` - The update request
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::WorkspacesService;
-    /// use nvisy_sdk::model::UpdateWorkspace;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    /// let update = UpdateWorkspace {
-    ///     display_name: Some("New Name".into()),
-    ///     ..Default::default()
-    /// };
-    /// let workspace = client.update_workspace("workspace-id", update).await?;
-    /// # Ok(())
-    /// # }
-    /// ```
     fn update_workspace(
         &self,
         workspace_id: Uuid,
@@ -138,19 +64,6 @@ pub trait WorkspacesService {
     /// # Arguments
     ///
     /// * `workspace_id` - The workspace identifier
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::WorkspacesService;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    /// client.delete_workspace("workspace-id").await?;
-    /// # Ok(())
-    /// # }
-    /// ```
     fn delete_workspace(&self, workspace_id: Uuid) -> impl Future<Output = Result<()>>;
 
     /// Gets notification settings for a workspace.
@@ -160,20 +73,6 @@ pub trait WorkspacesService {
     /// # Arguments
     ///
     /// * `workspace_id` - The workspace identifier
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::WorkspacesService;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    /// let settings = client.get_workspace_notifications("workspace-id").await?;
-    /// println!("Email enabled: {}", settings.email_enabled);
-    /// # Ok(())
-    /// # }
-    /// ```
     fn get_workspace_notifications(
         &self,
         workspace_id: Uuid,
@@ -185,24 +84,6 @@ pub trait WorkspacesService {
     ///
     /// * `workspace_id` - The workspace identifier
     /// * `update` - The update request
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::WorkspacesService;
-    /// use nvisy_sdk::model::UpdateNotificationSettings;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    /// let update = UpdateNotificationSettings {
-    ///     email_enabled: Some(false),
-    ///     ..Default::default()
-    /// };
-    /// let settings = client.update_workspace_notifications("workspace-id", update).await?;
-    /// # Ok(())
-    /// # }
-    /// ```
     fn update_workspace_notifications(
         &self,
         workspace_id: Uuid,

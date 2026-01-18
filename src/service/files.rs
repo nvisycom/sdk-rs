@@ -22,32 +22,6 @@ pub trait FilesService {
     ///
     /// * `workspace_id` - The workspace identifier
     /// * `options` - Optional listing options (filters, pagination)
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::FilesService;
-    /// use nvisy_sdk::model::FileFormat;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    ///
-    /// // Simple listing
-    /// let page = client.list_files("workspace-id", None).await?;
-    ///
-    /// // With options
-    /// let options = nvisy_sdk::service::ListFilesOptions::new()
-    ///     .formats(vec![FileFormat::Pdf, FileFormat::Docx])
-    ///     .limit(50);
-    /// let page = client.list_files("workspace-id", Some(options)).await?;
-    ///
-    /// for file in page.items {
-    ///     println!("File: {} ({})", file.display_name, file.file_id);
-    /// }
-    /// # Ok(())
-    /// # }
-    /// ```
     fn list_files(
         &self,
         workspace_id: Uuid,
@@ -59,20 +33,6 @@ pub trait FilesService {
     /// # Arguments
     ///
     /// * `file_id` - The file identifier
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::FilesService;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    /// let file = client.get_file("file-id").await?;
-    /// println!("File: {} ({} bytes)", file.display_name, file.file_size);
-    /// # Ok(())
-    /// # }
-    /// ```
     fn get_file(&self, file_id: Uuid) -> impl Future<Output = Result<File>>;
 
     /// Updates a file's metadata.
@@ -81,24 +41,6 @@ pub trait FilesService {
     ///
     /// * `file_id` - The file identifier
     /// * `update` - The update request
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::FilesService;
-    /// use nvisy_sdk::model::UpdateFile;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    /// let update = UpdateFile {
-    ///     display_name: Some("New Name".into()),
-    ///     ..Default::default()
-    /// };
-    /// let file = client.update_file("file-id", update).await?;
-    /// # Ok(())
-    /// # }
-    /// ```
     fn update_file(&self, file_id: Uuid, update: UpdateFile) -> impl Future<Output = Result<File>>;
 
     /// Deletes a file.
@@ -108,19 +50,6 @@ pub trait FilesService {
     /// # Arguments
     ///
     /// * `file_id` - The file identifier
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::FilesService;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    /// client.delete_file("file-id").await?;
-    /// # Ok(())
-    /// # }
-    /// ```
     fn delete_file(&self, file_id: Uuid) -> impl Future<Output = Result<()>>;
 
     /// Downloads a file's content.
@@ -130,21 +59,6 @@ pub trait FilesService {
     /// # Arguments
     ///
     /// * `file_id` - The file identifier
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::FilesService;
-    /// use std::fs;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    /// let content = client.download_file("file-id").await?;
-    /// fs::write("downloaded-file.pdf", content)?;
-    /// # Ok(())
-    /// # }
-    /// ```
     fn download_file(&self, file_id: Uuid) -> impl Future<Output = Result<Vec<u8>>>;
 
     /// Uploads a file to a workspace.
@@ -154,22 +68,6 @@ pub trait FilesService {
     /// * `workspace_id` - The workspace identifier
     /// * `file_name` - The file name
     /// * `file_data` - The file content as bytes
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::FilesService;
-    /// use std::fs;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    /// let content = fs::read("document.pdf")?;
-    /// let file = client.upload_file("workspace-id", "document.pdf", content).await?;
-    /// println!("Uploaded: {}", file.file_id);
-    /// # Ok(())
-    /// # }
-    /// ```
     fn upload_file(
         &self,
         workspace_id: Uuid,
@@ -183,20 +81,6 @@ pub trait FilesService {
     ///
     /// * `workspace_id` - The workspace identifier
     /// * `file_ids` - List of file IDs to delete
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::FilesService;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    /// let file_ids = vec!["file-1".into(), "file-2".into()];
-    /// client.delete_files_batch("workspace-id", file_ids).await?;
-    /// # Ok(())
-    /// # }
-    /// ```
     fn delete_files_batch(
         &self,
         workspace_id: Uuid,
@@ -210,28 +94,6 @@ pub trait FilesService {
     /// * `workspace_id` - The workspace identifier
     /// * `file_ids` - List of file IDs to download (empty for all files)
     /// * `format` - Archive format (ZIP or TAR.GZ)
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::FilesService;
-    /// use nvisy_sdk::model::ArchiveFormat;
-    /// use std::fs;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    ///
-    /// // Download all files as ZIP
-    /// let archive = client.download_files_batch("workspace-id", vec![], ArchiveFormat::Zip).await?;
-    /// fs::write("files.zip", archive)?;
-    ///
-    /// // Download specific files as TAR.GZ
-    /// let file_ids = vec!["file-1".into(), "file-2".into()];
-    /// let archive = client.download_files_batch("workspace-id", file_ids, ArchiveFormat::TarGz).await?;
-    /// # Ok(())
-    /// # }
-    /// ```
     fn download_files_batch(
         &self,
         workspace_id: Uuid,

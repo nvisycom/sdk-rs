@@ -21,22 +21,6 @@ pub trait WebhooksService {
     ///
     /// * `workspace_id` - The workspace identifier
     /// * `options` - Optional listing options (pagination)
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::WebhooksService;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    /// let page = client.list_webhooks(workspace_id, None).await?;
-    /// for webhook in page.items {
-    ///     println!("Webhook: {} -> {}", webhook.display_name, webhook.url);
-    /// }
-    /// # Ok(())
-    /// # }
-    /// ```
     fn list_webhooks(
         &self,
         workspace_id: Uuid,
@@ -56,26 +40,6 @@ pub trait WebhooksService {
     ///
     /// * `workspace_id` - The workspace identifier
     /// * `request` - The webhook creation request
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::WebhooksService;
-    /// use nvisy_sdk::model::{CreateWebhook, WebhookEvent};
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    /// let request = CreateWebhook::new(
-    ///     "My Webhook",
-    ///     "Notifies on document changes",
-    ///     "https://example.com/webhook",
-    ///     vec![WebhookEvent::DocumentCreated, WebhookEvent::DocumentUpdated],
-    /// );
-    /// let webhook = client.create_webhook(workspace_id, request).await?;
-    /// # Ok(())
-    /// # }
-    /// ```
     fn create_webhook(
         &self,
         workspace_id: Uuid,
@@ -107,21 +71,6 @@ pub trait WebhooksService {
     ///
     /// * `webhook_id` - The webhook identifier
     /// * `request` - Optional test request with custom payload
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::WebhooksService;
-    /// use nvisy_sdk::model::TestWebhook;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    /// let result = client.test_webhook(webhook_id, None).await?;
-    /// println!("Test result: {} ({}ms)", result.status_code, result.response_time_ms);
-    /// # Ok(())
-    /// # }
-    /// ```
     fn test_webhook(
         &self,
         webhook_id: Uuid,

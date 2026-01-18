@@ -19,22 +19,6 @@ pub trait IntegrationsService {
     ///
     /// * `workspace_id` - The workspace identifier
     /// * `options` - Optional listing options (pagination)
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::IntegrationsService;
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    /// let page = client.list_integrations(workspace_id, None).await?;
-    /// for integration in page.items {
-    ///     println!("Integration: {} ({:?})", integration.integration_name, integration.integration_type);
-    /// }
-    /// # Ok(())
-    /// # }
-    /// ```
     fn list_integrations(
         &self,
         workspace_id: Uuid,
@@ -54,25 +38,6 @@ pub trait IntegrationsService {
     ///
     /// * `workspace_id` - The workspace identifier
     /// * `request` - The integration creation request
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
-    /// use nvisy_sdk::service::IntegrationsService;
-    /// use nvisy_sdk::model::{CreateIntegration, IntegrationType};
-    ///
-    /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
-    /// let request = CreateIntegration::new(
-    ///     "My S3 Integration",
-    ///     "Sync documents from S3 bucket",
-    ///     IntegrationType::Storage,
-    /// );
-    /// let integration = client.create_integration(workspace_id, request).await?;
-    /// # Ok(())
-    /// # }
-    /// ```
     fn create_integration(
         &self,
         workspace_id: Uuid,
