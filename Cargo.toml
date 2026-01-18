@@ -1,0 +1,71 @@
+# https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[package]
+name = "nvisy-sdk"
+description = "Nvisy REST/HTTP API client library"
+version = "0.1.0"
+rust-version = "1.89"
+edition = "2024"
+license = "MIT"
+publish = true
+readme = "./README.md"
+
+authors = ["Nvisy <support@nvisy.com>"]
+repository = "https://github.com/nvisycom/sdk-rs"
+homepage = "https://nvisy.com"
+documentation = "https://docs.nvisy.com"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+## Default features enabled by default
+default = ["rustls-tls"]
+
+# TLS backends (mutually exclusive - pick one)
+## Enable rustls-tls for HTTPS requests (default)
+rustls-tls = ["reqwest/rustls-tls"]
+## Enable native-tls for HTTPS requests
+native-tls = ["reqwest/native-tls"]
+
+# Observability
+## Enable tracing support for HTTP requests and client operations
+tracing = ["dep:tracing"]
+
+[dependencies]
+# HTTP client
+reqwest = { version = "0.12", default-features = false, features = ["json", "multipart"] }
+
+# URL parsing
+url = { version = "2.5", features = [] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0", features = [] }
+
+# Date/time
+jiff = { version = "0.2", features = ["serde"] }
+
+# UUID
+uuid = { version = "1.8", features = ["serde", "v4"] }
+
+# Error handling
+thiserror = { version = "2.0", features = [] }
+
+# Code generation
+derive_builder = { version = "0.20", features = [] }
+
+# Observability (optional)
+tracing = { version = "0.1", features = [], optional = true }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros"] }
+
+[[example]]
+name = "basic"
+path = "examples/basic.rs"
+
+[[example]]
+name = "files"
+path = "examples/files.rs"
