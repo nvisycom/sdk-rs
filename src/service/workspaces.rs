@@ -20,7 +20,7 @@ pub trait WorkspacesService {
     ///
     /// # Arguments
     ///
-    /// * `options` - Optional listing options (pagination)
+    /// * `options`: Optional listing options (pagination)
     fn list_workspaces(
         &self,
         options: Option<ListWorkspacesOptions>,
@@ -30,7 +30,7 @@ pub trait WorkspacesService {
     ///
     /// # Arguments
     ///
-    /// * `workspace_id` - The workspace identifier
+    /// * `workspace_id`: The workspace identifier
     fn get_workspace(&self, workspace_id: Uuid) -> impl Future<Output = Result<Workspace>>;
 
     /// Creates a new workspace.
@@ -39,7 +39,7 @@ pub trait WorkspacesService {
     ///
     /// # Arguments
     ///
-    /// * `request` - The workspace creation request
+    /// * `request`: The workspace creation request
     fn create_workspace(&self, request: CreateWorkspace)
     -> impl Future<Output = Result<Workspace>>;
 
@@ -49,8 +49,8 @@ pub trait WorkspacesService {
     ///
     /// # Arguments
     ///
-    /// * `workspace_id` - The workspace identifier
-    /// * `update` - The update request
+    /// * `workspace_id`: The workspace identifier
+    /// * `update`: The update request
     fn update_workspace(
         &self,
         workspace_id: Uuid,
@@ -63,7 +63,7 @@ pub trait WorkspacesService {
     ///
     /// # Arguments
     ///
-    /// * `workspace_id` - The workspace identifier
+    /// * `workspace_id`: The workspace identifier
     fn delete_workspace(&self, workspace_id: Uuid) -> impl Future<Output = Result<()>>;
 
     /// Gets notification settings for a workspace.
@@ -72,7 +72,7 @@ pub trait WorkspacesService {
     ///
     /// # Arguments
     ///
-    /// * `workspace_id` - The workspace identifier
+    /// * `workspace_id`: The workspace identifier
     fn get_workspace_notifications(
         &self,
         workspace_id: Uuid,
@@ -82,8 +82,8 @@ pub trait WorkspacesService {
     ///
     /// # Arguments
     ///
-    /// * `workspace_id` - The workspace identifier
-    /// * `update` - The update request
+    /// * `workspace_id`: The workspace identifier
+    /// * `update`: The update request
     fn update_workspace_notifications(
         &self,
         workspace_id: Uuid,

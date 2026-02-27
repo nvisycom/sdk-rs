@@ -20,8 +20,8 @@ pub trait FilesService {
     ///
     /// # Arguments
     ///
-    /// * `workspace_id` - The workspace identifier
-    /// * `options` - Optional listing options (filters, pagination)
+    /// * `workspace_id`: The workspace identifier
+    /// * `options`: Optional listing options (filters, pagination)
     fn list_files(
         &self,
         workspace_id: Uuid,
@@ -32,15 +32,15 @@ pub trait FilesService {
     ///
     /// # Arguments
     ///
-    /// * `file_id` - The file identifier
+    /// * `file_id`: The file identifier
     fn get_file(&self, file_id: Uuid) -> impl Future<Output = Result<File>>;
 
     /// Updates a file's metadata.
     ///
     /// # Arguments
     ///
-    /// * `file_id` - The file identifier
-    /// * `update` - The update request
+    /// * `file_id`: The file identifier
+    /// * `update`: The update request
     fn update_file(&self, file_id: Uuid, update: UpdateFile) -> impl Future<Output = Result<File>>;
 
     /// Deletes a file.
@@ -49,7 +49,7 @@ pub trait FilesService {
     ///
     /// # Arguments
     ///
-    /// * `file_id` - The file identifier
+    /// * `file_id`: The file identifier
     fn delete_file(&self, file_id: Uuid) -> impl Future<Output = Result<()>>;
 
     /// Downloads a file's content.
@@ -58,16 +58,16 @@ pub trait FilesService {
     ///
     /// # Arguments
     ///
-    /// * `file_id` - The file identifier
+    /// * `file_id`: The file identifier
     fn download_file(&self, file_id: Uuid) -> impl Future<Output = Result<Vec<u8>>>;
 
     /// Uploads a file to a workspace.
     ///
     /// # Arguments
     ///
-    /// * `workspace_id` - The workspace identifier
-    /// * `file_name` - The file name
-    /// * `file_data` - The file content as bytes
+    /// * `workspace_id`: The workspace identifier
+    /// * `file_name`: The file name
+    /// * `file_data`: The file content as bytes
     fn upload_file(
         &self,
         workspace_id: Uuid,
@@ -79,8 +79,8 @@ pub trait FilesService {
     ///
     /// # Arguments
     ///
-    /// * `workspace_id` - The workspace identifier
-    /// * `file_ids` - List of file IDs to delete
+    /// * `workspace_id`: The workspace identifier
+    /// * `file_ids`: List of file IDs to delete
     fn delete_files_batch(
         &self,
         workspace_id: Uuid,
@@ -91,9 +91,9 @@ pub trait FilesService {
     ///
     /// # Arguments
     ///
-    /// * `workspace_id` - The workspace identifier
-    /// * `file_ids` - List of file IDs to download (empty for all files)
-    /// * `format` - Archive format (ZIP or TAR.GZ)
+    /// * `workspace_id`: The workspace identifier
+    /// * `file_ids`: List of file IDs to download (empty for all files)
+    /// * `format`: Archive format (ZIP or TAR.GZ)
     fn download_files_batch(
         &self,
         workspace_id: Uuid,

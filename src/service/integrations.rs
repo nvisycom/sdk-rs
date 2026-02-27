@@ -17,8 +17,8 @@ pub trait IntegrationsService {
     ///
     /// # Arguments
     ///
-    /// * `workspace_id` - The workspace identifier
-    /// * `options` - Optional listing options (pagination)
+    /// * `workspace_id`: The workspace identifier
+    /// * `options`: Optional listing options (pagination)
     fn list_integrations(
         &self,
         workspace_id: Uuid,
@@ -29,15 +29,15 @@ pub trait IntegrationsService {
     ///
     /// # Arguments
     ///
-    /// * `integration_id` - The integration identifier
+    /// * `integration_id`: The integration identifier
     fn get_integration(&self, integration_id: Uuid) -> impl Future<Output = Result<Integration>>;
 
     /// Creates a new integration in a workspace.
     ///
     /// # Arguments
     ///
-    /// * `workspace_id` - The workspace identifier
-    /// * `request` - The integration creation request
+    /// * `workspace_id`: The workspace identifier
+    /// * `request`: The integration creation request
     fn create_integration(
         &self,
         workspace_id: Uuid,
@@ -48,8 +48,8 @@ pub trait IntegrationsService {
     ///
     /// # Arguments
     ///
-    /// * `integration_id` - The integration identifier
-    /// * `update` - The update request
+    /// * `integration_id`: The integration identifier
+    /// * `update`: The update request
     fn update_integration(
         &self,
         integration_id: Uuid,
@@ -60,14 +60,14 @@ pub trait IntegrationsService {
     ///
     /// # Arguments
     ///
-    /// * `integration_id` - The integration identifier
+    /// * `integration_id`: The integration identifier
     fn delete_integration(&self, integration_id: Uuid) -> impl Future<Output = Result<()>>;
 
     /// Triggers a sync for an integration.
     ///
     /// # Arguments
     ///
-    /// * `integration_id` - The integration identifier
+    /// * `integration_id`: The integration identifier
     fn sync_integration(&self, integration_id: Uuid) -> impl Future<Output = Result<Integration>>;
 }
 
