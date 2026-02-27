@@ -5,11 +5,11 @@
 //!
 //! Import the service traits you need and call methods directly on the client:
 //!
-//! - [`FilesService`] - File upload, download, and management
-//! - [`WorkspacesService`] - Workspace CRUD and notifications
-//! - [`IntegrationsService`] - Third-party integrations
-//! - [`WebhooksService`] - Webhook management
-//! - [`HealthService`] - System health checks
+//! - [`FilesService`]: File upload, download, and management
+//! - [`WorkspacesService`]: Workspace CRUD and notifications
+//! - [`IntegrationsService`]: Third-party integrations
+//! - [`WebhooksService`]: Webhook management
+//! - [`HealthService`]: System health checks
 
 mod files;
 mod health;

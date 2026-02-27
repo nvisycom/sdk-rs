@@ -34,26 +34,20 @@ native-tls = ["reqwest/native-tls"]
 tracing = ["dep:tracing"]
 
 [dependencies]
-# HTTP client
+# HTTP client & URL parsing
 reqwest = { version = "0.12", default-features = false, features = ["json", "multipart"] }
-
-# URL parsing
 url = { version = "2.5", features = [] }
 
-# Serialization
+# (De)serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = [] }
 
-# Date/time
+# Date/time, UUID and other primitive types
 jiff = { version = "0.2", features = ["serde"] }
-
-# UUID
 uuid = { version = "1.21", features = ["serde", "v4"] }
 
-# Error handling
+# Derive macros and error handling
 thiserror = { version = "2.0", features = [] }
-
-# Code generation
 derive_builder = { version = "0.20", features = [] }
 
 # Observability (optional)

@@ -19,8 +19,8 @@ pub trait WebhooksService {
     ///
     /// # Arguments
     ///
-    /// * `workspace_id` - The workspace identifier
-    /// * `options` - Optional listing options (pagination)
+    /// * `workspace_id`: The workspace identifier
+    /// * `options`: Optional listing options (pagination)
     fn list_webhooks(
         &self,
         workspace_id: Uuid,
@@ -31,15 +31,15 @@ pub trait WebhooksService {
     ///
     /// # Arguments
     ///
-    /// * `webhook_id` - The webhook identifier
+    /// * `webhook_id`: The webhook identifier
     fn get_webhook(&self, webhook_id: Uuid) -> impl Future<Output = Result<Webhook>>;
 
     /// Creates a new webhook in a workspace.
     ///
     /// # Arguments
     ///
-    /// * `workspace_id` - The workspace identifier
-    /// * `request` - The webhook creation request
+    /// * `workspace_id`: The workspace identifier
+    /// * `request`: The webhook creation request
     fn create_webhook(
         &self,
         workspace_id: Uuid,
@@ -50,8 +50,8 @@ pub trait WebhooksService {
     ///
     /// # Arguments
     ///
-    /// * `webhook_id` - The webhook identifier
-    /// * `update` - The update request
+    /// * `webhook_id`: The webhook identifier
+    /// * `update`: The update request
     fn update_webhook(
         &self,
         webhook_id: Uuid,
@@ -62,15 +62,15 @@ pub trait WebhooksService {
     ///
     /// # Arguments
     ///
-    /// * `webhook_id` - The webhook identifier
+    /// * `webhook_id`: The webhook identifier
     fn delete_webhook(&self, webhook_id: Uuid) -> impl Future<Output = Result<()>>;
 
     /// Tests a webhook by sending a test payload.
     ///
     /// # Arguments
     ///
-    /// * `webhook_id` - The webhook identifier
-    /// * `request` - Optional test request with custom payload
+    /// * `webhook_id`: The webhook identifier
+    /// * `request`: Optional test request with custom payload
     fn test_webhook(
         &self,
         webhook_id: Uuid,
