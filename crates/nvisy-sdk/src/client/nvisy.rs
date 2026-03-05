@@ -1,7 +1,7 @@
-//! Nvisy API client implementation.
+//! Nvisy Server API client implementation.
 //!
-//! This module contains the main [`Nvisy`] struct and its implementation,
-//! providing the core HTTP client functionality for interacting with the Nvisy API.
+//! This module contains the main [`Nvisy`] client and its implementation,
+//! providing the core HTTP client for interacting with the Nvisy Server API.
 //!
 //! [`Nvisy`]: crate::Nvisy
 
@@ -20,18 +20,19 @@ use super::config::{NvisyBuilder, NvisyOptions};
 use crate::TRACING_TARGET_CLIENT;
 use crate::error::Result;
 
-/// Main Nvisy API client for interacting with all Nvisy services.
+/// Main Nvisy Server API client.
 ///
-/// The [`Nvisy`] provides access to all Nvisy API endpoints through specialized
-/// service interfaces. It handles authentication, request/response serialization,
-/// and provides a consistent async interface for all operations.
+/// [`Nvisy`] provides access to all Nvisy Server API endpoints through
+/// specialized service traits. It handles authentication, request/response
+/// serialization, automatic retries with exponential backoff, and optional
+/// [`tracing`] instrumentation.
 ///
 /// # Features
 ///
-/// - **Thread-safe**: Safe to use across multiple threads
-/// - **Cheap to clone**: Uses `Arc` internally for efficient cloning
-/// - **Automatic authentication**: Handles API key authentication automatically
-/// - **Automatic retries**: Retries transient failures with exponential backoff
+/// - **Thread-safe**: safe to share across threads and tasks
+/// - **Cheap to clone**: uses [`Arc`] internally
+/// - **Automatic authentication**: injects API key on every request
+/// - **Automatic retries**: retries transient failures with exponential backoff
 ///
 /// # Examples
 ///
@@ -46,7 +47,7 @@ use crate::error::Result;
 /// # }
 /// ```
 ///
-/// ## Custom configuration with builder pattern
+/// ## Custom configuration
 ///
 /// ```no_run
 /// use nvisy_sdk::{Nvisy, Result};
@@ -56,38 +57,14 @@ use crate::error::Result;
 /// let client = Nvisy::builder()
 ///     .with_api_key("your-api-key")
 ///     .with_base_url("https://api.nvisy.com")
-///     .with_timeout(Duration::from_secs(30))
+///     .with_timeout(Duration::from_secs(60))
 ///     .build()?;
 /// # Ok(())
 /// # }
 /// ```
 ///
-/// ## Multi-threaded usage
-///
-/// The client is cheap to clone (uses `Arc` internally):
-///
-/// ```no_run
-/// use nvisy_sdk::{Nvisy, Result};
-/// use tokio::task;
-///
-/// # async fn example() -> Result<()> {
-/// let client = Nvisy::with_api_key("your-api-key")?;
-///
-/// let handles: Vec<_> = (0..3).map(|_| {
-///     let client = client.clone();
-///     task::spawn(async move {
-///         // Use client here
-///         Ok::<(), nvisy_sdk::Error>(())
-///     })
-/// }).collect();
-///
-/// for handle in handles {
-///     handle.await.unwrap()?;
-/// }
-/// # Ok(())
-/// # }
-/// ```
-///
+/// [`Arc`]: std::sync::Arc
+/// [`tracing`]: https://docs.rs/tracing
 /// [`Nvisy`]: crate::Nvisy
 #[derive(Clone)]
 pub struct Nvisy {
@@ -102,7 +79,9 @@ pub(crate) struct NvisyInner {
 }
 
 impl Nvisy {
-    /// Creates a new client with just an API key using default settings.
+    /// Creates a new client with an API key and default settings.
+    ///
+    /// Connects to [`DEFAULT_BASE_URL`] with a [`DEFAULT_TIMEOUT`] of 30 seconds.
     ///
     /// # Example
     ///
@@ -113,6 +92,9 @@ impl Nvisy {
     /// # Ok(())
     /// # }
     /// ```
+    ///
+    /// [`DEFAULT_BASE_URL`]: crate::DEFAULT_BASE_URL
+    /// [`DEFAULT_TIMEOUT`]: crate::DEFAULT_TIMEOUT
     pub fn with_api_key(api_key: impl Into<String>) -> Result<Self> {
         NvisyBuilder::default().with_api_key(api_key).build()
     }
@@ -163,9 +145,9 @@ impl Nvisy {
         tracing::info!(
             target: TRACING_TARGET_CLIENT,
             base_url = %options.base_url,
-            timeout = ?options.timeout,
+            timeout_secs = options.timeout.as_secs(),
             api_key = %Self::mask_key(&options.api_key),
-            "Nvisy client created successfully"
+            "Nvisy client created"
         );
 
         let inner = Arc::new(NvisyInner {
@@ -182,7 +164,7 @@ impl Nvisy {
         &self.inner.api_key
     }
 
-    /// Returns a masked version of the API key for safe display/logging.
+    /// Returns a masked version of the API key for safe display and logging.
     pub fn masked_api_key(&self) -> String {
         Self::mask_key(&self.inner.api_key)
     }
@@ -225,9 +207,9 @@ impl Nvisy {
         #[cfg(feature = "tracing")]
         tracing::trace!(
             target: TRACING_TARGET_CLIENT,
-            url = %url,
-            method = %method,
-            "Creating HTTP request"
+            %url,
+            %method,
+            "Building request"
         );
 
         self.inner
@@ -242,8 +224,20 @@ impl Nvisy {
 
     #[allow(dead_code)]
     pub(crate) async fn send(&self, method: Method, path: &str) -> Result<reqwest::Response> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "Sending request");
+
         let url = self.parse_url(path)?;
         let response = self.request(method, url).send().await?;
+
+        #[cfg(feature = "tracing")]
+        tracing::debug!(
+            target: TRACING_TARGET_CLIENT,
+            status = response.status().as_u16(),
+            path,
+            "Response received"
+        );
+
         Ok(response)
     }
 
@@ -254,8 +248,20 @@ impl Nvisy {
         path: &str,
         data: &T,
     ) -> Result<reqwest::Response> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "Sending JSON request");
+
         let url = self.parse_url(path)?;
         let response = self.request(method, url).json(data).send().await?;
+
+        #[cfg(feature = "tracing")]
+        tracing::debug!(
+            target: TRACING_TARGET_CLIENT,
+            status = response.status().as_u16(),
+            path,
+            "Response received"
+        );
+
         Ok(response)
     }
 
@@ -266,8 +272,20 @@ impl Nvisy {
         path: &str,
         params: &[(&str, &str)],
     ) -> Result<reqwest::Response> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "Sending request with params");
+
         let url = self.build_url(path, params)?;
         let response = self.request(method, url).send().await?;
+
+        #[cfg(feature = "tracing")]
+        tracing::debug!(
+            target: TRACING_TARGET_CLIENT,
+            status = response.status().as_u16(),
+            path,
+            "Response received"
+        );
+
         Ok(response)
     }
 
@@ -278,8 +296,20 @@ impl Nvisy {
         path: &str,
         form: Form,
     ) -> Result<reqwest::Response> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "Sending multipart request");
+
         let url = self.parse_url(path)?;
         let response = self.request(method, url).multipart(form).send().await?;
+
+        #[cfg(feature = "tracing")]
+        tracing::debug!(
+            target: TRACING_TARGET_CLIENT,
+            status = response.status().as_u16(),
+            path,
+            "Response received"
+        );
+
         Ok(response)
     }
 

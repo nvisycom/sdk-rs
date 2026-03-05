@@ -2,12 +2,17 @@
 
 [![Build](https://img.shields.io/github/actions/workflow/status/nvisycom/sdk-rs/build.yml?branch=main&label=build%20%26%20test&style=flat-square)](https://github.com/nvisycom/sdk-rs/actions/workflows/build.yml)
 
-Rust client libraries for the [Nvisy](https://nvisy.com/) platform.
+Rust client libraries for the [Nvisy](https://nvisy.com/) multimodal redaction platform.
+
+Nvisy detects and removes sensitive information across documents, images, and audio.
+It combines deterministic patterns, NER, computer vision, and LLM-driven classification
+into auditable, policy-driven pipelines built for regulated industries such as
+healthcare, legal, government, and financial services.
 
 ## Crates
 
-- [`nvisy-sdk`](crates/nvisy-sdk/): Client for the Nvisy managed API (auth, persistence, task redirection)
-- [`nvisy-rt-sdk`](crates/nvisy-rt-sdk/): Client for the Nvisy Runtime API (direct task handling)
+- [`nvisy-sdk`](crates/nvisy-sdk/): client for the Nvisy Server API (authentication, workspace management, persistence, and task routing)
+- [`nvisy-rt-sdk`](crates/nvisy-rt-sdk/): client for the Nvisy Runtime API (direct redaction task execution)
 
 ## Quick Start
 

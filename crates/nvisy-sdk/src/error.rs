@@ -1,11 +1,12 @@
-//! Error types for the Nvisy SDK.
+//! Error types for the Nvisy Server SDK.
 
 use crate::client::NvisyBuilderError;
 
-/// Error type for Nvisy API operations.
+/// Error type for Nvisy Server API operations.
 ///
-/// This enum represents all possible errors that can occur when using the Nvisy SDK,
-/// from HTTP transport errors to API-specific failures and configuration issues.
+/// This enum represents all possible errors that can occur when using the
+/// Nvisy SDK, from HTTP transport errors to API-specific failures and
+/// configuration issues.
 #[non_exhaustive]
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -59,6 +60,6 @@ pub enum Error {
 
 /// Result type for Nvisy API operations.
 ///
-/// This is a convenience type alias for `std::result::Result<T, Error>` that is used
-/// throughout the Nvisy SDK. All SDK methods that can fail return this Result type.
+/// Convenience alias for `std::result::Result<T, Error>` used throughout the
+/// Nvisy SDK.
 pub type Result<T, E = Error> = std::result::Result<T, E>;

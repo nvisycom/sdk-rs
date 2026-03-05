@@ -2,7 +2,7 @@
 
 [package]
 name = "nvisy-sdk"
-description = "Nvisy REST/HTTP API client library"
+description = "Rust client for the Nvisy Server API: authentication, workspace management, and task routing"
 readme = "README.md"
 
 version = { workspace = true }

@@ -16,7 +16,10 @@ pub mod service;
 #[doc(hidden)]
 pub mod prelude;
 
-/// Tracing target for client operations.
+/// Tracing target for HTTP client operations.
+///
+/// All client spans and events are emitted under this target when
+/// the `tracing` feature is enabled.
 #[cfg(feature = "tracing")]
 pub(crate) const TRACING_TARGET_CLIENT: &str = "nvisy_sdk::client";
 

@@ -1,4 +1,4 @@
-//! Data models for the Nvisy API.
+//! Data models for the Nvisy Server API.
 
 mod workspace;
 

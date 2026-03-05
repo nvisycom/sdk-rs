@@ -1,9 +1,4 @@
-//! Nvisy client builder.
-//!
-//! This module provides the builder pattern for creating
-//! and customizing [`Nvisy`] instances.
-//!
-//! [`Nvisy`]: crate::Nvisy
+//! Nvisy Server client builder.
 
 use std::time::Duration;
 

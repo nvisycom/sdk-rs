@@ -1,4 +1,4 @@
-//! HTTP client for the Nvisy API.
+//! HTTP client for the Nvisy Server API.
 
 mod config;
 mod nvisy;

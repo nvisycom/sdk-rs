@@ -17,9 +17,17 @@ use crate::error::Result;
 
 /// Main Nvisy Runtime API client.
 ///
-/// The [`NvisyRt`] provides access to all Nvisy Runtime API endpoints.
-/// It handles request/response serialization and provides a consistent
-/// async interface for all operations.
+/// [`NvisyRt`] provides access to all Nvisy Runtime API endpoints for
+/// direct multimodal redaction. It handles request/response serialization,
+/// automatic retries with exponential backoff, and optional [`tracing`]
+/// instrumentation.
+///
+/// # Features
+///
+/// - **Thread-safe**: safe to share across threads and tasks
+/// - **Cheap to clone**: uses [`Arc`] internally
+/// - **Automatic retries**: retries transient failures with exponential backoff
+/// - **No auth required**: connects directly to a runtime instance
 ///
 /// # Examples
 ///
@@ -32,6 +40,23 @@ use crate::error::Result;
 /// # }
 /// ```
 ///
+/// ## Custom configuration
+///
+/// ```no_run
+/// use nvisy_rt_sdk::{NvisyRt, Result};
+/// use std::time::Duration;
+///
+/// # fn example() -> Result<()> {
+/// let client = NvisyRt::builder()
+///     .with_base_url("http://runtime.local:8080")
+///     .with_timeout(Duration::from_secs(60))
+///     .build()?;
+/// # Ok(())
+/// # }
+/// ```
+///
+/// [`Arc`]: std::sync::Arc
+/// [`tracing`]: https://docs.rs/tracing
 /// [`NvisyRt`]: crate::NvisyRt
 #[derive(Clone)]
 pub struct NvisyRt {
@@ -46,6 +71,11 @@ pub(crate) struct NvisyRtInner {
 
 impl NvisyRt {
     /// Creates a new client with default settings.
+    ///
+    /// Connects to [`DEFAULT_BASE_URL`] with a [`DEFAULT_TIMEOUT`] of 30 seconds.
+    ///
+    /// [`DEFAULT_BASE_URL`]: crate::DEFAULT_BASE_URL
+    /// [`DEFAULT_TIMEOUT`]: crate::DEFAULT_TIMEOUT
     pub fn new() -> Result<Self> {
         NvisyRtBuilder::default().build()
     }
@@ -59,7 +89,7 @@ impl NvisyRt {
     /// # use std::time::Duration;
     /// # fn example() -> Result<()> {
     /// let client = NvisyRt::builder()
-    ///     .with_base_url("https://localhost:8080")
+    ///     .with_base_url("http://runtime.local:8080")
     ///     .with_timeout(Duration::from_secs(60))
     ///     .build()?;
     /// # Ok(())
@@ -96,8 +126,8 @@ impl NvisyRt {
         tracing::info!(
             target: TRACING_TARGET_CLIENT,
             base_url = %options.base_url,
-            timeout = ?options.timeout,
-            "Nvisy Runtime client created successfully"
+            timeout_secs = options.timeout.as_secs(),
+            "Nvisy Runtime client created"
         );
 
         let inner = Arc::new(NvisyRtInner {
@@ -138,9 +168,9 @@ impl NvisyRt {
         #[cfg(feature = "tracing")]
         tracing::trace!(
             target: TRACING_TARGET_CLIENT,
-            url = %url,
-            method = %method,
-            "Creating HTTP request"
+            %url,
+            %method,
+            "Building request"
         );
 
         self.inner
@@ -151,8 +181,20 @@ impl NvisyRt {
 
     #[allow(dead_code)]
     pub(crate) async fn send(&self, method: Method, path: &str) -> Result<reqwest::Response> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "Sending request");
+
         let url = self.parse_url(path)?;
         let response = self.request(method, url).send().await?;
+
+        #[cfg(feature = "tracing")]
+        tracing::debug!(
+            target: TRACING_TARGET_CLIENT,
+            status = response.status().as_u16(),
+            path,
+            "Response received"
+        );
+
         Ok(response)
     }
 
@@ -163,8 +205,20 @@ impl NvisyRt {
         path: &str,
         data: &T,
     ) -> Result<reqwest::Response> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "Sending JSON request");
+
         let url = self.parse_url(path)?;
         let response = self.request(method, url).json(data).send().await?;
+
+        #[cfg(feature = "tracing")]
+        tracing::debug!(
+            target: TRACING_TARGET_CLIENT,
+            status = response.status().as_u16(),
+            path,
+            "Response received"
+        );
+
         Ok(response)
     }
 
@@ -175,8 +229,20 @@ impl NvisyRt {
         path: &str,
         params: &[(&str, &str)],
     ) -> Result<reqwest::Response> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "Sending request with params");
+
         let url = self.build_url(path, params)?;
         let response = self.request(method, url).send().await?;
+
+        #[cfg(feature = "tracing")]
+        tracing::debug!(
+            target: TRACING_TARGET_CLIENT,
+            status = response.status().as_u16(),
+            path,
+            "Response received"
+        );
+
         Ok(response)
     }
 
@@ -187,8 +253,20 @@ impl NvisyRt {
         path: &str,
         form: Form,
     ) -> Result<reqwest::Response> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "Sending multipart request");
+
         let url = self.parse_url(path)?;
         let response = self.request(method, url).multipart(form).send().await?;
+
+        #[cfg(feature = "tracing")]
+        tracing::debug!(
+            target: TRACING_TARGET_CLIENT,
+            status = response.status().as_u16(),
+            path,
+            "Response received"
+        );
+
         Ok(response)
     }
 
@@ -233,5 +311,4 @@ mod tests {
 
         Ok(())
     }
-
 }

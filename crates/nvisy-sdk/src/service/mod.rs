@@ -1,7 +1,7 @@
-//! Service modules for interacting with Nvisy API endpoints.
+//! Service modules for interacting with Nvisy Server API endpoints.
 //!
 //! Services are implemented as traits on [`Nvisy`], providing
-//! a clean and ergonomic API for interacting with different Nvisy API endpoints.
+//! a clean and ergonomic API for interacting with different endpoints.
 //!
 //! Import the service traits you need and call methods directly on the client:
 //!

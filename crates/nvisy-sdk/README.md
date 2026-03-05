@@ -3,7 +3,12 @@
 [![Crates.io](https://img.shields.io/crates/v/nvisy-sdk?style=flat-square&color=black)](https://crates.io/crates/nvisy-sdk)
 [![Documentation](https://img.shields.io/docsrs/nvisy-sdk?style=flat-square&color=black)](https://docs.rs/nvisy-sdk)
 
-Rust client library for the Nvisy managed API (auth, persistence, task redirection).
+Rust client for the [Nvisy](https://nvisy.com) Server API.
+
+The Nvisy Server provides authentication, workspace management, persistence,
+and task routing for the Nvisy multimodal redaction platform. Use this crate
+when connecting through the managed Nvisy service rather than directly to a
+runtime instance.
 
 ## Installation
 
@@ -25,6 +30,27 @@ async fn main() -> Result<()> {
     Ok(())
 }
 ```
+
+## Features
+
+- `rustls-tls` *(default)*: use rustls for HTTPS
+- `native-tls`: use platform-native TLS (mutually exclusive with `rustls-tls`)
+- `tracing`: emit [`tracing`] spans and events for HTTP requests and client lifecycle
+
+### Observability
+
+Enable the `tracing` feature to instrument all HTTP requests and client operations:
+
+```toml
+nvisy-sdk = { version = "0.1", features = ["tracing"] }
+```
+
+The SDK emits spans and events under the `nvisy_sdk::client` target at the
+following levels:
+
+- **INFO**: client creation
+- **DEBUG**: HTTP requests (method, URL, status, latency)
+- **TRACE**: request construction details
 
 ## Getting Started
 
