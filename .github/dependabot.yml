@@ -15,8 +15,9 @@ updates:
       prefix: "chore(deps)"
       prefix-development: "chore(deps-dev)"
     rebase-strategy: "auto"
+    versioning-strategy: "auto"
     groups:
-      cargo-dependencies:
+      rust-dependencies:
         patterns:
           - "*"
         update-types:
