@@ -1,5 +1,5 @@
 //! Data models for the Nvisy Server API.
 
-mod workspace;
+mod monitor;
 
-pub use workspace::*;
+pub use monitor::*;

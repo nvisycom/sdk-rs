@@ -7,6 +7,8 @@ use reqwest::Client;
 
 use super::nvisy::NvisyRt;
 use crate::error::Result;
+#[cfg(feature = "tracing")]
+use crate::TRACING_TARGET_CONFIG;
 
 /// Default base URL for the Nvisy Runtime API.
 pub const DEFAULT_BASE_URL: &str = "http://localhost:8080";
@@ -109,7 +111,20 @@ impl NvisyRtBuilder {
 
     /// Builds the Nvisy Runtime client.
     pub fn build(self) -> Result<NvisyRt> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_CONFIG, "Building NvisyRt client from config");
+
         let options = self.build_config()?;
+
+        #[cfg(feature = "tracing")]
+        tracing::debug!(
+            target: TRACING_TARGET_CONFIG,
+            base_url = %options.base_url,
+            timeout_secs = options.timeout.as_secs(),
+            max_retries = options.max_retries,
+            "Config validated"
+        );
+
         NvisyRt::from_options(options)
     }
 }

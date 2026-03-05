@@ -6,6 +6,8 @@ use uuid::Uuid;
 use crate::NvisyRt;
 use crate::error::Result;
 use crate::model::{File, FileId, FileList, NewFile};
+#[cfg(feature = "tracing")]
+use crate::TRACING_TARGET_SERVICE;
 
 /// Operations for managing runtime files.
 pub trait FileService {
@@ -27,13 +29,30 @@ pub trait FileService {
 
 impl FileService for NvisyRt {
     async fn create_file(&self, request: &NewFile) -> Result<FileId> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(
+            target: TRACING_TARGET_SERVICE,
+            actor_id = %request.actor_id,
+            filename = ?request.filename,
+            content_type = ?request.content_type,
+            "Creating file"
+        );
+
         let response = self
             .send_json(Method::POST, "/api/v1/files", request)
             .await?;
-        Ok(response.json().await?)
+        let created: FileId = response.json().await?;
+
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_SERVICE, id = %created.id, "File created");
+
+        Ok(created)
     }
 
     async fn get_file(&self, id: Uuid) -> Result<File> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "Getting file");
+
         let response = self
             .send(Method::GET, &format!("/api/v1/files/{id}"))
             .await?;
@@ -41,17 +60,26 @@ impl FileService for NvisyRt {
     }
 
     async fn list_files(&self) -> Result<FileList> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_SERVICE, "Listing files");
+
         let response = self.send(Method::GET, "/api/v1/files").await?;
         Ok(response.json().await?)
     }
 
     async fn delete_file(&self, id: Uuid) -> Result<()> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "Deleting file");
+
         self.send(Method::DELETE, &format!("/api/v1/files/{id}"))
             .await?;
         Ok(())
     }
 
     async fn delete_files(&self) -> Result<()> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_SERVICE, "Deleting all files");
+
         self.send(Method::DELETE, "/api/v1/files").await?;
         Ok(())
     }

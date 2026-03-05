@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
+use crate::error::Result;
+
 /// Request payload for `POST /api/v1/contexts`.
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -20,14 +22,11 @@ impl NewContext {
         Self { actor_id, context }
     }
 
-    /// Creates a new context request from a serializable value.
-    pub fn from_serialize(
-        actor_id: Uuid,
-        value: &impl Serialize,
-    ) -> Result<Self, serde_json::Error> {
+    /// Creates a new context request by deserializing JSON bytes.
+    pub fn from_bytes(actor_id: Uuid, bytes: &[u8]) -> Result<Self> {
         Ok(Self {
             actor_id,
-            context: serde_json::to_value(value)?,
+            context: serde_json::from_slice(bytes)?,
         })
     }
 }
