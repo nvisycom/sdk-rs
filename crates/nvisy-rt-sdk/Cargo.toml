@@ -1,0 +1,47 @@
+# https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[package]
+name = "nvisy-rt-sdk"
+description = "Nvisy Runtime REST/HTTP API client library"
+version.workspace = true
+rust-version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+publish = true
+readme = "../../README.md"
+documentation = "https://docs.nvisy.com"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+## Default features enabled by default
+default = ["rustls-tls"]
+
+# TLS backends (mutually exclusive - pick one)
+## Enable rustls-tls for HTTPS requests (default)
+rustls-tls = ["reqwest/rustls-tls"]
+## Enable native-tls for HTTPS requests
+native-tls = ["reqwest/native-tls"]
+
+# Observability
+## Enable tracing support for HTTP requests and client operations
+tracing = ["dep:tracing"]
+
+[dependencies]
+reqwest.workspace = true
+url.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+jiff.workspace = true
+uuid.workspace = true
+thiserror.workspace = true
+derive_builder.workspace = true
+tracing = { workspace = true, optional = true }
+
+[dev-dependencies]
+tokio.workspace = true

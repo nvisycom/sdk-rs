@@ -713,6 +713,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "nvisy-rt-sdk"
+version = "0.1.0"
+dependencies = [
+ "derive_builder",
+ "jiff",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tracing",
+ "url",
+ "uuid",
+]
+
+[[package]]
 name = "nvisy-sdk"
 version = "0.1.0"
 dependencies = [
