@@ -33,7 +33,9 @@ pub const DEFAULT_USER_AGENT: &str = concat!(
     setter(into, strip_option, prefix = "with"),
     build_fn(validate = "Self::validate", private, name = "build_config")
 )]
-#[builder_struct_attr(doc = "Builder for configuring and creating a [`NvisyRt`] client.\n\n[`NvisyRt`]: crate::NvisyRt")]
+#[builder_struct_attr(
+    doc = "Builder for configuring and creating a [`NvisyRt`] client.\n\n[`NvisyRt`]: crate::NvisyRt"
+)]
 pub struct NvisyRtOptions {
     /// Base URL for the Nvisy Runtime API.
     ///
