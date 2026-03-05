@@ -14,6 +14,16 @@ pub const DEFAULT_BASE_URL: &str = "https://api.nvisy.com";
 /// Default request timeout.
 pub const DEFAULT_TIMEOUT: Duration = Duration::from_secs(30);
 
+/// Default maximum number of retries for transient failures.
+pub const DEFAULT_MAX_RETRIES: u32 = 3;
+
+/// Default User-Agent header value.
+pub const DEFAULT_USER_AGENT: &str = concat!(
+    "NvisySDK/",
+    env!("CARGO_PKG_VERSION"),
+    " (Rust; reqwest/0.13)"
+);
+
 /// Internal configuration produced by the builder.
 #[doc(hidden)]
 #[derive(Clone, Builder)]
@@ -35,6 +45,14 @@ pub struct NvisyOptions {
     #[builder(default = "Self::default_timeout()")]
     pub(crate) timeout: Duration,
 
+    /// Maximum number of retries for transient failures.
+    #[builder(default = "DEFAULT_MAX_RETRIES")]
+    pub(crate) max_retries: u32,
+
+    /// User-Agent header sent with every request.
+    #[builder(default = "Self::default_user_agent()")]
+    pub(crate) user_agent: String,
+
     /// Optional custom reqwest client.
     #[builder(default = "None")]
     pub(crate) client: Option<Client>,
@@ -47,6 +65,10 @@ impl NvisyBuilder {
 
     fn default_timeout() -> Duration {
         DEFAULT_TIMEOUT
+    }
+
+    fn default_user_agent() -> String {
+        DEFAULT_USER_AGENT.to_string()
     }
 
     fn validate(&self) -> std::result::Result<(), String> {
@@ -133,5 +155,4 @@ mod tests {
             .build();
         assert!(result.is_err());
     }
-
 }

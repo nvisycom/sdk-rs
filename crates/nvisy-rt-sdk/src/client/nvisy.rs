@@ -110,10 +110,12 @@ impl NvisyRt {
         } else {
             reqwest::Client::builder()
                 .timeout(options.timeout)
+                .user_agent(&options.user_agent)
                 .build()?
         };
 
-        let retry_policy = ExponentialBackoff::builder().build_with_max_retries(3);
+        let retry_policy =
+            ExponentialBackoff::builder().build_with_max_retries(options.max_retries);
         let builder = ClientBuilder::new(base_client)
             .with(RetryTransientMiddleware::new_with_policy(retry_policy));
 

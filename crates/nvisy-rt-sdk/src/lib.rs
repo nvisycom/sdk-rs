@@ -24,6 +24,9 @@ pub mod prelude;
 pub(crate) const TRACING_TARGET_CLIENT: &str = "nvisy_rt_sdk::client";
 
 // Re-export client types
-pub use client::{DEFAULT_BASE_URL, DEFAULT_TIMEOUT, NvisyRt, NvisyRtBuilder};
+pub use client::{
+    DEFAULT_BASE_URL, DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, DEFAULT_USER_AGENT, NvisyRt,
+    NvisyRtBuilder,
+};
 // Re-export error types
 pub use error::{Error, Result};
