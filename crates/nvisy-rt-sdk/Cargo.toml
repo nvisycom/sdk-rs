@@ -3,6 +3,8 @@
 [package]
 name = "nvisy-rt-sdk"
 description = "Nvisy Runtime REST/HTTP API client library"
+readme = "README.md"
+
 version = { workspace = true }
 rust-version = { workspace = true }
 edition = { workspace = true }
@@ -11,8 +13,7 @@ publish = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
 homepage = { workspace = true }
-readme = "README.md"
-documentation = "https://docs.nvisy.com"
+documentation = { workspace = true }
 
 [package.metadata.docs.rs]
 all-features = true
@@ -34,28 +35,28 @@ tracing = ["dep:tracing", "dep:reqwest-tracing"]
 
 [dependencies]
 # HTTP
-reqwest = { workspace = true }
-reqwest-middleware = { workspace = true }
-reqwest-retry = { workspace = true }
-url = { workspace = true }
+reqwest = { workspace = true, features = [] }
+reqwest-middleware = { workspace = true, features = [] }
+reqwest-retry = { workspace = true, features = [] }
+url = { workspace = true, features = [] }
 
 # Serialization
-serde = { workspace = true }
-serde_json = { workspace = true }
+serde = { workspace = true, features = [] }
+serde_json = { workspace = true, features = [] }
 
 # Primitives
-jiff = { workspace = true }
-uuid = { workspace = true }
+jiff = { workspace = true, features = [] }
+uuid = { workspace = true, features = [] }
 
 # Error handling
-thiserror = { workspace = true }
+thiserror = { workspace = true, features = [] }
 
 # Derive macros
-derive_builder = { workspace = true }
+derive_builder = { workspace = true, features = [] }
 
 # Observability
-tracing = { workspace = true, optional = true }
-reqwest-tracing = { workspace = true, optional = true }
+tracing = { workspace = true, optional = true, features = [] }
+reqwest-tracing = { workspace = true, optional = true, features = [] }
 
 [dev-dependencies]
-tokio = { workspace = true }
+tokio = { workspace = true, features = [] }

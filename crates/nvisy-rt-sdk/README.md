@@ -26,11 +26,6 @@ async fn main() -> Result<()> {
 }
 ```
 
-## Documentation
-
-- [docs.nvisy.com](https://docs.nvisy.com)
-- [API reference on docs.rs](https://docs.rs/nvisy-rt-sdk)
-
 ## License
 
 MIT License, see [LICENSE.txt](../../LICENSE.txt)
@@ -38,5 +33,6 @@ MIT License, see [LICENSE.txt](../../LICENSE.txt)
 ## Support
 
 - **Documentation**: [docs.nvisy.com](https://docs.nvisy.com)
+- **API reference**: [docs.rs/nvisy-rt-sdk](https://docs.rs/nvisy-rt-sdk)
 - **Issues**: [GitHub Issues](https://github.com/nvisycom/sdk-rs/issues)
 - **Email**: [support@nvisy.com](mailto:support@nvisy.com)
