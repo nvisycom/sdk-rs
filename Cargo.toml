@@ -3,11 +3,16 @@ resolver = "3"
 members = ["crates/*"]
 
 [workspace.package]
+# Release
 version = "0.1.0"
-rust-version = "1.89"
-edition = "2024"
-license = "MIT"
 publish = true
+license = "MIT"
+
+# Rust
+edition = "2024"
+rust-version = "1.92"
+
+# Metadata
 authors = ["Nvisy <support@nvisy.com>"]
 repository = "https://github.com/nvisycom/sdk-rs"
 homepage = "https://nvisy.com"
