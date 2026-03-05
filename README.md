@@ -6,26 +6,18 @@ Rust client libraries for the [Nvisy](https://nvisy.com/) platform.
 
 ## Crates
 
-- [`nvisy-sdk`](crates/nvisy-sdk/) - Client for the Nvisy managed API (auth, persistence, task redirection)
-- [`nvisy-rt-sdk`](crates/nvisy-rt-sdk/) - Client for the Nvisy Runtime API (direct task handling)
+- [`nvisy-sdk`](crates/nvisy-sdk/): Client for the Nvisy managed API (auth, persistence, task redirection)
+- [`nvisy-rt-sdk`](crates/nvisy-rt-sdk/): Client for the Nvisy Runtime API (direct task handling)
 
 ## Quick Start
 
 The fastest way to get started is with [Nvisy Cloud](https://nvisy.com).
 
-## Documentation
-
-- [docs.nvisy.com](https://docs.nvisy.com)
-- [nvisy-sdk on docs.rs](https://docs.rs/nvisy-sdk)
-- [nvisy-rt-sdk on docs.rs](https://docs.rs/nvisy-rt-sdk)
+To run locally, see the [runtime](https://github.com/nvisycom/runtime) and [server](https://github.com/nvisycom/server) repositories.
 
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for release notes and version history.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## License
 
