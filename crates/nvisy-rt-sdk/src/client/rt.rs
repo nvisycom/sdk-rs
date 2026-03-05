@@ -220,9 +220,7 @@ mod tests {
 
     #[test]
     fn test_builder_convenience_method() -> Result<()> {
-        let client = NvisyRt::builder()
-            .with_api_key("test_key")
-            .build_client()?;
+        let client = NvisyRt::builder().with_api_key("test_key").build_client()?;
 
         assert_eq!(client.config().api_key(), "test_key");
 
