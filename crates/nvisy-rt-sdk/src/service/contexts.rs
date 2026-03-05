@@ -4,10 +4,10 @@ use reqwest::Method;
 use uuid::Uuid;
 
 use crate::NvisyRt;
-use crate::error::Result;
-use crate::model::{Context, ContextId, ContextList, NewContext};
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
+use crate::error::Result;
+use crate::model::{Context, ContextId, ContextList, NewContext};
 
 /// Operations for managing runtime contexts.
 pub trait ContextService {

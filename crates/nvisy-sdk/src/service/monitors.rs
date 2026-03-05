@@ -3,10 +3,10 @@
 use reqwest::Method;
 
 use crate::Nvisy;
-use crate::error::Result;
-use crate::model::{CheckHealth, MonitorStatus};
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
+use crate::error::Result;
+use crate::model::{CheckHealth, MonitorStatus};
 
 /// Operations for health monitoring.
 pub trait MonitorService {
@@ -23,10 +23,7 @@ impl MonitorService for Nvisy {
         tracing::debug!(target: TRACING_TARGET_SERVICE, "Checking health status");
 
         let response = match options {
-            Some(opts) => {
-                self.send_json(Method::GET, "/health", &opts)
-                    .await?
-            }
+            Some(opts) => self.send_json(Method::GET, "/health", &opts).await?,
             None => self.send(Method::GET, "/health").await?,
         };
         let response = response.error_for_status()?;

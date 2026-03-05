@@ -32,7 +32,7 @@ impl NewContext {
 }
 
 /// Response body for `POST /api/v1/contexts`.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ContextId {
     /// Identifier assigned to the uploaded context.
@@ -40,7 +40,7 @@ pub struct ContextId {
 }
 
 /// Response body for `GET /api/v1/contexts/{id}`.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Context {
     /// Identifier of the context.
@@ -50,7 +50,7 @@ pub struct Context {
 }
 
 /// Response body for `GET /api/v1/contexts`.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ContextList {
     /// List of context identifiers.

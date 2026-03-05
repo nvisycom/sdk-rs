@@ -1,5 +1,7 @@
 //! Data models for health monitoring.
 
+use std::time::Duration;
+
 use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 
@@ -16,9 +18,9 @@ pub struct CheckHealth {
 }
 
 impl CheckHealth {
-    /// Sets the timeout in milliseconds.
-    pub fn with_timeout(mut self, timeout: u32) -> Self {
-        self.timeout = Some(timeout);
+    /// Sets the timeout for the health check.
+    pub fn with_timeout(mut self, timeout: Duration) -> Self {
+        self.timeout = Some(timeout.as_millis() as u32);
         self
     }
 
@@ -30,7 +32,7 @@ impl CheckHealth {
 }
 
 /// Response body for `GET /health`.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MonitorStatus {
     /// Timestamp when this status was generated.

@@ -48,7 +48,7 @@ impl NewFile {
 }
 
 /// Response body for `POST /api/v1/files`.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FileId {
     /// Identifier assigned to the uploaded file.
@@ -56,7 +56,7 @@ pub struct FileId {
 }
 
 /// Response body for `GET /api/v1/files/{id}`.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct File {
     /// Identifier of the file.
@@ -75,7 +75,7 @@ impl File {
 }
 
 /// Response body for `GET /api/v1/files`.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FileList {
     /// List of file identifiers.

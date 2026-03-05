@@ -4,10 +4,10 @@ use reqwest::Method;
 use uuid::Uuid;
 
 use crate::NvisyRt;
-use crate::error::Result;
-use crate::model::{File, FileId, FileList, NewFile};
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
+use crate::error::Result;
+use crate::model::{File, FileId, FileList, NewFile};
 
 /// Operations for managing runtime files.
 pub trait FileService {

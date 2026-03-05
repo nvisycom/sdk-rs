@@ -6,9 +6,9 @@ use derive_builder::Builder;
 use reqwest::Client;
 
 use super::nvisy::NvisyRt;
-use crate::error::Result;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_CONFIG;
+use crate::error::Result;
 
 /// Default base URL for the Nvisy Runtime API.
 pub const DEFAULT_BASE_URL: &str = "http://localhost:8080";
