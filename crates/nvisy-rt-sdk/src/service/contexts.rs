@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use crate::NvisyRt;
 use crate::error::Result;
-use crate::model::{Context, ContextList, CreatedContext, NewContext};
+use crate::model::{Context, ContextId, ContextList, NewContext};
 
 /// Operations for managing runtime contexts.
 pub trait ContextService {
@@ -13,7 +13,7 @@ pub trait ContextService {
     fn create_context(
         &self,
         request: &NewContext,
-    ) -> impl Future<Output = Result<CreatedContext>> + Send;
+    ) -> impl Future<Output = Result<ContextId>> + Send;
 
     /// Retrieves a context by ID.
     fn get_context(&self, id: Uuid) -> impl Future<Output = Result<Context>> + Send;
@@ -29,7 +29,7 @@ pub trait ContextService {
 }
 
 impl ContextService for NvisyRt {
-    async fn create_context(&self, request: &NewContext) -> Result<CreatedContext> {
+    async fn create_context(&self, request: &NewContext) -> Result<ContextId> {
         let response = self
             .send_json(Method::POST, "/api/v1/contexts", request)
             .await?;

@@ -889,6 +889,7 @@ dependencies = [
 name = "nvisy-rt-sdk"
 version = "0.1.0"
 dependencies = [
+ "base64",
  "derive_builder",
  "jiff",
  "reqwest",

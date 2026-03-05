@@ -14,10 +14,28 @@ pub struct NewContext {
     pub context: Value,
 }
 
+impl NewContext {
+    /// Creates a new context request.
+    pub fn new(actor_id: Uuid, context: Value) -> Self {
+        Self { actor_id, context }
+    }
+
+    /// Creates a new context request from a serializable value.
+    pub fn from_serialize(
+        actor_id: Uuid,
+        value: &impl Serialize,
+    ) -> Result<Self, serde_json::Error> {
+        Ok(Self {
+            actor_id,
+            context: serde_json::to_value(value)?,
+        })
+    }
+}
+
 /// Response body for `POST /api/v1/contexts`.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct CreatedContext {
+pub struct ContextId {
     /// Identifier assigned to the uploaded context.
     pub id: Uuid,
 }

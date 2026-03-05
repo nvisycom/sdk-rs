@@ -28,6 +28,9 @@ reqwest-retry = { version = "0.9", features = [] }
 reqwest-tracing = { version = "0.7", features = [] }
 url = { version = "2.5", features = [] }
 
+# Encoding
+base64 = { version = "0.22", features = [] }
+
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = [] }

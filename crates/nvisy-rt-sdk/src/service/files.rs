@@ -5,12 +5,12 @@ use uuid::Uuid;
 
 use crate::NvisyRt;
 use crate::error::Result;
-use crate::model::{CreatedFile, File, FileList, NewFile};
+use crate::model::{File, FileId, FileList, NewFile};
 
 /// Operations for managing runtime files.
 pub trait FileService {
     /// Creates (uploads) a new file.
-    fn create_file(&self, request: &NewFile) -> impl Future<Output = Result<CreatedFile>> + Send;
+    fn create_file(&self, request: &NewFile) -> impl Future<Output = Result<FileId>> + Send;
 
     /// Retrieves a file by ID.
     fn get_file(&self, id: Uuid) -> impl Future<Output = Result<File>> + Send;
@@ -26,7 +26,7 @@ pub trait FileService {
 }
 
 impl FileService for NvisyRt {
-    async fn create_file(&self, request: &NewFile) -> Result<CreatedFile> {
+    async fn create_file(&self, request: &NewFile) -> Result<FileId> {
         let response = self
             .send_json(Method::POST, "/api/v1/files", request)
             .await?;
