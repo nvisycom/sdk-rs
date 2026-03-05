@@ -36,22 +36,33 @@ pub const DEFAULT_USER_AGENT: &str = concat!(
 #[builder_struct_attr(doc = "Builder for configuring and creating a [`NvisyRt`] client.\n\n[`NvisyRt`]: crate::NvisyRt")]
 pub struct NvisyRtOptions {
     /// Base URL for the Nvisy Runtime API.
+    ///
+    /// Defaults to [`DEFAULT_BASE_URL`].
     #[builder(default = "Self::default_base_url()")]
     pub(crate) base_url: String,
 
     /// Timeout for HTTP requests.
+    ///
+    /// Defaults to [`DEFAULT_TIMEOUT`].
     #[builder(default = "Self::default_timeout()")]
     pub(crate) timeout: Duration,
 
     /// Maximum number of retries for transient failures.
+    ///
+    /// Set to `0` to disable retries. Defaults to [`DEFAULT_MAX_RETRIES`].
     #[builder(default = "DEFAULT_MAX_RETRIES")]
     pub(crate) max_retries: u32,
 
     /// User-Agent header sent with every request.
+    ///
+    /// Defaults to [`DEFAULT_USER_AGENT`].
     #[builder(default = "Self::default_user_agent()")]
     pub(crate) user_agent: String,
 
-    /// Optional custom reqwest client.
+    /// Custom [`reqwest::Client`] to use for HTTP requests.
+    ///
+    /// When set, `timeout` and `user_agent` must be configured on
+    /// the provided client directly.
     #[builder(default = "None")]
     pub(crate) client: Option<Client>,
 }
