@@ -23,7 +23,7 @@ keywords = { workspace = true }
 categories = { workspace = true }
 
 [package.metadata.docs.rs]
-all-features = true
+features = ["rustls-tls", "tracing"]
 rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
