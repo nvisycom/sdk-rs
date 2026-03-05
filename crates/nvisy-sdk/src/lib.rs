@@ -1,5 +1,12 @@
 #![forbid(unsafe_code)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
+#![doc = include_str!("../README.md")]
+
+#[cfg(all(feature = "rustls-tls", feature = "native-tls"))]
+compile_error!("Features `rustls-tls` and `native-tls` are mutually exclusive: pick one");
+
+#[cfg(not(any(feature = "rustls-tls", feature = "native-tls")))]
+compile_error!("Either `rustls-tls` or `native-tls` feature must be enabled");
 
 mod client;
 mod error;
