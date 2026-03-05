@@ -23,7 +23,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 ## Default features enabled by default
 default = ["rustls-tls"]
 
-# TLS backends (mutually exclusive - pick one)
+# TLS backends (mutually exclusive: pick one)
 ## Enable rustls for HTTPS requests (default)
 rustls-tls = ["reqwest/rustls"]
 ## Enable native-tls for HTTPS requests
@@ -64,7 +64,3 @@ tokio = { workspace = true, features = [] }
 [[example]]
 name = "basic"
 path = "examples/basic.rs"
-
-[[example]]
-name = "files"
-path = "examples/files.rs"
