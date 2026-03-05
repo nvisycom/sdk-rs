@@ -1,13 +1,17 @@
 //! Nvisy API client implementation.
 //!
-//! This module contains the main [`NvisyClient`] struct and its implementation,
+//! This module contains the main [`Nvisy`] struct and its implementation,
 //! providing the core HTTP client functionality for interacting with the Nvisy API.
+//!
+//! [`Nvisy`]: crate::Nvisy
 
 use std::fmt;
 use std::sync::Arc;
 
+use reqwest::Method;
 use reqwest::multipart::Form;
-use reqwest::{Client, Method, RequestBuilder, Response};
+use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, RequestBuilder};
+use reqwest_retry::{RetryTransientMiddleware, policies::ExponentialBackoff};
 
 use super::config::NvisyConfig;
 #[cfg(feature = "tracing")]
@@ -16,7 +20,7 @@ use crate::error::Result;
 
 /// Main Nvisy API client for interacting with all Nvisy services.
 ///
-/// The `NvisyClient` provides access to all Nvisy API endpoints through specialized
+/// The `Nvisy` provides access to all Nvisy API endpoints through specialized
 /// service interfaces. It handles authentication, request/response serialization,
 /// and provides a consistent async interface for all operations.
 ///
@@ -25,16 +29,17 @@ use crate::error::Result;
 /// - **Thread-safe**: Safe to use across multiple threads
 /// - **Cheap to clone**: Uses `Arc` internally for efficient cloning
 /// - **Automatic authentication**: Handles API key authentication automatically
+/// - **Automatic retries**: Retries transient failures with exponential backoff
 ///
 /// # Examples
 ///
 /// ## Basic usage with API key
 ///
 /// ```no_run
-/// use nvisy_sdk::{NvisyClient, Result};
+/// use nvisy_sdk::{Nvisy, Result};
 ///
 /// # fn example() -> Result<()> {
-/// let client = NvisyClient::with_api_key("your-api-key")?;
+/// let client = Nvisy::with_api_key("your-api-key")?;
 /// # Ok(())
 /// # }
 /// ```
@@ -42,7 +47,7 @@ use crate::error::Result;
 /// ## Custom configuration with builder pattern
 ///
 /// ```no_run
-/// use nvisy_sdk::{NvisyConfig, NvisyClient, Result};
+/// use nvisy_sdk::{NvisyConfig, Nvisy, Result};
 /// use std::time::Duration;
 ///
 /// # fn example() -> Result<()> {
@@ -60,11 +65,11 @@ use crate::error::Result;
 /// The client is cheap to clone (uses `Arc` internally):
 ///
 /// ```no_run
-/// use nvisy_sdk::{NvisyClient, Result};
+/// use nvisy_sdk::{Nvisy, Result};
 /// use tokio::task;
 ///
 /// # async fn example() -> Result<()> {
-/// let client = NvisyClient::with_api_key("your-api-key")?;
+/// let client = Nvisy::with_api_key("your-api-key")?;
 ///
 /// let handles: Vec<_> = (0..3).map(|_| {
 ///     let client = client.clone();
@@ -81,29 +86,41 @@ use crate::error::Result;
 /// # }
 /// ```
 #[derive(Clone)]
-pub struct NvisyClient {
-    pub(crate) inner: Arc<NvisyClientInner>,
+pub struct Nvisy {
+    pub(crate) inner: Arc<NvisyInner>,
 }
 
 /// Inner client state that is shared via Arc for cheap cloning.
-#[derive(Debug)]
-pub(crate) struct NvisyClientInner {
+pub(crate) struct NvisyInner {
     pub(crate) config: NvisyConfig,
-    pub(crate) client: Client,
+    pub(crate) client: ClientWithMiddleware,
 }
 
-impl NvisyClient {
+impl Nvisy {
     /// Creates a new Nvisy API client with the given configuration.
     #[cfg_attr(feature = "tracing", tracing::instrument(skip(config), fields(api_key = %config.masked_api_key())))]
     pub fn new(config: NvisyConfig) -> Result<Self> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_CLIENT, "Creating Nvisy client");
 
-        let client = if let Some(custom_client) = config.client() {
+        let base_client = if let Some(custom_client) = config.client() {
             custom_client
         } else {
-            Client::builder().timeout(config.timeout()).build()?
+            reqwest::Client::builder()
+                .timeout(config.timeout())
+                .build()?
         };
+
+        let retry_policy = ExponentialBackoff::builder().build_with_max_retries(3);
+        let builder =
+            ClientBuilder::new(base_client).with(RetryTransientMiddleware::new_with_policy(
+                retry_policy,
+            ));
+
+        #[cfg(feature = "tracing")]
+        let builder = builder.with(reqwest_tracing::TracingMiddleware::default());
+
+        let client = builder.build();
 
         #[cfg(feature = "tracing")]
         tracing::info!(
@@ -115,7 +132,7 @@ impl NvisyClient {
             "Nvisy client created successfully"
         );
 
-        let inner = Arc::new(NvisyClientInner { config, client });
+        let inner = Arc::new(NvisyInner { config, client });
         Ok(Self { inner })
     }
 
@@ -124,9 +141,9 @@ impl NvisyClient {
     /// # Example
     ///
     /// ```no_run
-    /// # use nvisy_sdk::{NvisyClient, Result};
+    /// # use nvisy_sdk::{Nvisy, Result};
     /// # fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
+    /// let client = Nvisy::with_api_key("your-api-key")?;
     /// # Ok(())
     /// # }
     /// ```
@@ -143,10 +160,10 @@ impl NvisyClient {
     /// # Example
     ///
     /// ```no_run
-    /// # use nvisy_sdk::{NvisyClient, Result};
+    /// # use nvisy_sdk::{Nvisy, Result};
     /// # use std::time::Duration;
     /// # fn example() -> Result<()> {
-    /// let client = NvisyClient::builder()
+    /// let client = Nvisy::builder()
     ///     .with_api_key("your-api-key")
     ///     .with_timeout(Duration::from_secs(60))
     ///     .build_client()?;
@@ -202,7 +219,11 @@ impl NvisyClient {
 
     /// Sends a request and returns the response.
     #[allow(dead_code)]
-    pub(crate) async fn send(&self, method: Method, path: &str) -> Result<Response> {
+    pub(crate) async fn send(
+        &self,
+        method: Method,
+        path: &str,
+    ) -> Result<reqwest::Response> {
         let url = self.parse_url(path)?;
         let response = self.request(method, url).send().await?;
         Ok(response)
@@ -215,7 +236,7 @@ impl NvisyClient {
         method: Method,
         path: &str,
         data: &T,
-    ) -> Result<Response> {
+    ) -> Result<reqwest::Response> {
         let url = self.parse_url(path)?;
         let response = self.request(method, url).json(data).send().await?;
         Ok(response)
@@ -228,7 +249,7 @@ impl NvisyClient {
         method: Method,
         path: &str,
         params: &[(&str, &str)],
-    ) -> Result<Response> {
+    ) -> Result<reqwest::Response> {
         let url = self.build_url(path, params)?;
         let response = self.request(method, url).send().await?;
         Ok(response)
@@ -241,7 +262,7 @@ impl NvisyClient {
         method: Method,
         path: &str,
         form: Form,
-    ) -> Result<Response> {
+    ) -> Result<reqwest::Response> {
         let url = self.parse_url(path)?;
         let response = self.request(method, url).multipart(form).send().await?;
         Ok(response)
@@ -256,9 +277,9 @@ impl NvisyClient {
     }
 }
 
-impl fmt::Debug for NvisyClient {
+impl fmt::Debug for Nvisy {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("NvisyClient")
+        f.debug_struct("Nvisy")
             .field("api_key", &self.inner.config.masked_api_key())
             .field("base_url", &self.inner.config.base_url())
             .field("timeout", &self.inner.config.timeout())
@@ -274,7 +295,7 @@ mod tests {
 
     #[test]
     fn test_client_creation() -> Result<()> {
-        let client = NvisyClient::with_api_key("test-key")?;
+        let client = Nvisy::with_api_key("test-key")?;
         assert_eq!(client.config().api_key(), "test-key");
         assert_eq!(client.config().base_url(), "https://api.nvisy.com");
         Ok(())
@@ -288,7 +309,7 @@ mod tests {
             .with_timeout(Duration::from_secs(60))
             .build()?;
 
-        let client = NvisyClient::new(config)?;
+        let client = Nvisy::new(config)?;
 
         assert_eq!(client.config().api_key(), "custom_key");
         assert_eq!(client.config().base_url(), "https://custom.api.com");
@@ -299,7 +320,7 @@ mod tests {
 
     #[test]
     fn test_client_clone() -> Result<()> {
-        let client = NvisyClient::with_api_key("test-key")?;
+        let client = Nvisy::with_api_key("test-key")?;
         let cloned = client.clone();
 
         assert_eq!(client.config().api_key(), cloned.config().api_key());
@@ -310,9 +331,7 @@ mod tests {
 
     #[test]
     fn test_builder_convenience_method() -> Result<()> {
-        let client = NvisyClient::builder()
-            .with_api_key("test_key")
-            .build_client()?;
+        let client = Nvisy::builder().with_api_key("test_key").build_client()?;
 
         assert_eq!(client.config().api_key(), "test_key");
 
@@ -321,7 +340,7 @@ mod tests {
 
     #[test]
     fn test_debug_impl_masks_api_key() -> Result<()> {
-        let client = NvisyClient::with_api_key("secret_api_key_12345")?;
+        let client = Nvisy::with_api_key("secret_api_key_12345")?;
         let debug_output = format!("{:?}", client);
 
         assert!(debug_output.contains("secr****"));

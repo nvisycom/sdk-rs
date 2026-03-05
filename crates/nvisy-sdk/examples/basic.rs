@@ -6,13 +6,13 @@
 
 use nvisy_sdk::model::CreateWorkspace;
 use nvisy_sdk::service::WorkspacesService;
-use nvisy_sdk::{NvisyClient, Result};
+use nvisy_sdk::{Nvisy, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     // Create a client with an API key from environment
     let api_key = std::env::var("NVISY_API_KEY").expect("NVISY_API_KEY must be set");
-    let client = NvisyClient::with_api_key(&api_key)?;
+    let client = Nvisy::with_api_key(&api_key)?;
 
     // List all workspaces
     println!("Listing workspaces...");

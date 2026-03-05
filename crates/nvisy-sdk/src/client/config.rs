@@ -1,7 +1,9 @@
 //! Nvisy client configuration and builder.
 //!
 //! This module provides the configuration types and builder pattern for creating
-//! and customizing [`NvisyClient`] instances.
+//! and customizing [`Nvisy`] instances.
+//!
+//! [`Nvisy`]: crate::Nvisy
 
 use std::fmt;
 use std::time::Duration;
@@ -9,7 +11,7 @@ use std::time::Duration;
 use derive_builder::Builder;
 use reqwest::Client;
 
-use super::nvisy::NvisyClient;
+use super::nvisy::Nvisy;
 use crate::error::Result;
 
 /// Default base URL for the Nvisy API.
@@ -73,8 +75,8 @@ pub struct NvisyConfig {
 
     /// Optional custom reqwest client.
     ///
-    /// If provided, this client will be used instead of creating a new one.
-    /// This allows for custom configuration of the HTTP client.
+    /// If provided, this client will be used as the base for the middleware stack
+    /// instead of creating a new one.
     #[builder(default = "None")]
     client: Option<Client>,
 }
@@ -139,9 +141,9 @@ impl NvisyConfigBuilder {
     ///     .build_client()
     ///     .unwrap();
     /// ```
-    pub fn build_client(self) -> Result<NvisyClient> {
+    pub fn build_client(self) -> Result<Nvisy> {
         let config = self.build()?;
-        NvisyClient::new(config)
+        Nvisy::new(config)
     }
 }
 
@@ -176,8 +178,8 @@ impl NvisyConfig {
     ///
     /// let client = config.build_client().unwrap();
     /// ```
-    pub fn build_client(self) -> Result<NvisyClient> {
-        NvisyClient::new(self)
+    pub fn build_client(self) -> Result<Nvisy> {
+        Nvisy::new(self)
     }
 
     /// Returns the API key.
