@@ -16,7 +16,7 @@ pub enum Error {
     #[error("HTTP error: {0}")]
     Http(#[from] reqwest_middleware::Error),
 
-    /// HTTP transport error from reqwest.
+    /// HTTP transport error from the underlying HTTP client.
     ///
     /// This covers errors from response status checks and other direct
     /// reqwest operations.

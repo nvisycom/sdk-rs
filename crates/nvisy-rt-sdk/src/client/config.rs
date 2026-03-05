@@ -26,9 +26,6 @@ pub const DEFAULT_TIMEOUT: Duration = Duration::from_secs(30);
     build_fn(validate = "Self::validate_config")
 )]
 pub struct NvisyRtConfig {
-    /// API key for authentication.
-    api_key: String,
-
     /// Base URL for the Nvisy Runtime API.
     #[builder(default = "Self::default_base_url()")]
     base_url: String,
@@ -52,12 +49,6 @@ impl NvisyRtConfigBuilder {
     }
 
     fn validate_config(&self) -> std::result::Result<(), String> {
-        if let Some(ref api_key) = self.api_key
-            && api_key.trim().is_empty()
-        {
-            return Err("API key cannot be empty".to_string());
-        }
-
         if let Some(ref base_url) = self.base_url
             && !base_url.starts_with("http://")
             && !base_url.starts_with("https://")
@@ -100,20 +91,6 @@ impl NvisyRtConfig {
         NvisyRt::new(self)
     }
 
-    /// Returns the API key.
-    pub fn api_key(&self) -> &str {
-        &self.api_key
-    }
-
-    /// Returns a masked version of the API key for safe display/logging.
-    pub fn masked_api_key(&self) -> String {
-        if self.api_key.len() > 4 {
-            format!("{}****", &self.api_key[..4])
-        } else {
-            "****".to_string()
-        }
-    }
-
     /// Returns the base URL.
     pub fn base_url(&self) -> &str {
         &self.base_url
@@ -133,7 +110,6 @@ impl NvisyRtConfig {
 impl fmt::Debug for NvisyRtConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("NvisyRtConfig")
-            .field("api_key", &self.masked_api_key())
             .field("base_url", &self.base_url)
             .field("timeout", &self.timeout)
             .finish()
@@ -146,9 +122,8 @@ mod tests {
 
     #[test]
     fn test_config_builder() -> Result<()> {
-        let config = NvisyRtConfig::builder().with_api_key("test_key").build()?;
+        let config = NvisyRtConfig::builder().build()?;
 
-        assert_eq!(config.api_key(), "test_key");
         assert_eq!(config.base_url(), DEFAULT_BASE_URL);
         assert_eq!(config.timeout(), DEFAULT_TIMEOUT);
 
@@ -158,12 +133,10 @@ mod tests {
     #[test]
     fn test_config_builder_with_custom_values() -> Result<()> {
         let config = NvisyRtConfig::builder()
-            .with_api_key("test_key")
             .with_base_url("https://custom.rt.api.com")
             .with_timeout(Duration::from_secs(60))
             .build()?;
 
-        assert_eq!(config.api_key(), "test_key");
         assert_eq!(config.base_url(), "https://custom.rt.api.com");
         assert_eq!(config.timeout(), Duration::from_secs(60));
 
@@ -171,15 +144,8 @@ mod tests {
     }
 
     #[test]
-    fn test_config_validation_empty_api_key() {
-        let result = NvisyRtConfig::builder().with_api_key("").build();
-        assert!(result.is_err());
-    }
-
-    #[test]
     fn test_config_validation_invalid_base_url() {
         let result = NvisyRtConfig::builder()
-            .with_api_key("test_key")
             .with_base_url("not-a-url")
             .build();
         assert!(result.is_err());

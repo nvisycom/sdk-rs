@@ -20,7 +20,7 @@ use nvisy_rt_sdk::{NvisyRt, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let client = NvisyRt::with_api_key("your-api-key")?;
+    let client = NvisyRt::new_default()?;
     // ...
     Ok(())
 }

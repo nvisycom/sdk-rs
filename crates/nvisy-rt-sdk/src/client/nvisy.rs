@@ -17,8 +17,8 @@ use crate::error::Result;
 /// Main Nvisy Runtime API client.
 ///
 /// The `NvisyRt` provides access to all Nvisy Runtime API endpoints.
-/// It handles authentication, request/response serialization, and provides
-/// a consistent async interface for all operations.
+/// It handles request/response serialization and provides a consistent
+/// async interface for all operations.
 ///
 /// # Examples
 ///
@@ -26,7 +26,7 @@ use crate::error::Result;
 /// use nvisy_rt_sdk::{NvisyRt, Result};
 ///
 /// # fn example() -> Result<()> {
-/// let client = NvisyRt::with_api_key("your-api-key")?;
+/// let client = NvisyRt::new_default()?;
 /// # Ok(())
 /// # }
 /// ```
@@ -42,7 +42,7 @@ pub(crate) struct NvisyRtInner {
 
 impl NvisyRt {
     /// Creates a new client with the given configuration.
-    #[cfg_attr(feature = "tracing", tracing::instrument(skip(config), fields(api_key = %config.masked_api_key())))]
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(config)))]
     pub fn new(config: NvisyRtConfig) -> Result<Self> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_CLIENT, "Creating Nvisy Runtime client");
@@ -69,7 +69,6 @@ impl NvisyRt {
             target: TRACING_TARGET_CLIENT,
             base_url = %config.base_url(),
             timeout = ?config.timeout(),
-            api_key = %config.masked_api_key(),
             custom_client = config.client().is_some(),
             "Nvisy Runtime client created successfully"
         );
@@ -78,9 +77,9 @@ impl NvisyRt {
         Ok(Self { inner })
     }
 
-    /// Creates a new client with just an API key using default settings.
-    pub fn with_api_key(api_key: impl Into<String>) -> Result<Self> {
-        let config = NvisyRtConfig::builder().with_api_key(api_key).build()?;
+    /// Creates a new client with default settings.
+    pub fn new_default() -> Result<Self> {
+        let config = NvisyRtConfig::builder().build()?;
         Self::new(config)
     }
 
@@ -123,10 +122,6 @@ impl NvisyRt {
             .client
             .request(method, url)
             .timeout(self.inner.config.timeout())
-            .header(
-                "Authorization",
-                format!("Bearer {}", self.inner.config.api_key()),
-            )
     }
 
     #[allow(dead_code)]
@@ -182,7 +177,6 @@ impl NvisyRt {
 impl fmt::Debug for NvisyRt {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("NvisyRt")
-            .field("api_key", &self.inner.config.masked_api_key())
             .field("base_url", &self.inner.config.base_url())
             .field("timeout", &self.inner.config.timeout())
             .finish()
@@ -197,8 +191,7 @@ mod tests {
 
     #[test]
     fn test_client_creation() -> Result<()> {
-        let client = NvisyRt::with_api_key("test-key")?;
-        assert_eq!(client.config().api_key(), "test-key");
+        let client = NvisyRt::new_default()?;
         assert_eq!(client.config().base_url(), "https://rt.nvisy.com");
         Ok(())
     }
@@ -206,14 +199,12 @@ mod tests {
     #[test]
     fn test_client_creation_with_custom_config() -> Result<()> {
         let config = NvisyRtConfig::builder()
-            .with_api_key("custom_key")
             .with_base_url("https://custom.rt.api.com")
             .with_timeout(Duration::from_secs(60))
             .build()?;
 
         let client = NvisyRt::new(config)?;
 
-        assert_eq!(client.config().api_key(), "custom_key");
         assert_eq!(client.config().base_url(), "https://custom.rt.api.com");
         assert_eq!(client.config().timeout(), Duration::from_secs(60));
 
@@ -222,10 +213,9 @@ mod tests {
 
     #[test]
     fn test_client_clone() -> Result<()> {
-        let client = NvisyRt::with_api_key("test-key")?;
+        let client = NvisyRt::new_default()?;
         let cloned = client.clone();
 
-        assert_eq!(client.config().api_key(), cloned.config().api_key());
         assert_eq!(client.config().base_url(), cloned.config().base_url());
 
         Ok(())
@@ -233,9 +223,9 @@ mod tests {
 
     #[test]
     fn test_builder_convenience_method() -> Result<()> {
-        let client = NvisyRt::builder().with_api_key("test_key").build_client()?;
+        let client = NvisyRt::builder().build_client()?;
 
-        assert_eq!(client.config().api_key(), "test_key");
+        assert_eq!(client.config().base_url(), "https://rt.nvisy.com");
 
         Ok(())
     }
