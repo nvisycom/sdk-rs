@@ -1,6 +1,6 @@
 //! Service modules for interacting with Nvisy API endpoints.
 //!
-//! Services are implemented as traits on [`NvisyClient`](crate::NvisyClient), providing
+//! Services are implemented as traits on [`Nvisy`](crate::Nvisy), providing
 //! a clean and ergonomic API for interacting with different Nvisy API endpoints.
 //!
 //! Import the service traits you need and call methods directly on the client:

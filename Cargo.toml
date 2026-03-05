@@ -7,29 +7,32 @@ version = "0.1.0"
 rust-version = "1.89"
 edition = "2024"
 license = "MIT"
+publish = true
 authors = ["Nvisy <support@nvisy.com>"]
 repository = "https://github.com/nvisycom/sdk-rs"
 homepage = "https://nvisy.com"
 
 [workspace.dependencies]
-# HTTP client & URL parsing
+# HTTP
 reqwest = { version = "0.12", default-features = false, features = ["json", "multipart"] }
-url = { version = "2.5" }
+url = { version = "2.5", features = [] }
 
-# (De)serialization
+# Serialization
 serde = { version = "1.0", features = ["derive"] }
-serde_json = { version = "1.0" }
+serde_json = { version = "1.0", features = [] }
 
-# Date/time, UUID and other primitive types
+# Primitives
 jiff = { version = "0.2", features = ["serde"] }
 uuid = { version = "1.21", features = ["serde", "v4"] }
 
-# Derive macros and error handling
-thiserror = { version = "2.0" }
-derive_builder = { version = "0.20" }
+# Error handling
+thiserror = { version = "2.0", features = [] }
 
-# Observability (optional)
-tracing = { version = "0.1" }
+# Derive macros
+derive_builder = { version = "0.20", features = [] }
+
+# Observability
+tracing = { version = "0.1", features = [] }
 
 # Dev
 tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros"] }

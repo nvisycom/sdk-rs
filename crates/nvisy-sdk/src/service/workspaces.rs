@@ -7,7 +7,7 @@ use std::future::Future;
 use reqwest::Method;
 use uuid::Uuid;
 
-use crate::client::NvisyClient;
+use crate::client::Nvisy;
 use crate::error::Result;
 use crate::model::{
     CreateWorkspace, NotificationSettings, UpdateNotificationSettings, UpdateWorkspace, Workspace,
@@ -119,7 +119,7 @@ impl ListWorkspacesOptions {
     }
 }
 
-impl WorkspacesService for NvisyClient {
+impl WorkspacesService for Nvisy {
     async fn list_workspaces(
         &self,
         options: Option<ListWorkspacesOptions>,

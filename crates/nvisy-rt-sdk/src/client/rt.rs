@@ -13,32 +13,32 @@ use crate::error::Result;
 
 /// Main Nvisy Runtime API client.
 ///
-/// The `NvisyRtClient` provides access to all Nvisy Runtime API endpoints.
+/// The `NvisyRt` provides access to all Nvisy Runtime API endpoints.
 /// It handles authentication, request/response serialization, and provides
 /// a consistent async interface for all operations.
 ///
 /// # Examples
 ///
 /// ```no_run
-/// use nvisy_rt_sdk::{NvisyRtClient, Result};
+/// use nvisy_rt_sdk::{NvisyRt, Result};
 ///
 /// # fn example() -> Result<()> {
-/// let client = NvisyRtClient::with_api_key("your-api-key")?;
+/// let client = NvisyRt::with_api_key("your-api-key")?;
 /// # Ok(())
 /// # }
 /// ```
 #[derive(Clone)]
-pub struct NvisyRtClient {
-    pub(crate) inner: Arc<NvisyRtClientInner>,
+pub struct NvisyRt {
+    pub(crate) inner: Arc<NvisyRtInner>,
 }
 
 #[derive(Debug)]
-pub(crate) struct NvisyRtClientInner {
+pub(crate) struct NvisyRtInner {
     pub(crate) config: NvisyRtConfig,
     pub(crate) client: Client,
 }
 
-impl NvisyRtClient {
+impl NvisyRt {
     /// Creates a new client with the given configuration.
     #[cfg_attr(feature = "tracing", tracing::instrument(skip(config), fields(api_key = %config.masked_api_key())))]
     pub fn new(config: NvisyRtConfig) -> Result<Self> {
@@ -61,7 +61,7 @@ impl NvisyRtClient {
             "Nvisy Runtime client created successfully"
         );
 
-        let inner = Arc::new(NvisyRtClientInner { config, client });
+        let inner = Arc::new(NvisyRtInner { config, client });
         Ok(Self { inner })
     }
 
@@ -166,9 +166,9 @@ impl NvisyRtClient {
     }
 }
 
-impl fmt::Debug for NvisyRtClient {
+impl fmt::Debug for NvisyRt {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("NvisyRtClient")
+        f.debug_struct("NvisyRt")
             .field("api_key", &self.inner.config.masked_api_key())
             .field("base_url", &self.inner.config.base_url())
             .field("timeout", &self.inner.config.timeout())
@@ -184,7 +184,7 @@ mod tests {
 
     #[test]
     fn test_client_creation() -> Result<()> {
-        let client = NvisyRtClient::with_api_key("test-key")?;
+        let client = NvisyRt::with_api_key("test-key")?;
         assert_eq!(client.config().api_key(), "test-key");
         assert_eq!(client.config().base_url(), "https://rt.nvisy.com");
         Ok(())
@@ -198,7 +198,7 @@ mod tests {
             .with_timeout(Duration::from_secs(60))
             .build()?;
 
-        let client = NvisyRtClient::new(config)?;
+        let client = NvisyRt::new(config)?;
 
         assert_eq!(client.config().api_key(), "custom_key");
         assert_eq!(client.config().base_url(), "https://custom.rt.api.com");
@@ -209,7 +209,7 @@ mod tests {
 
     #[test]
     fn test_client_clone() -> Result<()> {
-        let client = NvisyRtClient::with_api_key("test-key")?;
+        let client = NvisyRt::with_api_key("test-key")?;
         let cloned = client.clone();
 
         assert_eq!(client.config().api_key(), cloned.config().api_key());
@@ -220,7 +220,7 @@ mod tests {
 
     #[test]
     fn test_builder_convenience_method() -> Result<()> {
-        let client = NvisyRtClient::builder()
+        let client = NvisyRt::builder()
             .with_api_key("test_key")
             .build_client()?;
 

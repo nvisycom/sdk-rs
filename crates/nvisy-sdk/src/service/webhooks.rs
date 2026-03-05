@@ -7,7 +7,7 @@ use std::future::Future;
 use reqwest::Method;
 use uuid::Uuid;
 
-use crate::client::NvisyClient;
+use crate::client::Nvisy;
 use crate::error::Result;
 use crate::model::{
     CreateWebhook, TestWebhook, UpdateWebhook, Webhook, WebhookResult, WebhooksPage,
@@ -106,7 +106,7 @@ impl ListWebhooksOptions {
     }
 }
 
-impl WebhooksService for NvisyClient {
+impl WebhooksService for Nvisy {
     async fn list_webhooks(
         &self,
         workspace_id: Uuid,

@@ -6,7 +6,7 @@ use std::future::Future;
 
 use reqwest::Method;
 
-use crate::client::NvisyClient;
+use crate::client::Nvisy;
 use crate::error::Result;
 use crate::model::{CheckHealth, MonitorStatus};
 
@@ -17,11 +17,11 @@ pub trait HealthService {
     /// # Example
     ///
     /// ```no_run
-    /// use nvisy_sdk::{NvisyClient, Result};
+    /// use nvisy_sdk::{Nvisy, Result};
     /// use nvisy_sdk::service::HealthService;
     ///
     /// # async fn example() -> Result<()> {
-    /// let client = NvisyClient::with_api_key("your-api-key")?;
+    /// let client = Nvisy::with_api_key("your-api-key")?;
     /// let status = client.health(None).await?;
     /// println!("System status: {:?} (version {})", status.status, status.version);
     /// # Ok(())
@@ -30,7 +30,7 @@ pub trait HealthService {
     fn health(&self, options: Option<CheckHealth>) -> impl Future<Output = Result<MonitorStatus>>;
 }
 
-impl HealthService for NvisyClient {
+impl HealthService for Nvisy {
     async fn health(&self, options: Option<CheckHealth>) -> Result<MonitorStatus> {
         let response = match options {
             Some(opts) => self.send_json(Method::POST, "/health/", &opts).await?,

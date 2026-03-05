@@ -7,7 +7,7 @@ use std::future::Future;
 use reqwest::Method;
 use uuid::Uuid;
 
-use crate::client::NvisyClient;
+use crate::client::Nvisy;
 use crate::error::Result;
 use crate::model::{CreateIntegration, Integration, IntegrationsPage, UpdateIntegration};
 
@@ -99,7 +99,7 @@ impl ListIntegrationsOptions {
     }
 }
 
-impl IntegrationsService for NvisyClient {
+impl IntegrationsService for Nvisy {
     async fn list_integrations(
         &self,
         workspace_id: Uuid,

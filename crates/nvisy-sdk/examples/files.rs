@@ -8,13 +8,13 @@ use std::fs;
 
 use nvisy_sdk::model::{ArchiveFormat, CreateWorkspace};
 use nvisy_sdk::service::{FilesService, ListFilesOptions, WorkspacesService};
-use nvisy_sdk::{NvisyClient, Result};
+use nvisy_sdk::{Nvisy, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     // Create a client
     let api_key = std::env::var("NVISY_API_KEY").expect("NVISY_API_KEY must be set");
-    let client = NvisyClient::with_api_key(&api_key)?;
+    let client = Nvisy::with_api_key(&api_key)?;
 
     // Create a workspace for our files
     println!("Creating workspace for file uploads...");

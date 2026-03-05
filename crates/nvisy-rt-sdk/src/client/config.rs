@@ -6,7 +6,7 @@ use std::time::Duration;
 use derive_builder::Builder;
 use reqwest::Client;
 
-use super::rt::NvisyRtClient;
+use super::rt::NvisyRt;
 use crate::error::Result;
 
 /// Default base URL for the Nvisy Runtime API.
@@ -81,9 +81,9 @@ impl NvisyRtConfigBuilder {
     }
 
     /// Creates a client directly from the builder.
-    pub fn build_client(self) -> Result<NvisyRtClient> {
+    pub fn build_client(self) -> Result<NvisyRt> {
         let config = self.build()?;
-        NvisyRtClient::new(config)
+        NvisyRt::new(config)
     }
 }
 
@@ -94,8 +94,8 @@ impl NvisyRtConfig {
     }
 
     /// Creates a new client using this configuration.
-    pub fn build_client(self) -> Result<NvisyRtClient> {
-        NvisyRtClient::new(self)
+    pub fn build_client(self) -> Result<NvisyRt> {
+        NvisyRt::new(self)
     }
 
     /// Returns the API key.

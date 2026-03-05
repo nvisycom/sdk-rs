@@ -8,7 +8,7 @@ use reqwest::Method;
 use reqwest::multipart::{Form, Part};
 use uuid::Uuid;
 
-use crate::client::NvisyClient;
+use crate::client::Nvisy;
 use crate::error::Result;
 use crate::model::{
     ArchiveFormat, DeleteFiles, DownloadFiles, File, FileFormat, FilesPage, UpdateFile,
@@ -146,7 +146,7 @@ impl ListFilesOptions {
     }
 }
 
-impl FilesService for NvisyClient {
+impl FilesService for Nvisy {
     async fn list_files(
         &self,
         workspace_id: Uuid,
