@@ -24,6 +24,7 @@ pub const DEFAULT_USER_AGENT: &str = concat!(
     " (Rust; reqwest/0.13)"
 );
 
+/// Internal configuration produced by the builder.
 #[doc(hidden)]
 #[derive(Clone, Builder)]
 #[builder(
@@ -32,6 +33,7 @@ pub const DEFAULT_USER_AGENT: &str = concat!(
     setter(into, strip_option, prefix = "with"),
     build_fn(validate = "Self::validate", private, name = "build_config")
 )]
+#[builder_struct_attr(doc = "Builder for configuring and creating a [`NvisyRt`] client.\n\n[`NvisyRt`]: crate::NvisyRt")]
 pub struct NvisyRtOptions {
     /// Base URL for the Nvisy Runtime API.
     #[builder(default = "Self::default_base_url()")]

@@ -33,6 +33,7 @@ pub const DEFAULT_USER_AGENT: &str = concat!(
     setter(into, strip_option, prefix = "with"),
     build_fn(validate = "Self::validate", private, name = "build_config")
 )]
+#[builder_struct_attr(doc = "Builder for configuring and creating a [`Nvisy`] client.\n\n[`Nvisy`]: crate::Nvisy")]
 pub struct NvisyOptions {
     /// API key for authentication with the Nvisy API.
     pub(crate) api_key: String,
