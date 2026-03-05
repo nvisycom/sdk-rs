@@ -1,8 +1,5 @@
-//! Nvisy Runtime client configuration and builder.
-//!
-//! [`NvisyRt`]: crate::NvisyRt
+//! Nvisy Runtime client builder.
 
-use std::fmt;
 use std::time::Duration;
 
 use derive_builder::Builder;
@@ -12,37 +9,65 @@ use super::nvisy::NvisyRt;
 use crate::error::Result;
 
 /// Default base URL for the Nvisy Runtime API.
-pub const DEFAULT_BASE_URL: &str = "https://rt.nvisy.com";
+pub const DEFAULT_BASE_URL: &str = "http://localhost:8080";
 
 /// Default request timeout.
 pub const DEFAULT_TIMEOUT: Duration = Duration::from_secs(30);
 
-/// Configuration for the Nvisy Runtime API client.
+/// Default maximum number of retries for transient failures.
+pub const DEFAULT_MAX_RETRIES: u32 = 3;
+
+/// Default User-Agent header value.
+pub const DEFAULT_USER_AGENT: &str = concat!(
+    "NvisyRtSDK/",
+    env!("CARGO_PKG_VERSION"),
+    " (Rust; reqwest/0.13)"
+);
+
+/// Internal configuration produced by the builder.
+#[doc(hidden)]
 #[derive(Clone, Builder)]
 #[builder(
-    name = "NvisyRtConfigBuilder",
+    name = "NvisyRtBuilder",
     pattern = "owned",
     setter(into, strip_option, prefix = "with"),
-    build_fn(validate = "Self::validate_config")
+    build_fn(validate = "Self::validate", private, name = "build_config")
 )]
-pub struct NvisyRtConfig {
-    /// API key for authentication.
-    api_key: String,
-
+#[builder_struct_attr(doc = "Builder for configuring and creating a [`NvisyRt`] client.\n\n[`NvisyRt`]: crate::NvisyRt")]
+pub struct NvisyRtOptions {
     /// Base URL for the Nvisy Runtime API.
+    ///
+    /// Defaults to [`DEFAULT_BASE_URL`].
     #[builder(default = "Self::default_base_url()")]
-    base_url: String,
+    pub(crate) base_url: String,
 
     /// Timeout for HTTP requests.
+    ///
+    /// Defaults to [`DEFAULT_TIMEOUT`].
     #[builder(default = "Self::default_timeout()")]
-    timeout: Duration,
+    pub(crate) timeout: Duration,
 
-    /// Optional custom reqwest client.
+    /// Maximum number of retries for transient failures.
+    ///
+    /// Set to `0` to disable retries. Defaults to [`DEFAULT_MAX_RETRIES`].
+    #[builder(default = "DEFAULT_MAX_RETRIES")]
+    pub(crate) max_retries: u32,
+
+    /// User-Agent header sent with every request.
+    ///
+    /// Defaults to [`DEFAULT_USER_AGENT`].
+    #[builder(default = "Self::default_user_agent()")]
+    pub(crate) user_agent: String,
+
+    /// Custom [`reqwest::Client`] to use for HTTP requests.
+    ///
+    /// When set, `timeout` and `user_agent` must be configured on
+    /// the provided client directly.
     #[builder(default = "None")]
-    client: Option<Client>,
+    pub(crate) client: Option<Client>,
 }
 
-impl NvisyRtConfigBuilder {
+impl NvisyRtBuilder {
     fn default_base_url() -> String {
         DEFAULT_BASE_URL.to_string()
     }
@@ -51,13 +76,11 @@ impl NvisyRtConfigBuilder {
         DEFAULT_TIMEOUT
     }
 
-    fn validate_config(&self) -> std::result::Result<(), String> {
-        if let Some(ref api_key) = self.api_key
-            && api_key.trim().is_empty()
-        {
-            return Err("API key cannot be empty".to_string());
-        }
+    fn default_user_agent() -> String {
+        DEFAULT_USER_AGENT.to_string()
+    }
 
+    fn validate(&self) -> std::result::Result<(), String> {
         if let Some(ref base_url) = self.base_url
             && !base_url.starts_with("http://")
             && !base_url.starts_with("https://")
@@ -82,61 +105,10 @@ impl NvisyRtConfigBuilder {
         self.with_timeout(Duration::from_secs(secs))
     }
 
-    /// Creates a client directly from the builder.
-    pub fn build_client(self) -> Result<NvisyRt> {
-        let config = self.build()?;
-        NvisyRt::new(config)
-    }
-}
-
-impl NvisyRtConfig {
-    /// Creates a new configuration builder.
-    pub fn builder() -> NvisyRtConfigBuilder {
-        NvisyRtConfigBuilder::default()
-    }
-
-    /// Creates a new client using this configuration.
-    pub fn build_client(self) -> Result<NvisyRt> {
-        NvisyRt::new(self)
-    }
-
-    /// Returns the API key.
-    pub fn api_key(&self) -> &str {
-        &self.api_key
-    }
-
-    /// Returns a masked version of the API key for safe display/logging.
-    pub fn masked_api_key(&self) -> String {
-        if self.api_key.len() > 4 {
-            format!("{}****", &self.api_key[..4])
-        } else {
-            "****".to_string()
-        }
-    }
-
-    /// Returns the base URL.
-    pub fn base_url(&self) -> &str {
-        &self.base_url
-    }
-
-    /// Returns the timeout duration.
-    pub fn timeout(&self) -> Duration {
-        self.timeout
-    }
-
-    /// Returns a clone of the custom reqwest client, if one was provided.
-    pub(crate) fn client(&self) -> Option<Client> {
-        self.client.clone()
-    }
-}
-
-impl fmt::Debug for NvisyRtConfig {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("NvisyRtConfig")
-            .field("api_key", &self.masked_api_key())
-            .field("base_url", &self.base_url)
-            .field("timeout", &self.timeout)
-            .finish()
+    /// Builds the Nvisy Runtime client.
+    pub fn build(self) -> Result<NvisyRt> {
+        let options = self.build_config()?;
+        NvisyRt::from_options(options)
     }
 }
 
@@ -145,43 +117,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_config_builder() -> Result<()> {
-        let config = NvisyRtConfig::builder().with_api_key("test_key").build()?;
-
-        assert_eq!(config.api_key(), "test_key");
-        assert_eq!(config.base_url(), DEFAULT_BASE_URL);
-        assert_eq!(config.timeout(), DEFAULT_TIMEOUT);
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_config_builder_with_custom_values() -> Result<()> {
-        let config = NvisyRtConfig::builder()
-            .with_api_key("test_key")
-            .with_base_url("https://custom.rt.api.com")
-            .with_timeout(Duration::from_secs(60))
-            .build()?;
-
-        assert_eq!(config.api_key(), "test_key");
-        assert_eq!(config.base_url(), "https://custom.rt.api.com");
-        assert_eq!(config.timeout(), Duration::from_secs(60));
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_config_validation_empty_api_key() {
-        let result = NvisyRtConfig::builder().with_api_key("").build();
-        assert!(result.is_err());
-    }
-
-    #[test]
-    fn test_config_validation_invalid_base_url() {
-        let result = NvisyRtConfig::builder()
-            .with_api_key("test_key")
-            .with_base_url("not-a-url")
-            .build();
+    fn test_validation_invalid_base_url() {
+        let result = NvisyRtBuilder::default().with_base_url("not-a-url").build();
         assert!(result.is_err());
     }
 }

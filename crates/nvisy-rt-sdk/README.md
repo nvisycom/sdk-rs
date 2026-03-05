@@ -3,7 +3,13 @@
 [![Crates.io](https://img.shields.io/crates/v/nvisy-rt-sdk?style=flat-square&color=black)](https://crates.io/crates/nvisy-rt-sdk)
 [![Documentation](https://img.shields.io/docsrs/nvisy-rt-sdk?style=flat-square&color=black)](https://docs.rs/nvisy-rt-sdk)
 
-Rust client library for the Nvisy Runtime API (direct task handling).
+Rust client for the [Nvisy](https://nvisy.com) Runtime API.
+
+The Nvisy Runtime is the core redaction engine that detects and removes
+sensitive information across documents, images, and audio. It combines
+deterministic patterns, NER, computer vision, and LLM-driven classification
+into auditable, policy-driven pipelines. Use this crate to connect directly
+to a runtime instance without going through the Nvisy Server.
 
 ## Installation
 
@@ -20,11 +26,32 @@ use nvisy_rt_sdk::{NvisyRt, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let client = NvisyRt::with_api_key("your-api-key")?;
+    let client = NvisyRt::new()?;
     // ...
     Ok(())
 }
 ```
+
+## Features
+
+- `rustls-tls` *(default)*: use rustls for HTTPS
+- `native-tls`: use platform-native TLS (mutually exclusive with `rustls-tls`)
+- `tracing`: emit [tracing](https://docs.rs/tracing) spans and events for HTTP requests and client lifecycle
+
+### Observability
+
+Enable the `tracing` feature to instrument all HTTP requests and client operations:
+
+```toml
+nvisy-rt-sdk = { version = "0.1", features = ["tracing"] }
+```
+
+The SDK emits spans and events under the `nvisy_rt_sdk::client` target at the
+following levels:
+
+- **INFO**: client creation
+- **DEBUG**: HTTP requests (method, URL, status, latency)
+- **TRACE**: request construction details
 
 ## Getting Started
 

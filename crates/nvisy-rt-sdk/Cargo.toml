@@ -2,7 +2,7 @@
 
 [package]
 name = "nvisy-rt-sdk"
-description = "Nvisy Runtime REST/HTTP API client library"
+description = "Rust client for the Nvisy Runtime API: direct multimodal redaction"
 readme = "README.md"
 
 version = { workspace = true }
