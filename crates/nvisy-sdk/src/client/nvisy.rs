@@ -2,6 +2,8 @@
 //!
 //! This module contains the main [`Nvisy`] struct and its implementation,
 //! providing the core HTTP client functionality for interacting with the Nvisy API.
+//!
+//! [`Nvisy`]: crate::Nvisy
 
 use std::fmt;
 use std::sync::Arc;

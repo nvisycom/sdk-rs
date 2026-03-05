@@ -1,4 +1,6 @@
 //! Nvisy Runtime client configuration and builder.
+//!
+//! [`NvisyRt`]: crate::NvisyRt
 
 use std::fmt;
 use std::time::Duration;

@@ -2,6 +2,8 @@
 //!
 //! This module provides the configuration types and builder pattern for creating
 //! and customizing [`Nvisy`] instances.
+//!
+//! [`Nvisy`]: crate::Nvisy
 
 use std::fmt;
 use std::time::Duration;
