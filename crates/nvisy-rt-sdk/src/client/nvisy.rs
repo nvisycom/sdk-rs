@@ -6,7 +6,8 @@ use std::sync::Arc;
 use reqwest::Method;
 use reqwest::multipart::Form;
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, RequestBuilder};
-use reqwest_retry::{RetryTransientMiddleware, policies::ExponentialBackoff};
+use reqwest_retry::RetryTransientMiddleware;
+use reqwest_retry::policies::ExponentialBackoff;
 
 use super::config::NvisyRtConfig;
 #[cfg(feature = "tracing")]
@@ -55,10 +56,8 @@ impl NvisyRt {
         };
 
         let retry_policy = ExponentialBackoff::builder().build_with_max_retries(3);
-        let builder =
-            ClientBuilder::new(base_client).with(RetryTransientMiddleware::new_with_policy(
-                retry_policy,
-            ));
+        let builder = ClientBuilder::new(base_client)
+            .with(RetryTransientMiddleware::new_with_policy(retry_policy));
 
         #[cfg(feature = "tracing")]
         let builder = builder.with(reqwest_tracing::TracingMiddleware::default());
@@ -131,11 +130,7 @@ impl NvisyRt {
     }
 
     #[allow(dead_code)]
-    pub(crate) async fn send(
-        &self,
-        method: Method,
-        path: &str,
-    ) -> Result<reqwest::Response> {
+    pub(crate) async fn send(&self, method: Method, path: &str) -> Result<reqwest::Response> {
         let url = self.parse_url(path)?;
         let response = self.request(method, url).send().await?;
         Ok(response)

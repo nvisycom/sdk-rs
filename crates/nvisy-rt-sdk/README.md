@@ -9,7 +9,7 @@ Rust client library for the Nvisy Runtime API (direct task handling).
 
 ```toml
 [dependencies]
-nvisy-rt-sdk = "0.1"
+nvisy-rt-sdk = { version = "0.1", features = [] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
@@ -25,6 +25,12 @@ async fn main() -> Result<()> {
     Ok(())
 }
 ```
+
+## Getting Started
+
+The fastest way to get started is with [Nvisy Cloud](https://nvisy.com).
+
+To run locally, see the [runtime](https://github.com/nvisycom/runtime) and [server](https://github.com/nvisycom/server) repositories.
 
 ## License
 
