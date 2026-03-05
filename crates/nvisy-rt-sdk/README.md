@@ -20,7 +20,7 @@ use nvisy_rt_sdk::{NvisyRt, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let client = NvisyRt::new_default()?;
+    let client = NvisyRt::new()?;
     // ...
     Ok(())
 }

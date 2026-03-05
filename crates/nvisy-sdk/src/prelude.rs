@@ -6,5 +6,5 @@
 //! use nvisy_sdk::prelude::*;
 //! ```
 
-pub use crate::client::{Nvisy, NvisyConfig, NvisyConfigBuilder};
+pub use crate::client::{Nvisy, NvisyBuilder};
 pub use crate::error::{Error, Result};

@@ -1,6 +1,6 @@
 //! Error types for the Nvisy SDK.
 
-use crate::client::NvisyConfigBuilderError;
+use crate::client::NvisyBuilderError;
 
 /// Error type for Nvisy API operations.
 ///
@@ -35,7 +35,7 @@ pub enum Error {
     /// This occurs when configuration parameters are invalid or when using
     /// the configuration builder and validation fails during the build process.
     #[error("Configuration error: {0}")]
-    Config(#[from] NvisyConfigBuilderError),
+    Config(#[from] NvisyBuilderError),
 
     /// URL parsing error.
     ///
