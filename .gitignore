@@ -18,10 +18,7 @@ target/
 *.backup
 coverage/
 *.lcov
-
-# Generated specification
-openapi.json
-nvisy-api/
+generated/
 
 # Build output
 dist/
