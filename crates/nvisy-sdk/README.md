@@ -35,7 +35,7 @@ async fn main() -> Result<()> {
 
 - `rustls-tls` *(default)*: use rustls for HTTPS
 - `native-tls`: use platform-native TLS (mutually exclusive with `rustls-tls`)
-- `tracing`: emit [`tracing`] spans and events for HTTP requests and client lifecycle
+- `tracing`: emit [tracing](https://docs.rs/tracing) spans and events for HTTP requests and client lifecycle
 
 ### Observability
 
