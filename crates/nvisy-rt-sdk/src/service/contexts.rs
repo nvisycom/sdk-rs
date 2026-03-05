@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use crate::NvisyRt;
 use crate::error::Result;
-use crate::model::{Context, ContextList, CreatedContext, DeletedContext, DeletedContexts, NewContext};
+use crate::model::{Context, ContextList, CreatedContext, NewContext};
 
 /// Operations for managing runtime contexts.
 pub trait ContextService {
@@ -22,10 +22,10 @@ pub trait ContextService {
     fn list_contexts(&self) -> impl Future<Output = Result<ContextList>> + Send;
 
     /// Deletes a context by ID.
-    fn delete_context(&self, id: Uuid) -> impl Future<Output = Result<DeletedContext>> + Send;
+    fn delete_context(&self, id: Uuid) -> impl Future<Output = Result<()>> + Send;
 
     /// Deletes all contexts.
-    fn delete_contexts(&self) -> impl Future<Output = Result<DeletedContexts>> + Send;
+    fn delete_contexts(&self) -> impl Future<Output = Result<()>> + Send;
 }
 
 impl ContextService for NvisyRt {
@@ -48,15 +48,14 @@ impl ContextService for NvisyRt {
         Ok(response.json().await?)
     }
 
-    async fn delete_context(&self, id: Uuid) -> Result<DeletedContext> {
-        let response = self
-            .send(Method::DELETE, &format!("/api/v1/contexts/{id}"))
+    async fn delete_context(&self, id: Uuid) -> Result<()> {
+        self.send(Method::DELETE, &format!("/api/v1/contexts/{id}"))
             .await?;
-        Ok(response.json().await?)
+        Ok(())
     }
 
-    async fn delete_contexts(&self) -> Result<DeletedContexts> {
-        let response = self.send(Method::DELETE, "/api/v1/contexts").await?;
-        Ok(response.json().await?)
+    async fn delete_contexts(&self) -> Result<()> {
+        self.send(Method::DELETE, "/api/v1/contexts").await?;
+        Ok(())
     }
 }

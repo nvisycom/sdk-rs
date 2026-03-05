@@ -37,26 +37,10 @@ pub struct File {
     pub content: String,
 }
 
-/// Response body for `DELETE /api/v1/files/{id}`.
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct DeletedFile {
-    /// Identifier of the deleted file.
-    pub id: Uuid,
-}
-
 /// Response body for `GET /api/v1/files`.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FileList {
     /// List of file identifiers.
     pub files: Vec<Uuid>,
-}
-
-/// Response body for `DELETE /api/v1/files`.
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct DeletedFiles {
-    /// Number of files deleted.
-    pub deleted: usize,
 }

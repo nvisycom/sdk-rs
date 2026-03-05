@@ -32,26 +32,10 @@ pub struct Context {
     pub context: Value,
 }
 
-/// Response body for `DELETE /api/v1/contexts/{id}`.
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct DeletedContext {
-    /// Identifier of the deleted context.
-    pub id: Uuid,
-}
-
 /// Response body for `GET /api/v1/contexts`.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ContextList {
     /// List of context identifiers.
     pub contexts: Vec<Uuid>,
-}
-
-/// Response body for `DELETE /api/v1/contexts`.
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct DeletedContexts {
-    /// Number of contexts deleted.
-    pub deleted: usize,
 }

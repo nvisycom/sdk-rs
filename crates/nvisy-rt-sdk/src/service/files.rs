@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use crate::NvisyRt;
 use crate::error::Result;
-use crate::model::{CreatedFile, DeletedFile, DeletedFiles, File, FileList, NewFile};
+use crate::model::{CreatedFile, File, FileList, NewFile};
 
 /// Operations for managing runtime files.
 pub trait FileService {
@@ -19,10 +19,10 @@ pub trait FileService {
     fn list_files(&self) -> impl Future<Output = Result<FileList>> + Send;
 
     /// Deletes a file by ID.
-    fn delete_file(&self, id: Uuid) -> impl Future<Output = Result<DeletedFile>> + Send;
+    fn delete_file(&self, id: Uuid) -> impl Future<Output = Result<()>> + Send;
 
     /// Deletes all files.
-    fn delete_files(&self) -> impl Future<Output = Result<DeletedFiles>> + Send;
+    fn delete_files(&self) -> impl Future<Output = Result<()>> + Send;
 }
 
 impl FileService for NvisyRt {
@@ -45,15 +45,14 @@ impl FileService for NvisyRt {
         Ok(response.json().await?)
     }
 
-    async fn delete_file(&self, id: Uuid) -> Result<DeletedFile> {
-        let response = self
-            .send(Method::DELETE, &format!("/api/v1/files/{id}"))
+    async fn delete_file(&self, id: Uuid) -> Result<()> {
+        self.send(Method::DELETE, &format!("/api/v1/files/{id}"))
             .await?;
-        Ok(response.json().await?)
+        Ok(())
     }
 
-    async fn delete_files(&self) -> Result<DeletedFiles> {
-        let response = self.send(Method::DELETE, "/api/v1/files").await?;
-        Ok(response.json().await?)
+    async fn delete_files(&self) -> Result<()> {
+        self.send(Method::DELETE, "/api/v1/files").await?;
+        Ok(())
     }
 }
