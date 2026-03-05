@@ -6,9 +6,13 @@ use crate::client::NvisyRtConfigBuilderError;
 #[non_exhaustive]
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    /// HTTP transport error from the underlying HTTP client.
+    /// HTTP middleware error from the underlying HTTP client.
     #[error("HTTP error: {0}")]
-    Http(#[from] reqwest::Error),
+    Http(#[from] reqwest_middleware::Error),
+
+    /// HTTP transport error from reqwest.
+    #[error("HTTP error: {0}")]
+    Reqwest(#[from] reqwest::Error),
 
     /// JSON serialization/deserialization error.
     #[error("Serialization error: {0}")]

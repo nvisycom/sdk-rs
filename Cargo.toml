@@ -14,7 +14,10 @@ homepage = "https://nvisy.com"
 
 [workspace.dependencies]
 # HTTP
-reqwest = { version = "0.12", default-features = false, features = ["json", "multipart"] }
+reqwest = { version = "0.13", default-features = false, features = ["json", "multipart"] }
+reqwest-middleware = { version = "0.5", features = ["json", "multipart", "query"] }
+reqwest-retry = { version = "0.9", features = [] }
+reqwest-tracing = { version = "0.7", features = [] }
 url = { version = "2.5", features = [] }
 
 # Serialization

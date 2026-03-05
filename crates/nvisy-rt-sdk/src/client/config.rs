@@ -6,7 +6,7 @@ use std::time::Duration;
 use derive_builder::Builder;
 use reqwest::Client;
 
-use super::rt::NvisyRt;
+use super::nvisy::NvisyRt;
 use crate::error::Result;
 
 /// Default base URL for the Nvisy Runtime API.

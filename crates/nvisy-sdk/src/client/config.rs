@@ -73,8 +73,8 @@ pub struct NvisyConfig {
 
     /// Optional custom reqwest client.
     ///
-    /// If provided, this client will be used instead of creating a new one.
-    /// This allows for custom configuration of the HTTP client.
+    /// If provided, this client will be used as the base for the middleware stack
+    /// instead of creating a new one.
     #[builder(default = "None")]
     client: Option<Client>,
 }

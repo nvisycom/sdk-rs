@@ -3,8 +3,10 @@
 use std::fmt;
 use std::sync::Arc;
 
+use reqwest::Method;
 use reqwest::multipart::Form;
-use reqwest::{Client, Method, RequestBuilder, Response};
+use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, RequestBuilder};
+use reqwest_retry::{RetryTransientMiddleware, policies::ExponentialBackoff};
 
 use super::config::NvisyRtConfig;
 #[cfg(feature = "tracing")]
@@ -32,10 +34,9 @@ pub struct NvisyRt {
     pub(crate) inner: Arc<NvisyRtInner>,
 }
 
-#[derive(Debug)]
 pub(crate) struct NvisyRtInner {
     pub(crate) config: NvisyRtConfig,
-    pub(crate) client: Client,
+    pub(crate) client: ClientWithMiddleware,
 }
 
 impl NvisyRt {
@@ -45,11 +46,24 @@ impl NvisyRt {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_CLIENT, "Creating Nvisy Runtime client");
 
-        let client = if let Some(custom_client) = config.client() {
+        let base_client = if let Some(custom_client) = config.client() {
             custom_client
         } else {
-            Client::builder().timeout(config.timeout()).build()?
+            reqwest::Client::builder()
+                .timeout(config.timeout())
+                .build()?
         };
+
+        let retry_policy = ExponentialBackoff::builder().build_with_max_retries(3);
+        let builder =
+            ClientBuilder::new(base_client).with(RetryTransientMiddleware::new_with_policy(
+                retry_policy,
+            ));
+
+        #[cfg(feature = "tracing")]
+        let builder = builder.with(reqwest_tracing::TracingMiddleware::default());
+
+        let client = builder.build();
 
         #[cfg(feature = "tracing")]
         tracing::info!(
@@ -117,7 +131,11 @@ impl NvisyRt {
     }
 
     #[allow(dead_code)]
-    pub(crate) async fn send(&self, method: Method, path: &str) -> Result<Response> {
+    pub(crate) async fn send(
+        &self,
+        method: Method,
+        path: &str,
+    ) -> Result<reqwest::Response> {
         let url = self.parse_url(path)?;
         let response = self.request(method, url).send().await?;
         Ok(response)
@@ -129,7 +147,7 @@ impl NvisyRt {
         method: Method,
         path: &str,
         data: &T,
-    ) -> Result<Response> {
+    ) -> Result<reqwest::Response> {
         let url = self.parse_url(path)?;
         let response = self.request(method, url).json(data).send().await?;
         Ok(response)
@@ -141,7 +159,7 @@ impl NvisyRt {
         method: Method,
         path: &str,
         params: &[(&str, &str)],
-    ) -> Result<Response> {
+    ) -> Result<reqwest::Response> {
         let url = self.build_url(path, params)?;
         let response = self.request(method, url).send().await?;
         Ok(response)
@@ -153,7 +171,7 @@ impl NvisyRt {
         method: Method,
         path: &str,
         form: Form,
-    ) -> Result<Response> {
+    ) -> Result<reqwest::Response> {
         let url = self.parse_url(path)?;
         let response = self.request(method, url).multipart(form).send().await?;
         Ok(response)
