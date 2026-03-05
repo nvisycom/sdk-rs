@@ -5,15 +5,22 @@ name = "nvisy-sdk"
 description = "Rust client for the Nvisy Server API: authentication, workspace management, and task routing"
 readme = "README.md"
 
+# Release
 version = { workspace = true }
-rust-version = { workspace = true }
-edition = { workspace = true }
-license = { workspace = true }
 publish = { workspace = true }
+license = { workspace = true }
+
+# Rust
+edition = { workspace = true }
+rust-version = { workspace = true }
+
+# Metadata
 authors = { workspace = true }
 repository = { workspace = true }
 homepage = { workspace = true }
 documentation = { workspace = true }
+keywords = { workspace = true }
+categories = { workspace = true }
 
 [package.metadata.docs.rs]
 all-features = true

@@ -17,6 +17,8 @@ authors = ["Nvisy <support@nvisy.com>"]
 repository = "https://github.com/nvisycom/sdk-rs"
 homepage = "https://nvisy.com"
 documentation = "https://docs.nvisy.com"
+keywords = ["nvisy", "redaction", "pii", "sdk", "async"]
+categories = ["api-bindings", "asynchronous"]
 
 [workspace.dependencies]
 # HTTP
