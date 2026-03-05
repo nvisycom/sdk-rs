@@ -6,6 +6,8 @@ use derive_builder::Builder;
 use reqwest::Client;
 
 use super::nvisy::NvisyRt;
+#[cfg(feature = "tracing")]
+use crate::TRACING_TARGET_CONFIG;
 use crate::error::Result;
 
 /// Default base URL for the Nvisy Runtime API.
@@ -33,7 +35,9 @@ pub const DEFAULT_USER_AGENT: &str = concat!(
     setter(into, strip_option, prefix = "with"),
     build_fn(validate = "Self::validate", private, name = "build_config")
 )]
-#[builder_struct_attr(doc = "Builder for configuring and creating a [`NvisyRt`] client.\n\n[`NvisyRt`]: crate::NvisyRt")]
+#[builder_struct_attr(
+    doc = "Builder for configuring and creating a [`NvisyRt`] client.\n\n[`NvisyRt`]: crate::NvisyRt"
+)]
 pub struct NvisyRtOptions {
     /// Base URL for the Nvisy Runtime API.
     ///
@@ -107,7 +111,20 @@ impl NvisyRtBuilder {
 
     /// Builds the Nvisy Runtime client.
     pub fn build(self) -> Result<NvisyRt> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_CONFIG, "Building NvisyRt client from config");
+
         let options = self.build_config()?;
+
+        #[cfg(feature = "tracing")]
+        tracing::debug!(
+            target: TRACING_TARGET_CONFIG,
+            base_url = %options.base_url,
+            timeout_secs = options.timeout.as_secs(),
+            max_retries = options.max_retries,
+            "Config validated"
+        );
+
         NvisyRt::from_options(options)
     }
 }

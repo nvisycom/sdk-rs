@@ -23,6 +23,12 @@ pub mod prelude;
 #[cfg(feature = "tracing")]
 pub(crate) const TRACING_TARGET_CLIENT: &str = "nvisy_rt_sdk::client";
 
+#[cfg(feature = "tracing")]
+pub(crate) const TRACING_TARGET_SERVICE: &str = "nvisy_rt_sdk::service";
+
+#[cfg(feature = "tracing")]
+pub(crate) const TRACING_TARGET_CONFIG: &str = "nvisy_rt_sdk::config";
+
 // Re-export client types
 pub use client::{
     DEFAULT_BASE_URL, DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, DEFAULT_USER_AGENT, NvisyRt,

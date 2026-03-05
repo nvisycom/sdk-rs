@@ -47,6 +47,9 @@ reqwest-middleware = { workspace = true, features = [] }
 reqwest-retry = { workspace = true, features = [] }
 url = { workspace = true, features = [] }
 
+# Encoding
+base64 = { workspace = true, features = [] }
+
 # Serialization
 serde = { workspace = true, features = [] }
 serde_json = { workspace = true, features = [] }

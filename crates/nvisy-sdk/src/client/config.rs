@@ -6,6 +6,8 @@ use derive_builder::Builder;
 use reqwest::Client;
 
 use super::nvisy::Nvisy;
+#[cfg(feature = "tracing")]
+use crate::TRACING_TARGET_CONFIG;
 use crate::error::Result;
 
 /// Default base URL for the Nvisy API.
@@ -33,7 +35,9 @@ pub const DEFAULT_USER_AGENT: &str = concat!(
     setter(into, strip_option, prefix = "with"),
     build_fn(validate = "Self::validate", private, name = "build_config")
 )]
-#[builder_struct_attr(doc = "Builder for configuring and creating a [`Nvisy`] client.\n\n[`Nvisy`]: crate::Nvisy")]
+#[builder_struct_attr(
+    doc = "Builder for configuring and creating a [`Nvisy`] client.\n\n[`Nvisy`]: crate::Nvisy"
+)]
 pub struct NvisyOptions {
     /// API key for authentication with the Nvisy API.
     ///
@@ -128,7 +132,20 @@ impl NvisyBuilder {
     ///     .unwrap();
     /// ```
     pub fn build(self) -> Result<Nvisy> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_CONFIG, "Building Nvisy client from config");
+
         let options = self.build_config()?;
+
+        #[cfg(feature = "tracing")]
+        tracing::debug!(
+            target: TRACING_TARGET_CONFIG,
+            base_url = %options.base_url,
+            timeout_secs = options.timeout.as_secs(),
+            max_retries = options.max_retries,
+            "Config validated"
+        );
+
         Nvisy::from_options(options)
     }
 }

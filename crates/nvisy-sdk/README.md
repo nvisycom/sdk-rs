@@ -46,18 +46,11 @@ Enable the `tracing` feature to instrument all HTTP requests and client operatio
 nvisy-sdk = { version = "0.1", features = ["tracing"] }
 ```
 
-The SDK emits spans and events under the `nvisy_sdk::client` target at the
-following levels:
-
-- **INFO**: client creation
-- **DEBUG**: HTTP requests (method, URL, status, latency)
-- **TRACE**: request construction details
-
 ## Getting Started
 
 The fastest way to get started is with [Nvisy Cloud](https://nvisy.com).
 
-To run locally, see the [runtime](https://github.com/nvisycom/runtime) and [server](https://github.com/nvisycom/server) repositories.
+To run locally, see the [nvisycom/runtime](https://github.com/nvisycom/runtime) and [nvisycom/server](https://github.com/nvisycom/server) repositories.
 
 ## License
 

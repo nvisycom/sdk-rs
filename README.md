@@ -18,7 +18,7 @@ healthcare, legal, government, and financial services.
 
 The fastest way to get started is with [Nvisy Cloud](https://nvisy.com).
 
-To run locally, see the [runtime](https://github.com/nvisycom/runtime) and [server](https://github.com/nvisycom/server) repositories.
+To run locally, see the [nvisycom/runtime](https://github.com/nvisycom/runtime) and [nvisycom/server](https://github.com/nvisycom/server) repositories.
 
 ## Changelog
 

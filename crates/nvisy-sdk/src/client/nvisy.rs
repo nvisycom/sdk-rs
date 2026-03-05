@@ -10,10 +10,10 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use reqwest::Method;
-use reqwest::multipart::Form;
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, RequestBuilder};
 use reqwest_retry::RetryTransientMiddleware;
 use reqwest_retry::policies::ExponentialBackoff;
+use url::Url;
 
 use super::config::{NvisyBuilder, NvisyOptions};
 #[cfg(feature = "tracing")]
@@ -189,23 +189,13 @@ impl Nvisy {
         self.inner.timeout
     }
 
-    fn parse_url(&self, path: &str) -> Result<url::Url> {
-        let mut url = url::Url::parse(&self.inner.base_url)?;
+    fn parse_url(&self, path: &str) -> Result<Url> {
+        let mut url = Url::parse(&self.inner.base_url)?;
         url.set_path(&format!("{}{}", url.path().trim_end_matches('/'), path));
         Ok(url)
     }
 
-    fn build_url(&self, path: &str, params: &[(&str, &str)]) -> Result<url::Url> {
-        let mut url = self.parse_url(path)?;
-
-        if !params.is_empty() {
-            url.query_pairs_mut().extend_pairs(params);
-        }
-
-        Ok(url)
-    }
-
-    fn request(&self, method: Method, url: url::Url) -> RequestBuilder {
+    fn request(&self, method: Method, url: Url) -> RequestBuilder {
         #[cfg(feature = "tracing")]
         tracing::trace!(
             target: TRACING_TARGET_CLIENT,
@@ -221,7 +211,6 @@ impl Nvisy {
             .header("Authorization", format!("Bearer {}", self.inner.api_key))
     }
 
-    #[allow(dead_code)]
     pub(crate) async fn send(&self, method: Method, path: &str) -> Result<reqwest::Response> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "Sending request");
@@ -240,7 +229,6 @@ impl Nvisy {
         Ok(response)
     }
 
-    #[allow(dead_code)]
     pub(crate) async fn send_json<T: serde::Serialize>(
         &self,
         method: Method,
@@ -262,60 +250,6 @@ impl Nvisy {
         );
 
         Ok(response)
-    }
-
-    #[allow(dead_code)]
-    pub(crate) async fn send_with_params(
-        &self,
-        method: Method,
-        path: &str,
-        params: &[(&str, &str)],
-    ) -> Result<reqwest::Response> {
-        #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "Sending request with params");
-
-        let url = self.build_url(path, params)?;
-        let response = self.request(method, url).send().await?;
-
-        #[cfg(feature = "tracing")]
-        tracing::debug!(
-            target: TRACING_TARGET_CLIENT,
-            status = response.status().as_u16(),
-            path,
-            "Response received"
-        );
-
-        Ok(response)
-    }
-
-    #[allow(dead_code)]
-    pub(crate) async fn send_multipart(
-        &self,
-        method: Method,
-        path: &str,
-        form: Form,
-    ) -> Result<reqwest::Response> {
-        #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "Sending multipart request");
-
-        let url = self.parse_url(path)?;
-        let response = self.request(method, url).multipart(form).send().await?;
-
-        #[cfg(feature = "tracing")]
-        tracing::debug!(
-            target: TRACING_TARGET_CLIENT,
-            status = response.status().as_u16(),
-            path,
-            "Response received"
-        );
-
-        Ok(response)
-    }
-
-    #[allow(dead_code)]
-    pub(crate) fn request_builder(&self, method: Method, path: &str) -> Result<RequestBuilder> {
-        let url = self.parse_url(path)?;
-        Ok(self.request(method, url))
     }
 }
 
