@@ -18,13 +18,14 @@ target/
 *.backup
 coverage/
 *.lcov
+
+# Generated specification
 openapi.json
 nvisy-api/
 
 # Build output
 dist/
 build/
-output/
 
 # Environment files
 .env*
@@ -44,6 +45,5 @@ temp/
 
 # Other
 .ignore*/
-LLM.md
 .claude
 CLAUDE.md

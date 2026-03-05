@@ -8,18 +8,18 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-03-05
+
 ### Added
 
-- Initial release of the Nvisy Rust SDK
-- REST API client with async/await support
-- Type-safe request and response models
-- Configurable HTTP client with retry policies
-- Comprehensive error handling
+- `nvisy-sdk`: async client for the Nvisy Server API (auth, workspaces, task routing)
+- `nvisy-rt-sdk`: async client for the Nvisy Runtime API (direct redaction)
+- Builder pattern for client construction with validation
+- Configurable `base_url`, `timeout`, `max_retries`, and `user_agent`
+- Automatic retries with exponential backoff via `reqwest-retry`
+- Optional `tracing` feature for request/response observability
+- TLS backend selection: `rustls-tls` (default) or `native-tls`
+- Compile-time guards for mutually exclusive TLS features
 
-### Changed
-
-### Fixed
-
-### Removed
-
-[Unreleased]: https://github.com/nvisycom/sdk-rs/compare/main...HEAD
+[Unreleased]: https://github.com/nvisycom/sdk-rs/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/nvisycom/sdk-rs/releases/tag/v0.1.0
