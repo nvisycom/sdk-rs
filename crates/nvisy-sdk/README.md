@@ -1,7 +1,8 @@
 # nvisy-sdk
 
-[![Crates.io](https://img.shields.io/crates/v/nvisy-sdk?style=flat-square&color=black)](https://crates.io/crates/nvisy-sdk)
-[![Documentation](https://img.shields.io/docsrs/nvisy-sdk?style=flat-square&color=black)](https://docs.rs/nvisy-sdk)
+[![Crates.io](https://img.shields.io/crates/v/nvisy-sdk?style=flat-square)](https://crates.io/crates/nvisy-sdk)
+[![Documentation](https://img.shields.io/docsrs/nvisy-sdk?style=flat-square)](https://docs.rs/nvisy-sdk)
+[![Build](https://img.shields.io/github/actions/workflow/status/nvisycom/sdk-rs/build.yml?branch=main&label=build%20%26%20test&style=flat-square)](https://github.com/nvisycom/sdk-rs/actions/workflows/build.yml)
 
 Rust client for the [Nvisy](https://nvisy.com) Server API.
 

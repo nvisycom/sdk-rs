@@ -4,7 +4,7 @@ Thank you for your interest in contributing to the Nvisy Rust SDK.
 
 ## Requirements
 
-- Rust 1.89+ (nightly for formatting)
+- Rust 1.92+
 
 ## Setup
 
@@ -12,23 +12,6 @@ Thank you for your interest in contributing to the Nvisy Rust SDK.
 git clone https://github.com/nvisycom/sdk-rs.git
 cd sdk-rs
 cargo build
-```
-
-### SSH Access
-
-Some dependencies are fetched from private GitHub repositories via SSH. Ensure
-your SSH key is added to your GitHub account and ssh-agent is running:
-
-```bash
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_ed25519
-ssh -T git@github.com  # verify access
-```
-
-If cargo fails to fetch git dependencies, enable CLI-based git fetching:
-
-```bash
-export CARGO_NET_GIT_FETCH_WITH_CLI=true
 ```
 
 ## Development
@@ -55,7 +38,6 @@ cargo doc --no-deps
 
 - Never commit secrets or API keys
 - Use environment variables for configuration
-- Validate all external inputs
 
 ## License
 
