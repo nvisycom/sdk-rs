@@ -32,8 +32,7 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   publish:
     name: Publish to crates.io
@@ -59,8 +58,6 @@ jobs:
 
       - name: Publish nvisy-sdk
         run: cargo publish -p nvisy-sdk --token ${{ secrets.CARGO_TOKEN }}
-        continue-on-error: true
 
       - name: Publish nvisy-rt-sdk
         run: cargo publish -p nvisy-rt-sdk --token ${{ secrets.CARGO_TOKEN }}
-        continue-on-error: true
