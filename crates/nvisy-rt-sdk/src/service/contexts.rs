@@ -11,14 +11,14 @@ use crate::model::{Context, ContextId, ContextList, NewContext};
 
 /// Operations for managing runtime contexts.
 pub trait ContextService {
-    /// Creates a new context.
-    fn create_context(
+    /// Uploads a new context.
+    fn upload_context(
         &self,
         request: &NewContext,
     ) -> impl Future<Output = Result<ContextId>> + Send;
 
-    /// Retrieves a context by ID.
-    fn get_context(&self, id: Uuid) -> impl Future<Output = Result<Context>> + Send;
+    /// Downloads a context by ID.
+    fn download_context(&self, id: Uuid) -> impl Future<Output = Result<Context>> + Send;
 
     /// Lists all contexts.
     fn list_contexts(&self) -> impl Future<Output = Result<ContextList>> + Send;
@@ -31,9 +31,9 @@ pub trait ContextService {
 }
 
 impl ContextService for NvisyRt {
-    async fn create_context(&self, request: &NewContext) -> Result<ContextId> {
+    async fn upload_context(&self, request: &NewContext) -> Result<ContextId> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, actor_id = %request.actor_id, "Creating context");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, actor_id = %request.actor_id, "Uploading context");
 
         let response = self
             .send_json(Method::POST, "/api/v1/contexts", request)
@@ -41,14 +41,14 @@ impl ContextService for NvisyRt {
         let created: ContextId = response.json().await?;
 
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, id = %created.id, "Context created");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, id = %created.id, "Context uploaded");
 
         Ok(created)
     }
 
-    async fn get_context(&self, id: Uuid) -> Result<Context> {
+    async fn download_context(&self, id: Uuid) -> Result<Context> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "Getting context");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "Downloading context");
 
         let response = self
             .send(Method::GET, &format!("/api/v1/contexts/{id}"))

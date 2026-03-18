@@ -11,11 +11,11 @@ use crate::model::{File, FileId, FileList, NewFile};
 
 /// Operations for managing runtime files.
 pub trait FileService {
-    /// Creates (uploads) a new file.
-    fn create_file(&self, request: &NewFile) -> impl Future<Output = Result<FileId>> + Send;
+    /// Uploads a new file.
+    fn upload_file(&self, request: &NewFile) -> impl Future<Output = Result<FileId>> + Send;
 
-    /// Retrieves a file by ID.
-    fn get_file(&self, id: Uuid) -> impl Future<Output = Result<File>> + Send;
+    /// Downloads a file by ID.
+    fn download_file(&self, id: Uuid) -> impl Future<Output = Result<File>> + Send;
 
     /// Lists all files.
     fn list_files(&self) -> impl Future<Output = Result<FileList>> + Send;
@@ -28,14 +28,14 @@ pub trait FileService {
 }
 
 impl FileService for NvisyRt {
-    async fn create_file(&self, request: &NewFile) -> Result<FileId> {
+    async fn upload_file(&self, request: &NewFile) -> Result<FileId> {
         #[cfg(feature = "tracing")]
         tracing::debug!(
             target: TRACING_TARGET_SERVICE,
             actor_id = %request.actor_id,
             filename = ?request.filename,
             content_type = ?request.content_type,
-            "Creating file"
+            "Uploading file"
         );
 
         let response = self
@@ -44,14 +44,14 @@ impl FileService for NvisyRt {
         let created: FileId = response.json().await?;
 
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, id = %created.id, "File created");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, id = %created.id, "File uploaded");
 
         Ok(created)
     }
 
-    async fn get_file(&self, id: Uuid) -> Result<File> {
+    async fn download_file(&self, id: Uuid) -> Result<File> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "Getting file");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "Downloading file");
 
         let response = self
             .send(Method::GET, &format!("/api/v1/files/{id}"))

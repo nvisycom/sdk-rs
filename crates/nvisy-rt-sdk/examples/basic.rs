@@ -24,11 +24,11 @@ async fn main() -> Result<()> {
     let new_file = NewFile::from_bytes(actor_id, b"Hello, world!")
         .with_filename("hello.txt")
         .with_content_type("text/plain");
-    let file_id = client.create_file(&new_file).await?;
-    println!("  Created file: {}", file_id.id);
+    let file_id = client.upload_file(&new_file).await?;
+    println!("  Uploaded file: {}", file_id.id);
 
-    // Retrieve the file
-    let file = client.get_file(file_id.id).await?;
+    // Download the file
+    let file = client.download_file(file_id.id).await?;
     let bytes = file.decode_content()?;
     println!("  File content: {}", String::from_utf8_lossy(&bytes));
 
@@ -38,11 +38,11 @@ async fn main() -> Result<()> {
 
     // Create a context
     let new_context = NewContext::new(actor_id, json!({ "language": "en" }));
-    let context_id = client.create_context(&new_context).await?;
-    println!("  Created context: {}", context_id.id);
+    let context_id = client.upload_context(&new_context).await?;
+    println!("  Uploaded context: {}", context_id.id);
 
-    // Retrieve the context
-    let context = client.get_context(context_id.id).await?;
+    // Download the context
+    let context = client.download_context(context_id.id).await?;
     println!("  Context value: {}", context.context);
 
     // List all contexts
