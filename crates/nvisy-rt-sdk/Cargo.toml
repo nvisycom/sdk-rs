@@ -72,5 +72,13 @@ reqwest-tracing = { workspace = true, optional = true, features = [] }
 tokio = { workspace = true, features = [] }
 
 [[example]]
-name = "basic"
-path = "examples/basic.rs"
+name = "minimal"
+path = "examples/minimal.rs"
+
+[[example]]
+name = "lifecycle"
+path = "examples/lifecycle.rs"
+
+[[example]]
+name = "config"
+path = "examples/config.rs"
