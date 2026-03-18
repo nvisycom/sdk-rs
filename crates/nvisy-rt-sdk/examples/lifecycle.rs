@@ -9,7 +9,7 @@ use uuid::Uuid;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let client = NvisyRt::new()?;
+    let client = NvisyRt::new();
     let actor_id = Uuid::new_v4();
 
     // Create a run

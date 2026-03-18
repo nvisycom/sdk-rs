@@ -105,8 +105,8 @@ impl NvisyRtBuilder {
     }
 
     /// Sets the timeout in seconds.
-    pub fn with_timeout_secs(self, secs: u64) -> Self {
-        self.with_timeout(Duration::from_secs(secs))
+    pub fn with_timeout_secs(self, secs: u16) -> Self {
+        self.with_timeout(Duration::from_secs(secs as u64))
     }
 
     /// Builds the Nvisy Runtime client.
