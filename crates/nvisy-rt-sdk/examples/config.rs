@@ -4,7 +4,7 @@
 
 use std::time::Duration;
 
-use nvisy_rt_sdk::service::CheckService;
+use nvisy_rt_sdk::service::InfraService;
 use nvisy_rt_sdk::{NvisyRt, Result};
 
 #[tokio::main]
@@ -21,11 +21,13 @@ async fn main() -> Result<()> {
 
     // Health check
     let health = client.health().await?;
-    println!("Healthy:  {}", health.healthy);
+    println!("Status:   {:?}", health.status);
+    println!("Checked:  {}", health.timestamp);
 
     // Analytics
     let analytics = client.analytics().await?;
-    println!("Analytics: {analytics:?}");
+    println!("Runs:     {}", analytics.total_runs);
+    println!("Active:   {}", analytics.active_runs);
 
     Ok(())
 }

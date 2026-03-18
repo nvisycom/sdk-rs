@@ -5,14 +5,12 @@
 //!
 //! [`NvisyRt`]: crate::NvisyRt
 
-mod check;
 mod contexts;
 mod files;
+mod infra;
 mod runs;
-mod spec;
 
-pub use check::*;
 pub use contexts::*;
 pub use files::*;
+pub use infra::*;
 pub use runs::*;
-pub use spec::*;
