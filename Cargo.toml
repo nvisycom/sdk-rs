@@ -37,7 +37,7 @@ serde_json = { version = "1.0", features = [] }
 
 # Primitives
 jiff = { version = "0.2", features = ["serde"] }
-uuid = { version = "1.21", features = ["serde", "v4"] }
+uuid = { version = "1.22", features = ["serde", "v4"] }
 
 # Error handling
 thiserror = { version = "2.0", features = [] }
