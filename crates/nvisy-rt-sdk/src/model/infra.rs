@@ -1,4 +1,4 @@
-//! Check response types: health and analytics.
+//! Infrastructure response types: health and analytics.
 
 use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
@@ -16,12 +16,24 @@ pub enum ServiceStatus {
     Unhealthy,
 }
 
+/// Health status of a single service component.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ComponentCheck {
+    /// Component name (e.g. `"filesystem"`, `"registry"`).
+    pub name: String,
+    /// Status of this component.
+    pub status: ServiceStatus,
+}
+
 /// Response body for `GET /health`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Health {
-    /// Current service status.
+    /// Overall service status.
     pub status: ServiceStatus,
+    /// Per-component health checks.
+    pub checks: Vec<ComponentCheck>,
     /// RFC 3339 timestamp of when the check was performed.
     pub timestamp: Timestamp,
 }

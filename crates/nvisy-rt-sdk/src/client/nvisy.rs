@@ -245,6 +245,12 @@ impl NvisyRt {
     }
 }
 
+impl Default for NvisyRt {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl fmt::Debug for NvisyRt {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("NvisyRt")
