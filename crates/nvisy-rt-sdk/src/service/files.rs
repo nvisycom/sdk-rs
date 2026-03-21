@@ -66,7 +66,11 @@ impl FileService for NvisyRt {
         tracing::debug!(target: TRACING_TARGET_SERVICE, "Listing files");
 
         let url = self.resolve_url("/api/v1/files");
-        let response = self.request(Method::GET, url).query(pagination).send().await?;
+        let response = self
+            .request(Method::GET, url)
+            .query(pagination)
+            .send()
+            .await?;
         let response = self.check_response(response).await?;
         Ok(response.json().await?)
     }

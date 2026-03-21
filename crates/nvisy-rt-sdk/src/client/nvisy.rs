@@ -4,8 +4,8 @@ use std::fmt;
 use std::sync::Arc;
 use std::time::Duration;
 
-use reqwest::{Method, Response};
 use reqwest::header::HeaderValue;
+use reqwest::{Method, Response};
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, RequestBuilder};
 use reqwest_retry::RetryTransientMiddleware;
 use reqwest_retry::policies::ExponentialBackoff;

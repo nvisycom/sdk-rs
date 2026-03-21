@@ -64,7 +64,11 @@ impl ContextService for NvisyRt {
         tracing::debug!(target: TRACING_TARGET_SERVICE, "Listing contexts");
 
         let url = self.resolve_url("/api/v1/contexts");
-        let response = self.request(Method::GET, url).query(pagination).send().await?;
+        let response = self
+            .request(Method::GET, url)
+            .query(pagination)
+            .send()
+            .await?;
         let response = self.check_response(response).await?;
         Ok(response.json().await?)
     }
