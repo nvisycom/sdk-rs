@@ -7,21 +7,24 @@ use crate::NvisyRt;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
 use crate::error::Result;
-use crate::model::{Context, ContextId, ContextList, NewContext};
+use crate::model::{Context, ContextId, NewContext, Page, Pagination};
 
 /// Operations for managing runtime contexts.
 pub trait ContextService {
-    /// Creates a new context.
-    fn create_context(
+    /// Uploads a new context.
+    fn upload_context(
         &self,
         request: &NewContext,
     ) -> impl Future<Output = Result<ContextId>> + Send;
 
-    /// Retrieves a context by ID.
-    fn get_context(&self, id: Uuid) -> impl Future<Output = Result<Context>> + Send;
+    /// Downloads a context by ID.
+    fn download_context(&self, id: Uuid) -> impl Future<Output = Result<Context>> + Send;
 
-    /// Lists all contexts.
-    fn list_contexts(&self) -> impl Future<Output = Result<ContextList>> + Send;
+    /// Lists contexts with pagination.
+    fn list_contexts(
+        &self,
+        pagination: &Pagination,
+    ) -> impl Future<Output = Result<Page<Uuid>>> + Send;
 
     /// Deletes a context by ID.
     fn delete_context(&self, id: Uuid) -> impl Future<Output = Result<()>> + Send;
@@ -31,9 +34,9 @@ pub trait ContextService {
 }
 
 impl ContextService for NvisyRt {
-    async fn create_context(&self, request: &NewContext) -> Result<ContextId> {
+    async fn upload_context(&self, request: &NewContext) -> Result<ContextId> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, actor_id = %request.actor_id, "Creating context");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, "Uploading context");
 
         let response = self
             .send_json(Method::POST, "/api/v1/contexts", request)
@@ -41,14 +44,14 @@ impl ContextService for NvisyRt {
         let created: ContextId = response.json().await?;
 
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, id = %created.id, "Context created");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, id = %created.id, "Context uploaded");
 
         Ok(created)
     }
 
-    async fn get_context(&self, id: Uuid) -> Result<Context> {
+    async fn download_context(&self, id: Uuid) -> Result<Context> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "Getting context");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "Downloading context");
 
         let response = self
             .send(Method::GET, &format!("/api/v1/contexts/{id}"))
@@ -56,11 +59,17 @@ impl ContextService for NvisyRt {
         Ok(response.json().await?)
     }
 
-    async fn list_contexts(&self) -> Result<ContextList> {
+    async fn list_contexts(&self, pagination: &Pagination) -> Result<Page<Uuid>> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_SERVICE, "Listing contexts");
 
-        let response = self.send(Method::GET, "/api/v1/contexts").await?;
+        let url = self.resolve_url("/api/v1/contexts");
+        let response = self
+            .request(Method::GET, url)
+            .query(pagination)
+            .send()
+            .await?;
+        let response = self.check_response(response).await?;
         Ok(response.json().await?)
     }
 

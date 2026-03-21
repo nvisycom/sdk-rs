@@ -1,6 +1,7 @@
 //! Error types for the Nvisy Runtime SDK.
 
 use crate::client::NvisyRtBuilderError;
+use crate::model::ApiError;
 
 /// Error type for Nvisy Runtime API operations.
 ///
@@ -44,18 +45,17 @@ pub enum Error {
     #[error("URL parse error: {0}")]
     UrlParse(#[from] url::ParseError),
 
-    /// I/O error.
-    ///
-    /// This occurs during file operations or other I/O tasks.
-    #[error("I/O error: {0}")]
-    Io(#[from] std::io::Error),
+    /// Base64 encoding/decoding error.
+    #[cfg(feature = "base64")]
+    #[error("Encoding error: {0}")]
+    Encoding(#[from] base64::DecodeError),
 
-    /// API error.
+    /// Structured error returned by the runtime API.
     ///
-    /// This occurs when the API returns an unexpected response format
-    /// or missing data that was expected.
-    #[error("API error: {0}")]
-    Api(String),
+    /// This occurs when the server responds with a non-success status
+    /// code and a structured error body.
+    #[error("{0}")]
+    Api(ApiError),
 }
 
 /// Result type for Nvisy Runtime API operations.

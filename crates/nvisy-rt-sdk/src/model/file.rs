@@ -1,33 +1,31 @@
 //! Data models for runtime files.
 
+#[cfg(feature = "base64")]
 use base64::Engine;
+#[cfg(feature = "base64")]
 use base64::engine::general_purpose::STANDARD;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-
-use crate::error::{Error, Result};
 
 /// Request payload for `POST /api/v1/files`.
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NewFile {
-    /// Actor identity that owns the file.
-    pub actor_id: Uuid,
     /// Base64-encoded file bytes.
     pub content: String,
     /// Optional original filename.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub filename: Option<String>,
     /// Optional MIME type override (e.g. `text/csv`).
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub content_type: Option<String>,
 }
 
 impl NewFile {
     /// Encodes raw bytes as base64 and returns a new `NewFile`.
-    pub fn from_bytes(actor_id: Uuid, bytes: &[u8]) -> Self {
+    #[cfg(feature = "base64")]
+    pub fn from_bytes(bytes: &[u8]) -> Self {
         Self {
-            actor_id,
             content: STANDARD.encode(bytes),
             filename: None,
             content_type: None,
@@ -63,21 +61,18 @@ pub struct File {
     pub id: Uuid,
     /// Base64-encoded file bytes.
     pub content: String,
+    /// MIME type of the file, if provided at upload.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub content_type: Option<String>,
+    /// Original filename, if provided at upload.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub filename: Option<String>,
 }
 
+#[cfg(feature = "base64")]
 impl File {
     /// Decodes the base64 content into raw bytes.
-    pub fn decode_content(&self) -> Result<Vec<u8>> {
-        STANDARD
-            .decode(&self.content)
-            .map_err(|e| Error::Api(format!("base64 decode error: {e}")))
+    pub fn decode_content(&self) -> crate::Result<Vec<u8>> {
+        Ok(STANDARD.decode(&self.content)?)
     }
-}
-
-/// Response body for `GET /api/v1/files`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct FileList {
-    /// List of file identifiers.
-    pub files: Vec<Uuid>,
 }

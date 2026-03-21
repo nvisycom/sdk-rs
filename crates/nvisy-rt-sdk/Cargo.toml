@@ -23,7 +23,7 @@ keywords = { workspace = true }
 categories = { workspace = true }
 
 [package.metadata.docs.rs]
-features = ["rustls-tls", "tracing"]
+features = ["rustls-tls", "base64", "tracing"]
 rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
@@ -40,15 +40,16 @@ native-tls = ["reqwest/native-tls"]
 ## Enable tracing support for HTTP requests and client operations
 tracing = ["dep:tracing", "dep:reqwest-tracing"]
 
+# Utilities
+## Enable base64 encoding/decoding helpers for file content
+base64 = ["dep:base64"]
+
 [dependencies]
 # HTTP
 reqwest = { workspace = true, features = [] }
 reqwest-middleware = { workspace = true, features = [] }
 reqwest-retry = { workspace = true, features = [] }
 url = { workspace = true, features = [] }
-
-# Encoding
-base64 = { workspace = true, features = [] }
 
 # Serialization
 serde = { workspace = true, features = [] }
@@ -61,8 +62,9 @@ uuid = { workspace = true, features = [] }
 # Error handling
 thiserror = { workspace = true, features = [] }
 
-# Derive macros
+# Derive macros an utilities
 derive_builder = { workspace = true, features = [] }
+base64 = { workspace = true, optional = true, features = [] }
 
 # Observability
 tracing = { workspace = true, optional = true, features = [] }
@@ -72,5 +74,14 @@ reqwest-tracing = { workspace = true, optional = true, features = [] }
 tokio = { workspace = true, features = [] }
 
 [[example]]
-name = "basic"
-path = "examples/basic.rs"
+name = "minimal"
+path = "examples/minimal.rs"
+required-features = ["base64"]
+
+[[example]]
+name = "lifecycle"
+path = "examples/lifecycle.rs"
+
+[[example]]
+name = "config"
+path = "examples/config.rs"

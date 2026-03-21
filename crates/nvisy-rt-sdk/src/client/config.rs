@@ -4,6 +4,7 @@ use std::time::Duration;
 
 use derive_builder::Builder;
 use reqwest::Client;
+use uuid::Uuid;
 
 use super::nvisy::NvisyRt;
 #[cfg(feature = "tracing")]
@@ -39,6 +40,12 @@ pub const DEFAULT_USER_AGENT: &str = concat!(
     doc = "Builder for configuring and creating a [`NvisyRt`] client.\n\n[`NvisyRt`]: crate::NvisyRt"
 )]
 pub struct NvisyRtOptions {
+    /// Actor identity sent with every request.
+    ///
+    /// Defaults to a random v4 UUID.
+    #[builder(default = "Uuid::new_v4()")]
+    pub(crate) actor_id: Uuid,
+
     /// Base URL for the Nvisy Runtime API.
     ///
     /// Defaults to [`DEFAULT_BASE_URL`].
@@ -105,8 +112,8 @@ impl NvisyRtBuilder {
     }
 
     /// Sets the timeout in seconds.
-    pub fn with_timeout_secs(self, secs: u64) -> Self {
-        self.with_timeout(Duration::from_secs(secs))
+    pub fn with_timeout_secs(self, secs: u16) -> Self {
+        self.with_timeout(Duration::from_secs(secs as u64))
     }
 
     /// Builds the Nvisy Runtime client.
