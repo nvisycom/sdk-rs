@@ -5,11 +5,13 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use reqwest::{Method, Response};
+use reqwest::header::HeaderValue;
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, RequestBuilder};
 use reqwest_retry::RetryTransientMiddleware;
 use reqwest_retry::policies::ExponentialBackoff;
 use serde::Serialize;
 use url::Url;
+use uuid::Uuid;
 
 use super::config::{NvisyRtBuilder, NvisyRtOptions};
 #[cfg(feature = "tracing")]
@@ -65,7 +67,11 @@ pub struct NvisyRt {
     pub(crate) inner: Arc<NvisyRtInner>,
 }
 
+/// Header name used to send the actor identity.
+const ACTOR_ID_HEADER: &str = "x-actor-id";
+
 pub(crate) struct NvisyRtInner {
+    pub(crate) actor_id: Uuid,
     pub(crate) base_url: Url,
     pub(crate) timeout: Duration,
     pub(crate) client: ClientWithMiddleware,
@@ -138,11 +144,17 @@ impl NvisyRt {
 
         let base_url = Url::parse(&options.base_url)?;
         let inner = Arc::new(NvisyRtInner {
+            actor_id: options.actor_id,
             base_url,
             timeout: options.timeout,
             client,
         });
         Ok(Self { inner })
+    }
+
+    /// Returns the actor identity.
+    pub fn actor_id(&self) -> Uuid {
+        self.inner.actor_id
     }
 
     /// Returns the base URL.
@@ -173,6 +185,11 @@ impl NvisyRt {
         self.inner
             .client
             .request(method, url)
+            .header(
+                ACTOR_ID_HEADER,
+                HeaderValue::from_str(&self.inner.actor_id.to_string())
+                    .expect("UUID is valid header value"),
+            )
             .timeout(self.inner.timeout)
     }
 
@@ -254,6 +271,7 @@ impl Default for NvisyRt {
 impl fmt::Debug for NvisyRt {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("NvisyRt")
+            .field("actor_id", &self.inner.actor_id)
             .field("base_url", &self.inner.base_url)
             .field("timeout", &self.inner.timeout)
             .finish()

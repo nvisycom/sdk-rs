@@ -33,11 +33,7 @@ pub trait RunService {
 impl RunService for NvisyRt {
     async fn create_run(&self, request: &NewRun) -> Result<Run> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(
-            target: TRACING_TARGET_SERVICE,
-            actor_id = %request.actor_id,
-            "Creating run"
-        );
+        tracing::debug!(target: TRACING_TARGET_SERVICE, "Creating run");
 
         let response = self
             .send_json(Method::POST, "/api/v1/runs", request)

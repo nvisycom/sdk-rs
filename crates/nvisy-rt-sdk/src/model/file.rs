@@ -11,24 +11,21 @@ use uuid::Uuid;
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NewFile {
-    /// Actor identity that owns the file.
-    pub actor_id: Uuid,
     /// Base64-encoded file bytes.
     pub content: String,
     /// Optional original filename.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub filename: Option<String>,
     /// Optional MIME type override (e.g. `text/csv`).
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub content_type: Option<String>,
 }
 
 impl NewFile {
     /// Encodes raw bytes as base64 and returns a new `NewFile`.
     #[cfg(feature = "base64")]
-    pub fn from_bytes(actor_id: Uuid, bytes: &[u8]) -> Self {
+    pub fn from_bytes(bytes: &[u8]) -> Self {
         Self {
-            actor_id,
             content: STANDARD.encode(bytes),
             filename: None,
             content_type: None,
@@ -64,6 +61,12 @@ pub struct File {
     pub id: Uuid,
     /// Base64-encoded file bytes.
     pub content: String,
+    /// MIME type of the file, if provided at upload.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub content_type: Option<String>,
+    /// Original filename, if provided at upload.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub filename: Option<String>,
 }
 
 #[cfg(feature = "base64")]

@@ -32,7 +32,6 @@ impl FileService for NvisyRt {
         #[cfg(feature = "tracing")]
         tracing::debug!(
             target: TRACING_TARGET_SERVICE,
-            actor_id = %request.actor_id,
             filename = ?request.filename,
             content_type = ?request.content_type,
             "Uploading file"
