@@ -22,6 +22,12 @@ pub trait RunService {
 
     /// Cancels a run by ID.
     fn cancel_run(&self, id: Uuid) -> impl Future<Output = Result<()>> + Send;
+
+    /// Deletes a run by ID.
+    fn delete_run(&self, id: Uuid) -> impl Future<Output = Result<()>> + Send;
+
+    /// Deletes all runs.
+    fn delete_runs(&self) -> impl Future<Output = Result<()>> + Send;
 }
 
 impl RunService for NvisyRt {
@@ -68,6 +74,23 @@ impl RunService for NvisyRt {
 
         self.send_json(Method::POST, &format!("/api/v1/runs/{id}/cancel"), &())
             .await?;
+        Ok(())
+    }
+
+    async fn delete_run(&self, id: Uuid) -> Result<()> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "Deleting run");
+
+        self.send(Method::DELETE, &format!("/api/v1/runs/{id}"))
+            .await?;
+        Ok(())
+    }
+
+    async fn delete_runs(&self) -> Result<()> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_SERVICE, "Deleting all runs");
+
+        self.send(Method::DELETE, "/api/v1/runs").await?;
         Ok(())
     }
 }
