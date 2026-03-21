@@ -7,7 +7,7 @@ use crate::NvisyRt;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
 use crate::error::Result;
-use crate::model::{Context, ContextId, ContextList, NewContext};
+use crate::model::{Context, ContextId, NewContext, Page, Pagination};
 
 /// Operations for managing runtime contexts.
 pub trait ContextService {
@@ -20,8 +20,11 @@ pub trait ContextService {
     /// Downloads a context by ID.
     fn download_context(&self, id: Uuid) -> impl Future<Output = Result<Context>> + Send;
 
-    /// Lists all contexts.
-    fn list_contexts(&self) -> impl Future<Output = Result<ContextList>> + Send;
+    /// Lists contexts with pagination.
+    fn list_contexts(
+        &self,
+        pagination: &Pagination,
+    ) -> impl Future<Output = Result<Page<Uuid>>> + Send;
 
     /// Deletes a context by ID.
     fn delete_context(&self, id: Uuid) -> impl Future<Output = Result<()>> + Send;
@@ -56,11 +59,13 @@ impl ContextService for NvisyRt {
         Ok(response.json().await?)
     }
 
-    async fn list_contexts(&self) -> Result<ContextList> {
+    async fn list_contexts(&self, pagination: &Pagination) -> Result<Page<Uuid>> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_SERVICE, "Listing contexts");
 
-        let response = self.send(Method::GET, "/api/v1/contexts").await?;
+        let url = self.resolve_url("/api/v1/contexts");
+        let response = self.request(Method::GET, url).query(pagination).send().await?;
+        let response = self.check_response(response).await?;
         Ok(response.json().await?)
     }
 

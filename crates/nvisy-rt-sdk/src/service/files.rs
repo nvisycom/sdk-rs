@@ -7,7 +7,7 @@ use crate::NvisyRt;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
 use crate::error::Result;
-use crate::model::{File, FileId, FileList, NewFile};
+use crate::model::{File, FileId, NewFile, Page, Pagination};
 
 /// Operations for managing runtime files.
 pub trait FileService {
@@ -17,8 +17,11 @@ pub trait FileService {
     /// Downloads a file by ID.
     fn download_file(&self, id: Uuid) -> impl Future<Output = Result<File>> + Send;
 
-    /// Lists all files.
-    fn list_files(&self) -> impl Future<Output = Result<FileList>> + Send;
+    /// Lists files with pagination.
+    fn list_files(
+        &self,
+        pagination: &Pagination,
+    ) -> impl Future<Output = Result<Page<Uuid>>> + Send;
 
     /// Deletes a file by ID.
     fn delete_file(&self, id: Uuid) -> impl Future<Output = Result<()>> + Send;
@@ -58,11 +61,13 @@ impl FileService for NvisyRt {
         Ok(response.json().await?)
     }
 
-    async fn list_files(&self) -> Result<FileList> {
+    async fn list_files(&self, pagination: &Pagination) -> Result<Page<Uuid>> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_SERVICE, "Listing files");
 
-        let response = self.send(Method::GET, "/api/v1/files").await?;
+        let url = self.resolve_url("/api/v1/files");
+        let response = self.request(Method::GET, url).query(pagination).send().await?;
+        let response = self.check_response(response).await?;
         Ok(response.json().await?)
     }
 

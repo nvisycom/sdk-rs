@@ -2,7 +2,7 @@
 //!
 //! Run with: `cargo run --example minimal`
 
-use nvisy_rt_sdk::model::{NewContext, NewFile};
+use nvisy_rt_sdk::model::{NewContext, NewFile, Pagination};
 use nvisy_rt_sdk::service::{ContextService, FileService};
 use nvisy_rt_sdk::{NvisyRt, Result};
 use serde_json::json;
@@ -24,6 +24,10 @@ async fn main() -> Result<()> {
     let ctx_id = client.upload_context(&new_ctx).await?;
     let ctx = client.download_context(ctx_id.id).await?;
     println!("Context: {}", ctx.context);
+
+    // List with default pagination
+    let files = client.list_files(&Pagination::default()).await?;
+    println!("Files: {} total", files.total);
 
     Ok(())
 }

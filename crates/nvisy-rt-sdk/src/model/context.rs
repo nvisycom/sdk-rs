@@ -43,11 +43,3 @@ pub struct Context {
     /// The stored context.
     pub context: Value,
 }
-
-/// Response body for `GET /api/v1/contexts`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ContextList {
-    /// List of context identifiers.
-    pub contexts: Vec<Uuid>,
-}

@@ -167,13 +167,13 @@ impl NvisyRt {
         self.inner.timeout
     }
 
-    fn resolve_url(&self, path: &str) -> Url {
+    pub(crate) fn resolve_url(&self, path: &str) -> Url {
         let mut url = self.inner.base_url.clone();
         url.set_path(&format!("{}{}", url.path().trim_end_matches('/'), path));
         url
     }
 
-    fn request(&self, method: Method, url: Url) -> RequestBuilder {
+    pub(crate) fn request(&self, method: Method, url: Url) -> RequestBuilder {
         #[cfg(feature = "tracing")]
         tracing::trace!(
             target: TRACING_TARGET_CLIENT,
@@ -194,7 +194,7 @@ impl NvisyRt {
     }
 
     /// Checks the response status and parses the body into an [`ApiError`] on failure.
-    async fn check_response(&self, response: Response) -> Result<Response> {
+    pub(crate) async fn check_response(&self, response: Response) -> Result<Response> {
         if response.status().is_success() {
             return Ok(response);
         }
