@@ -8,6 +8,8 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use super::Page;
+#[cfg(feature = "base64")]
+use crate::Result;
 
 /// Paginated list of file identifiers.
 pub type FileList = Page<Uuid>;
@@ -77,7 +79,7 @@ pub struct File {
 #[cfg(feature = "base64")]
 impl File {
     /// Decodes the base64 content into raw bytes.
-    pub fn decode_content(&self) -> crate::Result<Vec<u8>> {
+    pub fn decode_content(&self) -> Result<Vec<u8>> {
         Ok(STANDARD.decode(&self.content)?)
     }
 }

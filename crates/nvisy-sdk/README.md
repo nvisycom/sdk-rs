@@ -23,14 +23,22 @@ tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 ```rust,no_run
 use nvisy_sdk::{Nvisy, Result};
+use nvisy_sdk::service::MonitorService;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let client = Nvisy::with_api_key("your-api-key")?;
-    // ...
+
+    // Check service health
+    let status = client.health_status(None).await?;
+    println!("Health: {:?}", status.status);
+    println!("Version: {}", status.version);
+
     Ok(())
 }
 ```
+
+See the [`examples/`](examples/) folder for more.
 
 ## Features
 
@@ -38,15 +46,7 @@ async fn main() -> Result<()> {
 - `native-tls`: use platform-native TLS (mutually exclusive with `rustls-tls`)
 - `tracing`: emit [tracing](https://docs.rs/tracing) spans and events for HTTP requests and client lifecycle
 
-### Observability
-
-Enable the `tracing` feature to instrument all HTTP requests and client operations:
-
-```toml
-nvisy-sdk = { version = "0.1", features = ["tracing"] }
-```
-
-## Getting Started
+## Deployment
 
 The fastest way to get started is with [Nvisy Cloud](https://nvisy.com).
 
@@ -60,5 +60,5 @@ MIT License, see [LICENSE.txt](../../LICENSE.txt)
 
 - **Documentation**: [docs.nvisy.com](https://docs.nvisy.com)
 - **API reference**: [docs.rs/nvisy-sdk](https://docs.rs/nvisy-sdk)
-- **Issues**: [GitHub Issues](https://github.com/nvisycom/sdk-rs/issues)
+- **Issues**: [github.com/nvisycom/sdk-rs/issues](https://github.com/nvisycom/sdk-rs/issues)
 - **Email**: [support@nvisy.com](mailto:support@nvisy.com)

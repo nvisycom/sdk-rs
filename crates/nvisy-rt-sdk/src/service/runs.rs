@@ -62,11 +62,7 @@ impl RunService for NvisyRt {
         Ok(result)
     }
 
-    async fn list_runs(
-        &self,
-        query: &RunQuery,
-        pagination: &Pagination,
-    ) -> Result<RunList> {
+    async fn list_runs(&self, query: &RunQuery, pagination: &Pagination) -> Result<RunList> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_SERVICE, "Listing runs");
 
