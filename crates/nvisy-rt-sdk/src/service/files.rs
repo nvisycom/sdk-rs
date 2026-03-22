@@ -8,6 +8,8 @@ use crate::NvisyRt;
 use crate::TRACING_TARGET_SERVICE;
 use crate::error::Result;
 use crate::model::{File, FileId, NewFile, Page, Pagination};
+#[cfg(feature = "stream")]
+use crate::service::PageStream;
 
 /// Operations for managing runtime files.
 pub trait FileService {
@@ -23,6 +25,10 @@ pub trait FileService {
         pagination: &Pagination,
     ) -> impl Future<Output = Result<Page<Uuid>>> + Send;
 
+    /// Returns a stream that yields file IDs across all pages.
+    #[cfg(feature = "stream")]
+    fn list_files_stream(&self, page_size: Option<u32>) -> PageStream<Uuid>;
+
     /// Deletes a file by ID.
     fn delete_file(&self, id: Uuid) -> impl Future<Output = Result<()>> + Send;
 
@@ -33,27 +39,17 @@ pub trait FileService {
 impl FileService for NvisyRt {
     async fn upload_file(&self, request: &NewFile) -> Result<FileId> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(
-            target: TRACING_TARGET_SERVICE,
-            filename = ?request.filename,
-            content_type = ?request.content_type,
-            "Uploading file"
-        );
+        tracing::debug!(target: TRACING_TARGET_SERVICE, "uploading file");
 
         let response = self
             .send_json(Method::POST, "/api/v1/files", request)
             .await?;
-        let created: FileId = response.json().await?;
-
-        #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, id = %created.id, "File uploaded");
-
-        Ok(created)
+        Ok(response.json().await?)
     }
 
     async fn download_file(&self, id: Uuid) -> Result<File> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "Downloading file");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "downloading file");
 
         let response = self
             .send(Method::GET, &format!("/api/v1/files/{id}"))
@@ -63,7 +59,7 @@ impl FileService for NvisyRt {
 
     async fn list_files(&self, pagination: &Pagination) -> Result<Page<Uuid>> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, "Listing files");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, "listing files");
 
         let url = self.resolve_url("/api/v1/files");
         let response = self
@@ -75,9 +71,21 @@ impl FileService for NvisyRt {
         Ok(response.json().await?)
     }
 
+    #[cfg(feature = "stream")]
+    fn list_files_stream(&self, page_size: Option<u32>) -> PageStream<Uuid> {
+        let client = self.clone();
+        PageStream::new(
+            Box::new(move |pagination| {
+                let client = client.clone();
+                Box::pin(async move { FileService::list_files(&client, &pagination).await })
+            }),
+            page_size.unwrap_or(100),
+        )
+    }
+
     async fn delete_file(&self, id: Uuid) -> Result<()> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "Deleting file");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "deleting file");
 
         self.send(Method::DELETE, &format!("/api/v1/files/{id}"))
             .await?;
@@ -86,7 +94,7 @@ impl FileService for NvisyRt {
 
     async fn delete_files(&self) -> Result<()> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, "Deleting all files");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, "deleting all files");
 
         self.send(Method::DELETE, "/api/v1/files").await?;
         Ok(())

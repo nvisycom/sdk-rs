@@ -4,7 +4,7 @@ members = ["crates/*"]
 
 [workspace.package]
 # Release
-version = "0.1.0"
+version = "0.1.1"
 publish = true
 license = "MIT"
 
@@ -25,11 +25,7 @@ categories = ["api-bindings", "asynchronous"]
 reqwest = { version = "0.13", default-features = false, features = ["json", "multipart"] }
 reqwest-middleware = { version = "0.5", features = ["json", "multipart", "query"] }
 reqwest-retry = { version = "0.9", features = [] }
-reqwest-tracing = { version = "0.7", features = [] }
 url = { version = "2.5", features = [] }
-
-# Encoding
-base64 = { version = "0.22", features = [] }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
@@ -42,11 +38,14 @@ uuid = { version = "1.22", features = ["serde", "v4"] }
 # Error handling
 thiserror = { version = "2.0", features = [] }
 
-# Derive macros
+# Derive macros and utilities
 derive_builder = { version = "0.20", features = [] }
+base64 = { version = "0.22", features = [] }
+futures-core = { version = "0.3", features = [] }
 
 # Observability
 tracing = { version = "0.1", features = [] }
+reqwest-tracing = { version = "0.7", features = [] }
 
 # Dev
 tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros"] }

@@ -7,6 +7,9 @@ use base64::engine::general_purpose::STANDARD;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+#[cfg(feature = "base64")]
+use crate::Result;
+
 /// Request payload for `POST /api/v1/files`.
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -72,7 +75,7 @@ pub struct File {
 #[cfg(feature = "base64")]
 impl File {
     /// Decodes the base64 content into raw bytes.
-    pub fn decode_content(&self) -> crate::Result<Vec<u8>> {
+    pub fn decode_content(&self) -> Result<Vec<u8>> {
         Ok(STANDARD.decode(&self.content)?)
     }
 }

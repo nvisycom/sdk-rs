@@ -23,7 +23,7 @@ keywords = { workspace = true }
 categories = { workspace = true }
 
 [package.metadata.docs.rs]
-features = ["rustls-tls", "base64", "tracing"]
+features = ["rustls-tls", "base64", "stream", "tracing"]
 rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
@@ -44,6 +44,9 @@ tracing = ["dep:tracing", "dep:reqwest-tracing"]
 ## Enable base64 encoding/decoding helpers for file content
 base64 = ["dep:base64"]
 
+## Enable Stream-based auto-paginating iterators for list endpoints
+stream = ["dep:futures-core"]
+
 [dependencies]
 # HTTP
 reqwest = { workspace = true, features = [] }
@@ -62,9 +65,10 @@ uuid = { workspace = true, features = [] }
 # Error handling
 thiserror = { workspace = true, features = [] }
 
-# Derive macros an utilities
+# Derive macros and utilities
 derive_builder = { workspace = true, features = [] }
 base64 = { workspace = true, optional = true, features = [] }
+futures-core = { workspace = true, optional = true, features = [] }
 
 # Observability
 tracing = { workspace = true, optional = true, features = [] }

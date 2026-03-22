@@ -14,11 +14,15 @@ healthcare, legal, government, and financial services.
 - [`nvisy-sdk`](crates/nvisy-sdk/): client for the Nvisy Server API (authentication, workspace management, persistence, and task routing)
 - [`nvisy-rt-sdk`](crates/nvisy-rt-sdk/): client for the Nvisy Runtime API (direct redaction task execution)
 
-## Quick Start
+## Deployment
 
 The fastest way to get started is with [Nvisy Cloud](https://nvisy.com).
 
 To run locally, see the [nvisycom/runtime](https://github.com/nvisycom/runtime) and [nvisycom/server](https://github.com/nvisycom/server) repositories.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and contribution guidelines.
 
 ## Changelog
 
@@ -31,5 +35,5 @@ MIT License, see [LICENSE.txt](LICENSE.txt)
 ## Support
 
 - **Documentation**: [docs.nvisy.com](https://docs.nvisy.com)
-- **Issues**: [GitHub Issues](https://github.com/nvisycom/sdk-rs/issues)
+- **Issues**: [github.com/nvisycom/sdk-rs/issues](https://github.com/nvisycom/sdk-rs/issues)
 - **Email**: [support@nvisy.com](mailto:support@nvisy.com)

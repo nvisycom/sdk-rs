@@ -16,38 +16,44 @@ to a runtime instance without going through the Nvisy Server.
 
 ```toml
 [dependencies]
-nvisy-rt-sdk = { version = "0.1", features = [] }
+nvisy-rt-sdk = { version = "0.1", features = ["base64"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
 ## Quick Start
 
 ```rust,no_run
-use nvisy_rt_sdk::{NvisyRt, Result};
+use nvisy_rt_sdk::NvisyRt;
+use nvisy_rt_sdk::model::Pagination;
+use nvisy_rt_sdk::service::{FileService, InfraService};
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> nvisy_rt_sdk::Result<()> {
     let client = NvisyRt::new();
-    // ...
+
+    // Check runtime health
+    let health = client.health().await?;
+    println!("Status: {:?}", health.status);
+
+    // List uploaded files
+    let files = client.list_files(&Pagination::default()).await?;
+    println!("Files: {} total", files.total);
+
     Ok(())
 }
 ```
+
+See the [`examples/`](examples/) folder for more.
 
 ## Features
 
 - `rustls-tls` *(default)*: use rustls for HTTPS
 - `native-tls`: use platform-native TLS (mutually exclusive with `rustls-tls`)
+- `base64`: enable base64 encoding/decoding helpers for file content
+- `stream`: enable auto-paginating `PageStream` iterators for list endpoints via [futures](https://docs.rs/futures-core)
 - `tracing`: emit [tracing](https://docs.rs/tracing) spans and events for HTTP requests and client lifecycle
 
-### Observability
-
-Enable the `tracing` feature to instrument all HTTP requests and client operations:
-
-```toml
-nvisy-rt-sdk = { version = "0.1", features = ["tracing"] }
-```
-
-## Getting Started
+## Deployment
 
 The fastest way to get started is with [Nvisy Cloud](https://nvisy.com).
 
@@ -61,5 +67,5 @@ MIT License, see [LICENSE.txt](../../LICENSE.txt)
 
 - **Documentation**: [docs.nvisy.com](https://docs.nvisy.com)
 - **API reference**: [docs.rs/nvisy-rt-sdk](https://docs.rs/nvisy-rt-sdk)
-- **Issues**: [GitHub Issues](https://github.com/nvisycom/sdk-rs/issues)
+- **Issues**: [github.com/nvisycom/sdk-rs/issues](https://github.com/nvisycom/sdk-rs/issues)
 - **Email**: [support@nvisy.com](mailto:support@nvisy.com)

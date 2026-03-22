@@ -113,7 +113,7 @@ impl NvisyRt {
     #[cfg_attr(feature = "tracing", tracing::instrument(skip(options)))]
     pub(crate) fn from_options(options: NvisyRtOptions) -> Result<Self> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_CLIENT, "Creating Nvisy Runtime client");
+        tracing::debug!(target: TRACING_TARGET_CLIENT, "creating client");
 
         let base_client = if let Some(custom_client) = options.client {
             custom_client
@@ -139,7 +139,7 @@ impl NvisyRt {
             target: TRACING_TARGET_CLIENT,
             base_url = %base_url,
             timeout_secs = options.timeout.as_secs(),
-            "Nvisy Runtime client created"
+            "client created"
         );
 
         let base_url = Url::parse(&options.base_url)?;
@@ -179,7 +179,7 @@ impl NvisyRt {
             target: TRACING_TARGET_CLIENT,
             %url,
             %method,
-            "Building request"
+            "building request"
         );
 
         self.inner
@@ -205,7 +205,7 @@ impl NvisyRt {
         tracing::warn!(
             target: TRACING_TARGET_CLIENT,
             status,
-            "API error response"
+            "api error response"
         );
 
         // Try to parse a structured API error from the body.
@@ -222,7 +222,7 @@ impl NvisyRt {
 
     pub(crate) async fn send(&self, method: Method, path: &str) -> Result<Response> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "Sending request");
+        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "sending request");
 
         let url = self.resolve_url(path);
         let response = self.request(method, url).send().await?;
@@ -232,7 +232,7 @@ impl NvisyRt {
             target: TRACING_TARGET_CLIENT,
             status = response.status().as_u16(),
             path,
-            "Response received"
+            "response received"
         );
 
         self.check_response(response).await
@@ -245,7 +245,7 @@ impl NvisyRt {
         data: &T,
     ) -> Result<Response> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "Sending JSON request");
+        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "sending json request");
 
         let url = self.resolve_url(path);
         let response = self.request(method, url).json(data).send().await?;
@@ -255,7 +255,7 @@ impl NvisyRt {
             target: TRACING_TARGET_CLIENT,
             status = response.status().as_u16(),
             path,
-            "Response received"
+            "response received"
         );
 
         self.check_response(response).await
