@@ -7,7 +7,7 @@ use crate::NvisyRt;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
 use crate::error::Result;
-use crate::model::{NewRun, Page, Pagination, RunDetail, RunResult, RunSummary};
+use crate::model::{NewRun, Pagination, RunDetail, RunList, RunResult};
 
 /// Operations for managing runtime runs.
 pub trait RunService {
@@ -19,7 +19,7 @@ pub trait RunService {
         &self,
         query: &RunQuery,
         pagination: &Pagination,
-    ) -> impl Future<Output = Result<Page<RunSummary>>> + Send;
+    ) -> impl Future<Output = Result<RunList>> + Send;
 
     /// Retrieves a full run snapshot by ID.
     fn get_run(&self, id: Uuid) -> impl Future<Output = Result<RunDetail>> + Send;
@@ -66,7 +66,7 @@ impl RunService for NvisyRt {
         &self,
         query: &RunQuery,
         pagination: &Pagination,
-    ) -> Result<Page<RunSummary>> {
+    ) -> Result<RunList> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_SERVICE, "Listing runs");
 

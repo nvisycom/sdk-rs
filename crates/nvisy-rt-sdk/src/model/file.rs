@@ -7,6 +7,11 @@ use base64::engine::general_purpose::STANDARD;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use super::Page;
+
+/// Paginated list of file identifiers.
+pub type FileList = Page<Uuid>;
+
 /// Request payload for `POST /api/v1/files`.
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]

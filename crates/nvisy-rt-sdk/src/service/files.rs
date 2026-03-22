@@ -7,7 +7,7 @@ use crate::NvisyRt;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
 use crate::error::Result;
-use crate::model::{File, FileId, NewFile, Page, Pagination};
+use crate::model::{File, FileId, FileList, NewFile, Pagination};
 
 /// Operations for managing runtime files.
 pub trait FileService {
@@ -21,7 +21,7 @@ pub trait FileService {
     fn list_files(
         &self,
         pagination: &Pagination,
-    ) -> impl Future<Output = Result<Page<Uuid>>> + Send;
+    ) -> impl Future<Output = Result<FileList>> + Send;
 
     /// Deletes a file by ID.
     fn delete_file(&self, id: Uuid) -> impl Future<Output = Result<()>> + Send;
@@ -61,7 +61,7 @@ impl FileService for NvisyRt {
         Ok(response.json().await?)
     }
 
-    async fn list_files(&self, pagination: &Pagination) -> Result<Page<Uuid>> {
+    async fn list_files(&self, pagination: &Pagination) -> Result<FileList> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_SERVICE, "Listing files");
 

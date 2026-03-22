@@ -4,6 +4,11 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
+use super::Page;
+
+/// Paginated list of run summaries.
+pub type RunList = Page<RunSummary>;
+
 /// Request payload for `POST /api/v1/runs`.
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]

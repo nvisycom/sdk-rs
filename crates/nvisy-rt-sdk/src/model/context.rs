@@ -4,6 +4,11 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
+use super::Page;
+
+/// Paginated list of context identifiers.
+pub type ContextList = Page<Uuid>;
+
 /// Request payload for `POST /api/v1/contexts`.
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
