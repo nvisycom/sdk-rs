@@ -7,12 +7,8 @@ use base64::engine::general_purpose::STANDARD;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use super::Page;
 #[cfg(feature = "base64")]
 use crate::Result;
-
-/// Paginated list of file identifiers.
-pub type FileList = Page<Uuid>;
 
 /// Request payload for `POST /api/v1/files`.
 #[derive(Debug, Clone, Serialize)]

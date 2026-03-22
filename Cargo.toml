@@ -48,5 +48,8 @@ derive_builder = { version = "0.20", features = [] }
 # Observability
 tracing = { version = "0.1", features = [] }
 
+# Async utilities
+futures-core = { version = "0.3", features = [] }
+
 # Dev
 tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros"] }

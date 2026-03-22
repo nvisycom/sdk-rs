@@ -7,7 +7,9 @@ use crate::NvisyRt;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
 use crate::error::Result;
-use crate::model::{File, FileId, FileList, NewFile, Pagination};
+use crate::model::{File, FileId, NewFile, Page, Pagination};
+#[cfg(feature = "stream")]
+use crate::service::PageStream;
 
 /// Operations for managing runtime files.
 pub trait FileService {
@@ -18,13 +20,17 @@ pub trait FileService {
     fn download_file(&self, id: Uuid) -> impl Future<Output = Result<File>> + Send;
 
     /// Lists files with pagination.
-    fn list_files(&self, pagination: &Pagination) -> impl Future<Output = Result<FileList>> + Send;
+    fn list_files(&self, pagination: &Pagination) -> impl Future<Output = Result<Page<Uuid>>> + Send;
 
     /// Deletes a file by ID.
     fn delete_file(&self, id: Uuid) -> impl Future<Output = Result<()>> + Send;
 
     /// Deletes all files.
     fn delete_files(&self) -> impl Future<Output = Result<()>> + Send;
+
+    /// Returns a stream that yields file IDs across all pages.
+    #[cfg(feature = "stream")]
+    fn list_files_stream(&self, page_size: Option<u32>) -> PageStream<Uuid>;
 }
 
 impl FileService for NvisyRt {
@@ -58,7 +64,7 @@ impl FileService for NvisyRt {
         Ok(response.json().await?)
     }
 
-    async fn list_files(&self, pagination: &Pagination) -> Result<FileList> {
+    async fn list_files(&self, pagination: &Pagination) -> Result<Page<Uuid>> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_SERVICE, "Listing files");
 
@@ -87,5 +93,17 @@ impl FileService for NvisyRt {
 
         self.send(Method::DELETE, "/api/v1/files").await?;
         Ok(())
+    }
+
+    #[cfg(feature = "stream")]
+    fn list_files_stream(&self, page_size: Option<u32>) -> PageStream<Uuid> {
+        let client = self.clone();
+        PageStream::new(
+            Box::new(move |pagination| {
+                let client = client.clone();
+                Box::pin(async move { FileService::list_files(&client, &pagination).await })
+            }),
+            page_size.unwrap_or(100),
+        )
     }
 }

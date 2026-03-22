@@ -891,6 +891,7 @@ version = "0.1.0"
 dependencies = [
  "base64",
  "derive_builder",
+ "futures-core",
  "jiff",
  "reqwest",
  "reqwest-middleware",

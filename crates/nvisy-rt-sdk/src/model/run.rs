@@ -4,11 +4,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-use super::Page;
-
-/// Paginated list of run summaries.
-pub type RunList = Page<RunSummary>;
-
 /// Lifecycle status of a pipeline run.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

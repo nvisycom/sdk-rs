@@ -7,7 +7,9 @@ use crate::NvisyRt;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
 use crate::error::Result;
-use crate::model::{NewRun, Pagination, RunDetail, RunList, RunResult, RunStatus};
+use crate::model::{NewRun, Page, Pagination, RunDetail, RunResult, RunStatus, RunSummary};
+#[cfg(feature = "stream")]
+use crate::service::PageStream;
 
 /// Operations for managing runtime runs.
 pub trait RunService {
@@ -19,7 +21,7 @@ pub trait RunService {
         &self,
         query: &RunQuery,
         pagination: &Pagination,
-    ) -> impl Future<Output = Result<RunList>> + Send;
+    ) -> impl Future<Output = Result<Page<RunSummary>>> + Send;
 
     /// Retrieves a full run snapshot by ID.
     fn get_run(&self, id: Uuid) -> impl Future<Output = Result<RunDetail>> + Send;
@@ -32,6 +34,10 @@ pub trait RunService {
 
     /// Deletes all finished runs.
     fn delete_runs(&self) -> impl Future<Output = Result<()>> + Send;
+
+    /// Returns a stream that yields run summaries across all pages.
+    #[cfg(feature = "stream")]
+    fn list_runs_stream(&self, query: &RunQuery, page_size: Option<u32>) -> PageStream<RunSummary>;
 }
 
 /// Query parameters for listing runs.
@@ -59,7 +65,7 @@ impl RunService for NvisyRt {
         Ok(result)
     }
 
-    async fn list_runs(&self, query: &RunQuery, pagination: &Pagination) -> Result<RunList> {
+    async fn list_runs(&self, query: &RunQuery, pagination: &Pagination) -> Result<Page<RunSummary>> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_SERVICE, "Listing runs");
 
@@ -108,5 +114,21 @@ impl RunService for NvisyRt {
 
         self.send(Method::DELETE, "/api/v1/runs").await?;
         Ok(())
+    }
+
+    #[cfg(feature = "stream")]
+    fn list_runs_stream(&self, query: &RunQuery, page_size: Option<u32>) -> PageStream<RunSummary> {
+        let client = self.clone();
+        let query = query.clone();
+        PageStream::new(
+            Box::new(move |pagination| {
+                let client = client.clone();
+                let query = query.clone();
+                Box::pin(
+                    async move { RunService::list_runs(&client, &query, &pagination).await },
+                )
+            }),
+            page_size.unwrap_or(100),
+        )
     }
 }

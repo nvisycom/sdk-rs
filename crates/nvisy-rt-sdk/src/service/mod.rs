@@ -9,8 +9,12 @@ mod contexts;
 mod files;
 mod infra;
 mod runs;
+#[cfg(feature = "stream")]
+mod stream;
 
 pub use contexts::*;
 pub use files::*;
 pub use infra::*;
 pub use runs::*;
+#[cfg(feature = "stream")]
+pub use stream::PageStream;
