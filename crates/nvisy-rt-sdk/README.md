@@ -49,7 +49,8 @@ See the [`examples/`](examples/) folder for more.
 
 - `rustls-tls` *(default)*: use rustls for HTTPS
 - `native-tls`: use platform-native TLS (mutually exclusive with `rustls-tls`)
-- `base64`: enable `NewFile::from_bytes` and `File::decode_content` helpers
+- `base64`: enable base64 encoding/decoding helpers for file content
+- `stream`: enable auto-paginating `PageStream` iterators for list endpoints via [futures](https://docs.rs/futures-core)
 - `tracing`: emit [tracing](https://docs.rs/tracing) spans and events for HTTP requests and client lifecycle
 
 ## Deployment
