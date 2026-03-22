@@ -20,7 +20,10 @@ pub trait FileService {
     fn download_file(&self, id: Uuid) -> impl Future<Output = Result<File>> + Send;
 
     /// Lists files with pagination.
-    fn list_files(&self, pagination: &Pagination) -> impl Future<Output = Result<Page<Uuid>>> + Send;
+    fn list_files(
+        &self,
+        pagination: &Pagination,
+    ) -> impl Future<Output = Result<Page<Uuid>>> + Send;
 
     /// Deletes a file by ID.
     fn delete_file(&self, id: Uuid) -> impl Future<Output = Result<()>> + Send;

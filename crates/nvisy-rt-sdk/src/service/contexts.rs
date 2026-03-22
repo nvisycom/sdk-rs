@@ -102,9 +102,7 @@ impl ContextService for NvisyRt {
         PageStream::new(
             Box::new(move |pagination| {
                 let client = client.clone();
-                Box::pin(
-                    async move { ContextService::list_contexts(&client, &pagination).await },
-                )
+                Box::pin(async move { ContextService::list_contexts(&client, &pagination).await })
             }),
             page_size.unwrap_or(100),
         )

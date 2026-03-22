@@ -65,7 +65,11 @@ impl RunService for NvisyRt {
         Ok(result)
     }
 
-    async fn list_runs(&self, query: &RunQuery, pagination: &Pagination) -> Result<Page<RunSummary>> {
+    async fn list_runs(
+        &self,
+        query: &RunQuery,
+        pagination: &Pagination,
+    ) -> Result<Page<RunSummary>> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_SERVICE, "Listing runs");
 
@@ -124,9 +128,7 @@ impl RunService for NvisyRt {
             Box::new(move |pagination| {
                 let client = client.clone();
                 let query = query.clone();
-                Box::pin(
-                    async move { RunService::list_runs(&client, &query, &pagination).await },
-                )
+                Box::pin(async move { RunService::list_runs(&client, &query, &pagination).await })
             }),
             page_size.unwrap_or(100),
         )

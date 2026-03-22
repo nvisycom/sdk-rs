@@ -22,12 +22,24 @@ type FetchFn<T> =
 /// Yields individual `Result<T>` items, transparently fetching
 /// subsequent pages as needed.
 pub struct PageStream<T> {
+    // Fetcher:
+    /// Closure that fetches a single page from the API.
     fetch: FetchFn<T>,
+
+    // Pagination state:
+    /// Maximum number of items to request per page.
     page_size: u32,
+    /// Offset into the full result set for the next request.
     offset: u32,
-    buffer: VecDeque<T>,
+    /// Total item count reported by the server (set after the first response).
     total: Option<u32>,
+    /// `true` once the last page has been received or an error occurred.
     done: bool,
+
+    // Buffering:
+    /// Items from the current page that have not yet been yielded.
+    buffer: VecDeque<T>,
+    /// The in-flight page request, if any.
     inflight: Option<Pin<Box<dyn Future<Output = Result<Page<T>>> + Send>>>,
 }
 
