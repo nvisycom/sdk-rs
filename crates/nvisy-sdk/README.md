@@ -30,9 +30,9 @@ async fn main() -> Result<()> {
     let client = Nvisy::with_api_key("your-api-key")?;
 
     // Check service health
-    let status = client.health_status(None).await?;
-    println!("Health: {:?}", status.status);
-    println!("Version: {}", status.version);
+    let health = client.health(None).await?;
+    println!("Status: {:?}", health.status);
+    println!("Checked: {}", health.timestamp);
 
     Ok(())
 }
