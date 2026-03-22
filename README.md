@@ -11,8 +11,8 @@ healthcare, legal, government, and financial services.
 
 ## Crates
 
-- [`nvisy-sdk`](crates/nvisy-sdk/) [![Crates.io](https://img.shields.io/crates/v/nvisy-sdk?style=flat-square)](https://crates.io/crates/nvisy-sdk) [![Docs](https://img.shields.io/docsrs/nvisy-sdk?style=flat-square)](https://docs.rs/nvisy-sdk): client for the Nvisy Server API (authentication, workspace management, persistence, and task routing)
-- [`nvisy-rt-sdk`](crates/nvisy-rt-sdk/) [![Crates.io](https://img.shields.io/crates/v/nvisy-rt-sdk?style=flat-square)](https://crates.io/crates/nvisy-rt-sdk) [![Docs](https://img.shields.io/docsrs/nvisy-rt-sdk?style=flat-square)](https://docs.rs/nvisy-rt-sdk): client for the Nvisy Runtime API (direct redaction task execution)
+- [`nvisy-sdk`](crates/nvisy-sdk/): client for the Nvisy Server API (authentication, workspace management, persistence, and task routing)
+- [`nvisy-rt-sdk`](crates/nvisy-rt-sdk/): client for the Nvisy Runtime API (direct redaction task execution)
 
 ## Deployment
 
