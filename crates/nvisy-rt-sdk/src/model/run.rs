@@ -9,6 +9,24 @@ use super::Page;
 /// Paginated list of run summaries.
 pub type RunList = Page<RunSummary>;
 
+/// Lifecycle status of a pipeline run.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum RunStatus {
+    /// The run has been created but not yet started.
+    Pending,
+    /// The run is actively executing nodes.
+    Running,
+    /// All nodes completed without error.
+    Succeeded,
+    /// Some nodes succeeded while others failed.
+    PartialFailure,
+    /// All nodes failed.
+    Failed,
+    /// The run was cancelled by the caller.
+    Cancelled,
+}
+
 /// Request payload for `POST /api/v1/runs`.
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]

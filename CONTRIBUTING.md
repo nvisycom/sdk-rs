@@ -19,12 +19,10 @@ cargo build
 Run all checks locally before submitting a pull request:
 
 ```bash
-cargo check
-cargo fmt --check
-cargo clippy -- -D warnings
-cargo test
-cargo doc --no-deps
+make check
 ```
+
+This runs formatting, clippy, tests, and doc builds. See the [Makefile](Makefile) for individual targets.
 
 ## Pull Request Process
 
@@ -36,8 +34,8 @@ cargo doc --no-deps
 
 ## Security
 
-- Never commit secrets or API keys
-- Use environment variables for configuration
+- Never commit secrets or API keys.
+- Use environment variables for configuration.
 
 ## License
 

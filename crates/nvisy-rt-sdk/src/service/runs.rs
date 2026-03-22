@@ -7,7 +7,7 @@ use crate::NvisyRt;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
 use crate::error::Result;
-use crate::model::{NewRun, Pagination, RunDetail, RunList, RunResult};
+use crate::model::{NewRun, Pagination, RunDetail, RunList, RunResult, RunStatus};
 
 /// Operations for managing runtime runs.
 pub trait RunService {
@@ -38,12 +38,9 @@ pub trait RunService {
 #[derive(Debug, Default, Clone, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RunQuery {
-    /// Filter by run status (e.g. `running`, `succeeded`).
+    /// Filter by run status.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub status: Option<String>,
-    /// Filter by actor identity.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub actor_id: Option<Uuid>,
+    pub status: Option<RunStatus>,
 }
 
 impl RunService for NvisyRt {
