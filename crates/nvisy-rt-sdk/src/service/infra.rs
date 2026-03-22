@@ -24,7 +24,7 @@ pub trait InfraService {
 impl InfraService for NvisyRt {
     async fn health(&self) -> Result<Health> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, "Health check");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, "checking health");
 
         let response = self.send(Method::GET, "/health").await?;
         Ok(response.json().await?)
@@ -32,7 +32,7 @@ impl InfraService for NvisyRt {
 
     async fn analytics(&self) -> Result<Analytics> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, "Getting analytics");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, "getting analytics");
 
         let response = self.send(Method::GET, "/api/v1/analytics").await?;
         Ok(response.json().await?)
@@ -40,7 +40,7 @@ impl InfraService for NvisyRt {
 
     async fn openapi_spec(&self) -> Result<Value> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, "Getting OpenAPI spec");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, "getting openapi spec");
 
         let response = self.send(Method::GET, "/api/v1/openapi.json").await?;
         Ok(response.json().await?)

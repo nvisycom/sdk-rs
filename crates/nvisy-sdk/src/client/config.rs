@@ -133,7 +133,7 @@ impl NvisyBuilder {
     /// ```
     pub fn build(self) -> Result<Nvisy> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_CONFIG, "Building Nvisy client from config");
+        tracing::debug!(target: TRACING_TARGET_CONFIG, "building client from config");
 
         let options = self.build_config()?;
 
@@ -143,7 +143,7 @@ impl NvisyBuilder {
             base_url = %options.base_url,
             timeout_secs = options.timeout.as_secs(),
             max_retries = options.max_retries,
-            "Config validated"
+            "config validated"
         );
 
         Nvisy::from_options(options)

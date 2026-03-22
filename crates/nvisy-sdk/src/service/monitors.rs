@@ -17,7 +17,7 @@ pub trait MonitorService {
 impl MonitorService for Nvisy {
     async fn health(&self, options: Option<&CheckHealth>) -> Result<Health> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, "Health check");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, "checking health");
 
         let response = match options {
             Some(opts) => self.send_json(Method::GET, "/health", opts).await?,

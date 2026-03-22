@@ -23,6 +23,10 @@ pub trait RunService {
         pagination: &Pagination,
     ) -> impl Future<Output = Result<Page<RunSummary>>> + Send;
 
+    /// Returns a stream that yields run summaries across all pages.
+    #[cfg(feature = "stream")]
+    fn list_runs_stream(&self, query: &RunQuery, page_size: Option<u32>) -> PageStream<RunSummary>;
+
     /// Retrieves a full run snapshot by ID.
     fn get_run(&self, id: Uuid) -> impl Future<Output = Result<RunDetail>> + Send;
 
@@ -34,10 +38,6 @@ pub trait RunService {
 
     /// Deletes all finished runs.
     fn delete_runs(&self) -> impl Future<Output = Result<()>> + Send;
-
-    /// Returns a stream that yields run summaries across all pages.
-    #[cfg(feature = "stream")]
-    fn list_runs_stream(&self, query: &RunQuery, page_size: Option<u32>) -> PageStream<RunSummary>;
 }
 
 /// Query parameters for listing runs.
@@ -52,17 +52,12 @@ pub struct RunQuery {
 impl RunService for NvisyRt {
     async fn create_run(&self, request: &NewRun) -> Result<RunResult> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, "Creating run");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, "creating run");
 
         let response = self
             .send_json(Method::POST, "/api/v1/runs", request)
             .await?;
-        let result: RunResult = response.json().await?;
-
-        #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, run_id = %result.run_id, "Run created");
-
-        Ok(result)
+        Ok(response.json().await?)
     }
 
     async fn list_runs(
@@ -71,7 +66,7 @@ impl RunService for NvisyRt {
         pagination: &Pagination,
     ) -> Result<Page<RunSummary>> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, "Listing runs");
+        tracing::debug!(target: TRACING_TARGET_SERVICE, "listing runs");
 
         let url = self.resolve_url("/api/v1/runs");
         let response = self
@@ -82,42 +77,6 @@ impl RunService for NvisyRt {
             .await?;
         let response = self.check_response(response).await?;
         Ok(response.json().await?)
-    }
-
-    async fn get_run(&self, id: Uuid) -> Result<RunDetail> {
-        #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "Getting run");
-
-        let response = self
-            .send(Method::GET, &format!("/api/v1/runs/{id}"))
-            .await?;
-        Ok(response.json().await?)
-    }
-
-    async fn cancel_run(&self, id: Uuid) -> Result<()> {
-        #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "Cancelling run");
-
-        self.send(Method::POST, &format!("/api/v1/runs/{id}/cancel"))
-            .await?;
-        Ok(())
-    }
-
-    async fn delete_run(&self, id: Uuid) -> Result<()> {
-        #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "Deleting run");
-
-        self.send(Method::DELETE, &format!("/api/v1/runs/{id}"))
-            .await?;
-        Ok(())
-    }
-
-    async fn delete_runs(&self) -> Result<()> {
-        #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_SERVICE, "Deleting all runs");
-
-        self.send(Method::DELETE, "/api/v1/runs").await?;
-        Ok(())
     }
 
     #[cfg(feature = "stream")]
@@ -132,5 +91,41 @@ impl RunService for NvisyRt {
             }),
             page_size.unwrap_or(100),
         )
+    }
+
+    async fn get_run(&self, id: Uuid) -> Result<RunDetail> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "getting run");
+
+        let response = self
+            .send(Method::GET, &format!("/api/v1/runs/{id}"))
+            .await?;
+        Ok(response.json().await?)
+    }
+
+    async fn cancel_run(&self, id: Uuid) -> Result<()> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "cancelling run");
+
+        self.send(Method::POST, &format!("/api/v1/runs/{id}/cancel"))
+            .await?;
+        Ok(())
+    }
+
+    async fn delete_run(&self, id: Uuid) -> Result<()> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_SERVICE, %id, "deleting run");
+
+        self.send(Method::DELETE, &format!("/api/v1/runs/{id}"))
+            .await?;
+        Ok(())
+    }
+
+    async fn delete_runs(&self) -> Result<()> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: TRACING_TARGET_SERVICE, "deleting all runs");
+
+        self.send(Method::DELETE, "/api/v1/runs").await?;
+        Ok(())
     }
 }

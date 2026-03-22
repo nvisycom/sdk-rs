@@ -122,7 +122,7 @@ impl Nvisy {
     #[cfg_attr(feature = "tracing", tracing::instrument(skip(options), fields(api_key = %Self::mask_key(&options.api_key))))]
     pub(crate) fn from_options(options: NvisyOptions) -> Result<Self> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_CLIENT, "Creating Nvisy client");
+        tracing::debug!(target: TRACING_TARGET_CLIENT, "creating client");
 
         let base_client = if let Some(custom_client) = options.client {
             custom_client
@@ -149,7 +149,7 @@ impl Nvisy {
             base_url = %options.base_url,
             timeout_secs = options.timeout.as_secs(),
             api_key = %Self::mask_key(&options.api_key),
-            "Nvisy client created"
+            "client created"
         );
 
         let inner = Arc::new(NvisyInner {
@@ -201,7 +201,7 @@ impl Nvisy {
             target: TRACING_TARGET_CLIENT,
             %url,
             %method,
-            "Building request"
+            "building request"
         );
 
         self.inner
@@ -213,7 +213,7 @@ impl Nvisy {
 
     pub(crate) async fn send(&self, method: Method, path: &str) -> Result<reqwest::Response> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "Sending request");
+        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "sending request");
 
         let url = self.parse_url(path)?;
         let response = self.request(method, url).send().await?;
@@ -223,7 +223,7 @@ impl Nvisy {
             target: TRACING_TARGET_CLIENT,
             status = response.status().as_u16(),
             path,
-            "Response received"
+            "response received"
         );
 
         Ok(response)
@@ -236,7 +236,7 @@ impl Nvisy {
         data: &T,
     ) -> Result<reqwest::Response> {
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "Sending JSON request");
+        tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "sending json request");
 
         let url = self.parse_url(path)?;
         let response = self.request(method, url).json(data).send().await?;
@@ -246,7 +246,7 @@ impl Nvisy {
             target: TRACING_TARGET_CLIENT,
             status = response.status().as_u16(),
             path,
-            "Response received"
+            "response received"
         );
 
         Ok(response)
