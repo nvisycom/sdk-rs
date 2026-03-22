@@ -11,10 +11,7 @@ use crate::model::{CheckHealth, Health};
 /// Operations for health monitoring.
 pub trait MonitorService {
     /// Checks the health status of the Nvisy Server.
-    fn health(
-        &self,
-        options: Option<&CheckHealth>,
-    ) -> impl Future<Output = Result<Health>> + Send;
+    fn health(&self, options: Option<&CheckHealth>) -> impl Future<Output = Result<Health>> + Send;
 }
 
 impl MonitorService for Nvisy {

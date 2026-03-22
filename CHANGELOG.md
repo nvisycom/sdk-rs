@@ -8,6 +8,21 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-03-22
+
+### Added
+
+- `nvisy-rt-sdk`: infra, runs, files, and contexts services aligned with server API
+- `nvisy-rt-sdk`: `PageStream<T>` auto-paginating stream (`stream` feature)
+- `nvisy-rt-sdk`: structured `ApiError`/`ErrorKind` error handling
+- `nvisy-rt-sdk`: `base64` feature gate for file encoding helpers
+
+### Changed
+
+- `nvisy-rt-sdk`: `actor_id` moved from request models to client (`X-Actor-Id` header)
+- `nvisy-rt-sdk`: `NvisyRt::new()` is now infallible, implements `Default`
+- `nvisy-sdk`: health service aligned with server API (`ComponentCheck`, `timestamp`)
+
 ## [0.1.0] - 2026-03-05
 
 ### Added
@@ -21,5 +36,6 @@ and this project adheres to
 - TLS backend selection: `rustls-tls` (default) or `native-tls`
 - Compile-time guards for mutually exclusive TLS features
 
-[Unreleased]: https://github.com/nvisycom/sdk-rs/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/nvisycom/sdk-rs/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/nvisycom/sdk-rs/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/nvisycom/sdk-rs/releases/tag/v0.1.0

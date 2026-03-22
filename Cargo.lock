@@ -887,7 +887,7 @@ dependencies = [
 
 [[package]]
 name = "nvisy-rt-sdk"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "base64",
  "derive_builder",
@@ -908,7 +908,7 @@ dependencies = [
 
 [[package]]
 name = "nvisy-sdk"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "derive_builder",
  "jiff",
