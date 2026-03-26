@@ -16,7 +16,6 @@ and this project adheres to
 ### Changed
 
 - `nvisy-rt-sdk`: rename `NvisyRt` to `Runtime`, `NvisyRtBuilder` to `RuntimeBuilder`
-- `nvisy-rt-sdk`: `MockRuntime` now supports `PageStream` for `list_*_stream` methods
 
 ### Removed
 
