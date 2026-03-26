@@ -7,7 +7,7 @@ use crate::Runtime;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
 use crate::error::Result;
-use crate::model::{Analytics, Health};
+use crate::model::{AnalyticsSnapshot, Health};
 
 /// Operations for infrastructure endpoints.
 pub trait InfraService {
@@ -15,7 +15,7 @@ pub trait InfraService {
     fn health(&self) -> impl Future<Output = Result<Health>> + Send;
 
     /// Retrieves analytics data.
-    fn analytics(&self) -> impl Future<Output = Result<Analytics>> + Send;
+    fn analytics(&self) -> impl Future<Output = Result<AnalyticsSnapshot>> + Send;
 
     /// Retrieves the OpenAPI specification as JSON.
     fn openapi_spec(&self) -> impl Future<Output = Result<Value>> + Send;
@@ -30,7 +30,7 @@ impl InfraService for Runtime {
         Ok(response.json().await?)
     }
 
-    async fn analytics(&self) -> Result<Analytics> {
+    async fn analytics(&self) -> Result<AnalyticsSnapshot> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_SERVICE, "getting analytics");
 

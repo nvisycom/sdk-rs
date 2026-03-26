@@ -5,8 +5,8 @@ use uuid::Uuid;
 
 use crate::error::{Error, Result};
 use crate::model::{
-    Analytics, ApiError, Context, ContextId, ErrorKind, File, FileId, Health, NewContext, NewFile,
-    NewRun, Page, Pagination, RunDetail, RunResult, RunSummary,
+    AnalyticsSnapshot, ApiError, Context, ContextId, ErrorKind, File, FileId, Health, NewContext,
+    NewFile, NewRun, Page, Pagination, RunDetail, RunResult, RunSummary,
 };
 use crate::service::RunQuery;
 
@@ -64,7 +64,7 @@ macro_rules! mock_handlers {
 mock_handlers! {
     // infra
     on_health:        () => Health,
-    on_analytics:     () => Analytics,
+    on_analytics:     () => AnalyticsSnapshot,
     on_openapi_spec:  () => Value,
 
     // files

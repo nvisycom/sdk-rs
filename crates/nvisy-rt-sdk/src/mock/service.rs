@@ -6,7 +6,7 @@ use uuid::Uuid;
 use super::MockRuntime;
 use crate::error::Result;
 use crate::model::{
-    Analytics, Context, ContextId, File, FileId, Health, NewContext, NewFile, NewRun, Page,
+    AnalyticsSnapshot, Context, ContextId, File, FileId, Health, NewContext, NewFile, NewRun, Page,
     Pagination, RunDetail, RunResult, RunSummary,
 };
 #[cfg(feature = "stream")]
@@ -18,7 +18,7 @@ impl InfraService for MockRuntime {
         (self.on_health)(())
     }
 
-    async fn analytics(&self) -> Result<Analytics> {
+    async fn analytics(&self) -> Result<AnalyticsSnapshot> {
         (self.on_analytics)(())
     }
 
