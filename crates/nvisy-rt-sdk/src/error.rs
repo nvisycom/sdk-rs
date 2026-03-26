@@ -18,13 +18,6 @@ pub enum Error {
     #[error("HTTP error: {0}")]
     Http(#[from] reqwest_middleware::Error),
 
-    /// HTTP transport error from the underlying HTTP client.
-    ///
-    /// This covers errors from response status checks and other direct
-    /// reqwest operations.
-    #[error("HTTP error: {0}")]
-    Reqwest(#[from] reqwest::Error),
-
     /// JSON serialization/deserialization error.
     ///
     /// This occurs when the SDK fails to parse API responses or serialize
@@ -56,6 +49,12 @@ pub enum Error {
     /// code and a structured error body.
     #[error("{0}")]
     Api(ApiError),
+}
+
+impl From<reqwest::Error> for Error {
+    fn from(err: reqwest::Error) -> Self {
+        Self::Http(reqwest_middleware::Error::Reqwest(err))
+    }
 }
 
 /// Result type for Nvisy Runtime API operations.

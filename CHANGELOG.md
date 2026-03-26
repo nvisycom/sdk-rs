@@ -17,6 +17,10 @@ and this project adheres to
 
 - `nvisy-rt-sdk`: rename `NvisyRt` to `Runtime`, `NvisyRtBuilder` to `RuntimeBuilder`
 
+### Removed
+
+- `nvisy-rt-sdk`: `Error::Reqwest` variant (reqwest errors now routed through `Error::Http`)
+
 ## [0.1.1] - 2026-03-22
 
 ### Added

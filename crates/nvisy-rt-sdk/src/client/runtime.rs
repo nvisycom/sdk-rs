@@ -216,7 +216,7 @@ impl Runtime {
                 api_error.status = status;
                 Err(Error::Api(api_error))
             }
-            Err(_) => Err(Error::Reqwest(reqwest_err)),
+            Err(_) => Err(Error::Http(reqwest_err.into())),
         }
     }
 
