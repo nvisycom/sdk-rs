@@ -3,7 +3,7 @@
 use reqwest::Method;
 use uuid::Uuid;
 
-use crate::NvisyRt;
+use crate::Runtime;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
 use crate::error::Result;
@@ -49,7 +49,7 @@ pub struct RunQuery {
     pub status: Option<RunStatus>,
 }
 
-impl RunService for NvisyRt {
+impl RunService for Runtime {
     async fn create_run(&self, request: &NewRun) -> Result<RunResult> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_SERVICE, "creating run");

@@ -23,7 +23,7 @@ keywords = { workspace = true }
 categories = { workspace = true }
 
 [package.metadata.docs.rs]
-features = ["rustls-tls", "base64", "jsonschema", "stream", "tracing"]
+features = ["rustls-tls", "base64", "jsonschema", "mock", "stream", "tracing"]
 rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
@@ -45,6 +45,9 @@ tracing = ["dep:tracing", "dep:reqwest-tracing"]
 base64 = ["dep:base64"]
 ## Enable JsonSchema derive for all models
 jsonschema = ["dep:schemars"]
+
+## Enable mock client for testing
+mock = []
 
 ## Enable Stream-based auto-paginating iterators for list endpoints
 stream = ["dep:futures-core"]

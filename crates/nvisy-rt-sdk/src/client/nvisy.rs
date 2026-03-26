@@ -13,7 +13,7 @@ use serde::Serialize;
 use url::Url;
 use uuid::Uuid;
 
-use super::config::{NvisyRtBuilder, NvisyRtOptions};
+use super::config::{RuntimeBuilder, RuntimeOptions};
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_CLIENT;
 use crate::error::{Error, Result};
@@ -21,7 +21,7 @@ use crate::model::ApiError;
 
 /// Main Nvisy Runtime API client.
 ///
-/// [`NvisyRt`] provides access to all Nvisy Runtime API endpoints for
+/// [`Runtime`] provides access to all Nvisy Runtime API endpoints for
 /// direct multimodal redaction. It handles request/response serialization,
 /// automatic retries with exponential backoff, and optional [`tracing`]
 /// instrumentation.
@@ -36,10 +36,10 @@ use crate::model::ApiError;
 /// # Examples
 ///
 /// ```no_run
-/// use nvisy_rt_sdk::{NvisyRt, Result};
+/// use nvisy_rt_sdk::{Runtime, Result};
 ///
 /// # fn example() -> Result<()> {
-/// let client = NvisyRt::new();
+/// let client = Runtime::new();
 /// # Ok(())
 /// # }
 /// ```
@@ -47,11 +47,11 @@ use crate::model::ApiError;
 /// ## Custom configuration
 ///
 /// ```no_run
-/// use nvisy_rt_sdk::{NvisyRt, Result};
+/// use nvisy_rt_sdk::{Runtime, Result};
 /// use std::time::Duration;
 ///
 /// # fn example() -> Result<()> {
-/// let client = NvisyRt::builder()
+/// let client = Runtime::builder()
 ///     .with_base_url("http://runtime.local:8080")
 ///     .with_timeout(Duration::from_secs(60))
 ///     .build()?;
@@ -61,23 +61,23 @@ use crate::model::ApiError;
 ///
 /// [`Arc`]: std::sync::Arc
 /// [`tracing`]: https://docs.rs/tracing
-/// [`NvisyRt`]: crate::NvisyRt
+/// [`Runtime`]: crate::Runtime
 #[derive(Clone)]
-pub struct NvisyRt {
-    pub(crate) inner: Arc<NvisyRtInner>,
+pub struct Runtime {
+    pub(crate) inner: Arc<RuntimeInner>,
 }
 
 /// Header name used to send the actor identity.
 const ACTOR_ID_HEADER: &str = "x-actor-id";
 
-pub(crate) struct NvisyRtInner {
+pub(crate) struct RuntimeInner {
     pub(crate) actor_id: Uuid,
     pub(crate) base_url: Url,
     pub(crate) timeout: Duration,
     pub(crate) client: ClientWithMiddleware,
 }
 
-impl NvisyRt {
+impl Runtime {
     /// Creates a new client with default settings.
     ///
     /// Connects to [`DEFAULT_BASE_URL`] with a [`DEFAULT_TIMEOUT`] of 30 seconds.
@@ -85,7 +85,7 @@ impl NvisyRt {
     /// [`DEFAULT_BASE_URL`]: crate::DEFAULT_BASE_URL
     /// [`DEFAULT_TIMEOUT`]: crate::DEFAULT_TIMEOUT
     pub fn new() -> Self {
-        NvisyRtBuilder::default()
+        RuntimeBuilder::default()
             .build()
             .expect("default config is valid")
     }
@@ -95,23 +95,23 @@ impl NvisyRt {
     /// # Example
     ///
     /// ```no_run
-    /// # use nvisy_rt_sdk::{NvisyRt, Result};
+    /// # use nvisy_rt_sdk::{Runtime, Result};
     /// # use std::time::Duration;
     /// # fn example() -> Result<()> {
-    /// let client = NvisyRt::builder()
+    /// let client = Runtime::builder()
     ///     .with_base_url("http://runtime.local:8080")
     ///     .with_timeout(Duration::from_secs(60))
     ///     .build()?;
     /// # Ok(())
     /// # }
     /// ```
-    pub fn builder() -> NvisyRtBuilder {
-        NvisyRtBuilder::default()
+    pub fn builder() -> RuntimeBuilder {
+        RuntimeBuilder::default()
     }
 
     /// Creates a client from validated options (called by the builder).
     #[cfg_attr(feature = "tracing", tracing::instrument(skip(options)))]
-    pub(crate) fn from_options(options: NvisyRtOptions) -> Result<Self> {
+    pub(crate) fn from_options(options: RuntimeOptions) -> Result<Self> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_CLIENT, "creating client");
 
@@ -143,7 +143,7 @@ impl NvisyRt {
         );
 
         let base_url = Url::parse(&options.base_url)?;
-        let inner = Arc::new(NvisyRtInner {
+        let inner = Arc::new(RuntimeInner {
             actor_id: options.actor_id,
             base_url,
             timeout: options.timeout,
@@ -262,15 +262,15 @@ impl NvisyRt {
     }
 }
 
-impl Default for NvisyRt {
+impl Default for Runtime {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl fmt::Debug for NvisyRt {
+impl fmt::Debug for Runtime {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("NvisyRt")
+        f.debug_struct("Runtime")
             .field("actor_id", &self.inner.actor_id)
             .field("base_url", &self.inner.base_url)
             .field("timeout", &self.inner.timeout)
@@ -286,14 +286,14 @@ mod tests {
 
     #[test]
     fn test_client_creation() -> Result<()> {
-        let client = NvisyRt::new();
+        let client = Runtime::new();
         assert_eq!(client.base_url().as_str(), "http://localhost:8080/");
         Ok(())
     }
 
     #[test]
     fn test_client_creation_with_custom_config() -> Result<()> {
-        let client = NvisyRt::builder()
+        let client = Runtime::builder()
             .with_base_url("https://custom.rt.api.com")
             .with_timeout(Duration::from_secs(60))
             .build()?;

@@ -3,8 +3,8 @@
 mod config;
 mod nvisy;
 
-pub(crate) use config::NvisyRtBuilderError;
+pub(crate) use config::RuntimeBuilderError;
 pub use config::{
-    DEFAULT_BASE_URL, DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, DEFAULT_USER_AGENT, NvisyRtBuilder,
+    DEFAULT_BASE_URL, DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, DEFAULT_USER_AGENT, RuntimeBuilder,
 };
-pub use nvisy::NvisyRt;
+pub use nvisy::Runtime;

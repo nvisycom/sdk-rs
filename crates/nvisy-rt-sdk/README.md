@@ -23,13 +23,13 @@ tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ## Quick Start
 
 ```rust,no_run
-use nvisy_rt_sdk::NvisyRt;
+use nvisy_rt_sdk::Runtime;
 use nvisy_rt_sdk::model::Pagination;
 use nvisy_rt_sdk::service::{FileService, InfraService};
 
 #[tokio::main]
 async fn main() -> nvisy_rt_sdk::Result<()> {
-    let client = NvisyRt::new();
+    let client = Runtime::new();
 
     // Check runtime health
     let health = client.health().await?;
@@ -51,6 +51,7 @@ See the [`examples/`](examples/) folder for more.
 - `native-tls`: use platform-native TLS (mutually exclusive with `rustls-tls`)
 - `base64`: enable base64 encoding/decoding helpers for file content
 - `jsonschema`: derive [JsonSchema](https://docs.rs/schemars) for all model types
+- `mock`: enable `MockRuntime` for testing with configurable responses
 - `stream`: enable auto-paginating `PageStream` iterators for list endpoints via [futures](https://docs.rs/futures-core)
 - `tracing`: emit [tracing](https://docs.rs/tracing) spans and events for HTTP requests and client lifecycle
 

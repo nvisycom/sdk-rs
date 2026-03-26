@@ -3,7 +3,7 @@
 use reqwest::Method;
 use uuid::Uuid;
 
-use crate::NvisyRt;
+use crate::Runtime;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
 use crate::error::Result;
@@ -36,7 +36,7 @@ pub trait FileService {
     fn delete_files(&self) -> impl Future<Output = Result<()>> + Send;
 }
 
-impl FileService for NvisyRt {
+impl FileService for Runtime {
     async fn upload_file(&self, request: &NewFile) -> Result<FileId> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_SERVICE, "uploading file");

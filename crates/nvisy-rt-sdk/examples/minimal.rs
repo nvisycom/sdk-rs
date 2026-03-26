@@ -4,12 +4,12 @@
 
 use nvisy_rt_sdk::model::{NewContext, NewFile, Pagination};
 use nvisy_rt_sdk::service::{ContextService, FileService};
-use nvisy_rt_sdk::{NvisyRt, Result};
+use nvisy_rt_sdk::{Runtime, Result};
 use serde_json::json;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let client = NvisyRt::new();
+    let client = Runtime::new();
 
     // File round-trip
     let new_file = NewFile::from_bytes(b"Hello, world!")

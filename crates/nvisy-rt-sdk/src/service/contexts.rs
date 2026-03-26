@@ -3,7 +3,7 @@
 use reqwest::Method;
 use uuid::Uuid;
 
-use crate::NvisyRt;
+use crate::Runtime;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
 use crate::error::Result;
@@ -39,7 +39,7 @@ pub trait ContextService {
     fn delete_contexts(&self) -> impl Future<Output = Result<()>> + Send;
 }
 
-impl ContextService for NvisyRt {
+impl ContextService for Runtime {
     async fn upload_context(&self, request: &NewContext) -> Result<ContextId> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_SERVICE, "uploading context");

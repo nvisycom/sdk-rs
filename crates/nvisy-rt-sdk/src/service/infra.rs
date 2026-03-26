@@ -3,7 +3,7 @@
 use reqwest::Method;
 use serde_json::Value;
 
-use crate::NvisyRt;
+use crate::Runtime;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
 use crate::error::Result;
@@ -21,7 +21,7 @@ pub trait InfraService {
     fn openapi_spec(&self) -> impl Future<Output = Result<Value>> + Send;
 }
 
-impl InfraService for NvisyRt {
+impl InfraService for Runtime {
     async fn health(&self) -> Result<Health> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_SERVICE, "checking health");

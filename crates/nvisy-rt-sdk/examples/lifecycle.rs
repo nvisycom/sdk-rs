@@ -4,12 +4,12 @@
 
 use nvisy_rt_sdk::model::{NewRun, Pagination};
 use nvisy_rt_sdk::service::{RunQuery, RunService};
-use nvisy_rt_sdk::{NvisyRt, Result};
+use nvisy_rt_sdk::{Runtime, Result};
 use serde_json::json;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let client = NvisyRt::new();
+    let client = Runtime::new();
 
     // Create a run
     let result = client
