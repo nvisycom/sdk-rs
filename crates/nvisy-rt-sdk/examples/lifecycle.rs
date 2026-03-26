@@ -4,7 +4,7 @@
 
 use nvisy_rt_sdk::model::{NewRun, Pagination};
 use nvisy_rt_sdk::service::{RunQuery, RunService};
-use nvisy_rt_sdk::{Runtime, Result};
+use nvisy_rt_sdk::{Result, Runtime};
 use serde_json::json;
 
 #[tokio::main]

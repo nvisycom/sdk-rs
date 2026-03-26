@@ -6,7 +6,7 @@ use derive_builder::Builder;
 use reqwest::Client;
 use uuid::Uuid;
 
-use super::nvisy::Runtime;
+use super::runtime::Runtime;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_CONFIG;
 use crate::error::Result;

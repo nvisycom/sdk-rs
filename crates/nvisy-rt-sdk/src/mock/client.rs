@@ -142,10 +142,7 @@ impl MockRuntime {
         self
     }
 
-    pub fn on_delete_files(
-        mut self,
-        f: impl Fn(()) -> Result<()> + Send + Sync + 'static,
-    ) -> Self {
+    pub fn on_delete_files(mut self, f: impl Fn(()) -> Result<()> + Send + Sync + 'static) -> Self {
         self.delete_files = Box::new(f);
         self
     }
@@ -218,26 +215,17 @@ impl MockRuntime {
         self
     }
 
-    pub fn on_cancel_run(
-        mut self,
-        f: impl Fn(Uuid) -> Result<()> + Send + Sync + 'static,
-    ) -> Self {
+    pub fn on_cancel_run(mut self, f: impl Fn(Uuid) -> Result<()> + Send + Sync + 'static) -> Self {
         self.cancel_run = Box::new(f);
         self
     }
 
-    pub fn on_delete_run(
-        mut self,
-        f: impl Fn(Uuid) -> Result<()> + Send + Sync + 'static,
-    ) -> Self {
+    pub fn on_delete_run(mut self, f: impl Fn(Uuid) -> Result<()> + Send + Sync + 'static) -> Self {
         self.delete_run = Box::new(f);
         self
     }
 
-    pub fn on_delete_runs(
-        mut self,
-        f: impl Fn(()) -> Result<()> + Send + Sync + 'static,
-    ) -> Self {
+    pub fn on_delete_runs(mut self, f: impl Fn(()) -> Result<()> + Send + Sync + 'static) -> Self {
         self.delete_runs = Box::new(f);
         self
     }
