@@ -9,11 +9,9 @@ use crate::model::{
     Analytics, Context, ContextId, File, FileId, Health, NewContext, NewFile, NewRun, Page,
     Pagination, RunDetail, RunResult, RunSummary,
 };
-use crate::service::{
-    ContextService, FileService, InfraService, RunQuery, RunService,
-};
 #[cfg(feature = "stream")]
 use crate::service::PageStream;
+use crate::service::{ContextService, FileService, InfraService, RunQuery, RunService};
 
 impl InfraService for MockRuntime {
     async fn health(&self) -> Result<Health> {
@@ -135,11 +133,7 @@ impl RunService for MockRuntime {
     }
 
     #[cfg(feature = "stream")]
-    fn list_runs_stream(
-        &self,
-        query: &RunQuery,
-        page_size: Option<u32>,
-    ) -> PageStream<RunSummary> {
+    fn list_runs_stream(&self, query: &RunQuery, page_size: Option<u32>) -> PageStream<RunSummary> {
         let handler = &self.on_list_runs;
         let page = handler((query.clone(), Pagination::default())).unwrap_or(Page {
             total: 0,
