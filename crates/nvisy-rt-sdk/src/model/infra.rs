@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 /// Represents the operational status of a service.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum ServiceStatus {
     /// Service is operating normally.
@@ -18,6 +19,7 @@ pub enum ServiceStatus {
 
 /// Health status of a single service component.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct ComponentCheck {
     /// Component name (e.g. `"filesystem"`, `"registry"`).
@@ -28,6 +30,7 @@ pub struct ComponentCheck {
 
 /// Response body for `GET /health`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct Health {
     /// Overall service status.
@@ -35,14 +38,17 @@ pub struct Health {
     /// Per-component health checks.
     pub checks: Vec<ComponentCheck>,
     /// RFC 3339 timestamp of when the check was performed.
+    #[cfg_attr(feature = "jsonschema", schemars(with = "String"))]
     pub timestamp: Timestamp,
 }
 
 /// Response body for `GET /api/v1/analytics`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct Analytics {
     /// RFC 3339 timestamp of when the analytics were collected.
+    #[cfg_attr(feature = "jsonschema", schemars(with = "String"))]
     pub timestamp: Timestamp,
     /// Total number of pipeline runs.
     pub total_runs: u64,

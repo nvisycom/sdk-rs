@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 /// Request payload for `POST /api/v1/contexts`.
 #[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct NewContext {
     /// The context to store.
@@ -28,6 +29,7 @@ impl NewContext {
 
 /// Response body for `POST /api/v1/contexts`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct ContextId {
     /// Identifier assigned to the uploaded context.
@@ -36,6 +38,7 @@ pub struct ContextId {
 
 /// Response body for `GET /api/v1/contexts/{id}`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct Context {
     /// Identifier of the context.

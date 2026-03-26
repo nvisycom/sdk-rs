@@ -12,6 +12,7 @@ use crate::Result;
 
 /// Request payload for `POST /api/v1/files`.
 #[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct NewFile {
     /// Base64-encoded file bytes.
@@ -50,6 +51,7 @@ impl NewFile {
 
 /// Response body for `POST /api/v1/files`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct FileId {
     /// Identifier assigned to the uploaded file.
@@ -58,6 +60,7 @@ pub struct FileId {
 
 /// Response body for `GET /api/v1/files/{id}`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct File {
     /// Identifier of the file.

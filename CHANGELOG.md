@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- `nvisy-rt-sdk`: optional `jsonschema` feature to derive `schemars::JsonSchema` for all models
+
 ## [0.1.1] - 2026-03-22
 
 ### Added

@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 /// Lifecycle status of a pipeline run.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum RunStatus {
     /// The run has been created but not yet started.
@@ -24,6 +25,7 @@ pub enum RunStatus {
 
 /// Request payload for `POST /api/v1/runs`.
 #[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct NewRun {
     /// Policies to apply during processing.
@@ -37,6 +39,7 @@ pub struct NewRun {
 
 /// Response body for `POST /api/v1/runs`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct RunResult {
     /// Unique run identifier.
@@ -55,6 +58,7 @@ pub struct RunResult {
 
 /// Response body for `GET /api/v1/runs/{id}`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct RunDetail {
     /// Full run snapshot (flattened).
@@ -64,6 +68,7 @@ pub struct RunDetail {
 
 /// Summary of a single run returned in list responses.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct RunSummary {
     /// Run identifier.

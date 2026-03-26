@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// Paginated response wrapper.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct Page<T> {
     /// Total number of items across all pages.
@@ -16,6 +17,7 @@ pub struct Page<T> {
 
 /// Query parameters for paginated list endpoints.
 #[derive(Debug, Default, Clone, Serialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct Pagination {
     /// Number of items to skip.

@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 /// When the server responds with a non-success status code, the response
 /// body contains a JSON object matching this structure.
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct ApiError {
     /// HTTP status code of the response.
@@ -40,17 +41,9 @@ impl std::fmt::Display for ApiError {
 /// Classification of API errors.
 ///
 /// Each variant corresponds to a specific HTTP status code and error scenario.
-#[derive(
-    Debug,
-    Default,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-    Serialize,
-    Deserialize
-)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Serialize, Deserialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum ErrorKind {
     /// 400 Bad Request: missing required path parameter.
