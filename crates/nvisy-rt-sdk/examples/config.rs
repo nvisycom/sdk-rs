@@ -5,7 +5,7 @@
 use std::time::Duration;
 
 use nvisy_rt_sdk::service::InfraService;
-use nvisy_rt_sdk::{Runtime, Result};
+use nvisy_rt_sdk::{Result, Runtime};
 
 #[tokio::main]
 async fn main() -> Result<()> {
