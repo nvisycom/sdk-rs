@@ -43,7 +43,6 @@ tracing = ["dep:tracing", "dep:reqwest-tracing"]
 # Utilities
 ## Enable base64 encoding/decoding helpers for file content
 base64 = ["dep:base64"]
-
 ## Enable JsonSchema derive for all models
 jsonschema = ["dep:schemars"]
 
