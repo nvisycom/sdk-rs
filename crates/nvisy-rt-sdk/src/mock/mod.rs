@@ -1,12 +1,14 @@
-//! Mock client for testing.
+//! Mock runtime client for testing.
 //!
-//! Requires the `mock` feature. Provides [`MockRuntime`], a configurable
-//! mock that implements all service traits with preset responses.
+//! Provides [`MockRuntime`], a configurable mock that implements all
+//! service traits with closure-based responses. Each method defaults to
+//! returning a `501 NotImplemented` error until configured via the
+//! corresponding `on_*` builder method.
 //!
 //! # Example
 //!
 //! ```rust
-//! use nvisy_rt_sdk::mock::MockRuntime;
+//! use nvisy_rt_sdk::MockRuntime;
 //! use nvisy_rt_sdk::model::{Health, ServiceStatus};
 //! use nvisy_rt_sdk::service::InfraService;
 //! use jiff::Timestamp;

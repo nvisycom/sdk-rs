@@ -23,7 +23,7 @@ pub(crate) fn not_configured<O>(method: &str) -> Result<O> {
     }))
 }
 
-/// A configurable mock client implementing all service traits.
+/// Configurable mock Nvisy Runtime API client.
 ///
 /// Each method defaults to returning an error until configured
 /// with the corresponding `on_*` builder method.
