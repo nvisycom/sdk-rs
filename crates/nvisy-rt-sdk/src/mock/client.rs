@@ -28,26 +28,26 @@ pub(crate) fn not_configured<O>(method: &str) -> Result<O> {
 /// Each method defaults to returning an error until configured
 /// with the corresponding `on_*` builder method.
 pub struct MockRuntime {
-    // -- infra --
+    // infra
     pub(crate) health: Handler<(), Health>,
     pub(crate) analytics: Handler<(), Analytics>,
     pub(crate) openapi_spec: Handler<(), Value>,
 
-    // -- files --
+    // files
     pub(crate) upload_file: Handler<NewFile, FileId>,
     pub(crate) download_file: Handler<Uuid, File>,
     pub(crate) list_files: Handler<Pagination, Page<Uuid>>,
     pub(crate) delete_file: Handler<Uuid, ()>,
     pub(crate) delete_files: Handler<(), ()>,
 
-    // -- contexts --
+    // contexts
     pub(crate) upload_context: Handler<NewContext, ContextId>,
     pub(crate) download_context: Handler<Uuid, Context>,
     pub(crate) list_contexts: Handler<Pagination, Page<Uuid>>,
     pub(crate) delete_context: Handler<Uuid, ()>,
     pub(crate) delete_contexts: Handler<(), ()>,
 
-    // -- runs --
+    // runs
     pub(crate) create_run: Handler<NewRun, RunResult>,
     pub(crate) list_runs: Handler<(RunQuery, Pagination), Page<RunSummary>>,
     pub(crate) get_run: Handler<Uuid, RunDetail>,
@@ -85,7 +85,7 @@ impl MockRuntime {
         }
     }
 
-    // -- infra builders --
+    // infra builders
 
     pub fn on_health(mut self, f: impl Fn(()) -> Result<Health> + Send + Sync + 'static) -> Self {
         self.health = Box::new(f);
@@ -108,7 +108,7 @@ impl MockRuntime {
         self
     }
 
-    // -- file builders --
+    // file builders
 
     pub fn on_upload_file(
         mut self,
@@ -147,7 +147,7 @@ impl MockRuntime {
         self
     }
 
-    // -- context builders --
+    // context builders
 
     pub fn on_upload_context(
         mut self,
@@ -189,7 +189,7 @@ impl MockRuntime {
         self
     }
 
-    // -- run builders --
+    // run builders
 
     pub fn on_create_run(
         mut self,
