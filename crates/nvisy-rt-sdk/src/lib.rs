@@ -10,6 +10,8 @@ compile_error!("Either `rustls-tls` or `native-tls` feature must be enabled");
 
 mod client;
 mod error;
+#[cfg(feature = "mock")]
+pub mod mock;
 pub mod model;
 pub mod service;
 
@@ -31,8 +33,8 @@ pub(crate) const TRACING_TARGET_CONFIG: &str = "nvisy_rt_sdk::config";
 
 // Re-export client types
 pub use client::{
-    DEFAULT_BASE_URL, DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, DEFAULT_USER_AGENT, NvisyRt,
-    NvisyRtBuilder,
+    DEFAULT_BASE_URL, DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, DEFAULT_USER_AGENT, Runtime,
+    RuntimeBuilder,
 };
 // Re-export error types
 pub use error::{Error, Result};

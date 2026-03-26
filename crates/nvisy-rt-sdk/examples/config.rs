@@ -5,11 +5,11 @@
 use std::time::Duration;
 
 use nvisy_rt_sdk::service::InfraService;
-use nvisy_rt_sdk::{NvisyRt, Result};
+use nvisy_rt_sdk::{Runtime, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let client = NvisyRt::builder()
+    let client = Runtime::builder()
         .with_base_url("http://localhost:9090")
         .with_timeout(Duration::from_secs(10))
         .with_max_retries(5u32)

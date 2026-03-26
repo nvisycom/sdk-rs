@@ -6,7 +6,7 @@ use derive_builder::Builder;
 use reqwest::Client;
 use uuid::Uuid;
 
-use super::nvisy::NvisyRt;
+use super::nvisy::Runtime;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_CONFIG;
 use crate::error::Result;
@@ -22,7 +22,7 @@ pub const DEFAULT_MAX_RETRIES: u32 = 3;
 
 /// Default User-Agent header value.
 pub const DEFAULT_USER_AGENT: &str = concat!(
-    "NvisyRtSDK/",
+    "RuntimeSDK/",
     env!("CARGO_PKG_VERSION"),
     " (Rust; reqwest/0.13)"
 );
@@ -31,15 +31,15 @@ pub const DEFAULT_USER_AGENT: &str = concat!(
 #[doc(hidden)]
 #[derive(Clone, Builder)]
 #[builder(
-    name = "NvisyRtBuilder",
+    name = "RuntimeBuilder",
     pattern = "owned",
     setter(into, strip_option, prefix = "with"),
     build_fn(validate = "Self::validate", private, name = "build_config")
 )]
 #[builder_struct_attr(
-    doc = "Builder for configuring and creating a [`NvisyRt`] client.\n\n[`NvisyRt`]: crate::NvisyRt"
+    doc = "Builder for configuring and creating a [`Runtime`] client.\n\n[`Runtime`]: crate::Runtime"
 )]
-pub struct NvisyRtOptions {
+pub struct RuntimeOptions {
     /// Actor identity sent with every request.
     ///
     /// Defaults to a random v4 UUID.
@@ -78,7 +78,7 @@ pub struct NvisyRtOptions {
     pub(crate) client: Option<Client>,
 }
 
-impl NvisyRtBuilder {
+impl RuntimeBuilder {
     fn default_base_url() -> String {
         DEFAULT_BASE_URL.to_string()
     }
@@ -117,7 +117,7 @@ impl NvisyRtBuilder {
     }
 
     /// Builds the Nvisy Runtime client.
-    pub fn build(self) -> Result<NvisyRt> {
+    pub fn build(self) -> Result<Runtime> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_CONFIG, "building client from config");
 
@@ -132,7 +132,7 @@ impl NvisyRtBuilder {
             "config validated"
         );
 
-        NvisyRt::from_options(options)
+        Runtime::from_options(options)
     }
 }
 
@@ -142,7 +142,7 @@ mod tests {
 
     #[test]
     fn test_validation_invalid_base_url() {
-        let result = NvisyRtBuilder::default().with_base_url("not-a-url").build();
+        let result = RuntimeBuilder::default().with_base_url("not-a-url").build();
         assert!(result.is_err());
     }
 }
