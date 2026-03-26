@@ -11,7 +11,11 @@ and this project adheres to
 ### Added
 
 - `nvisy-rt-sdk`: optional `jsonschema` feature to derive `schemars::JsonSchema` for all models
-- `nvisy-rt-sdk`: optional `mock` feature with `MockNvisyRt` for testing with configurable responses
+- `nvisy-rt-sdk`: optional `mock` feature with `MockRuntime` for testing with configurable responses
+
+### Changed
+
+- `nvisy-rt-sdk`: rename `NvisyRt` to `Runtime`, `NvisyRtBuilder` to `RuntimeBuilder`
 
 ## [0.1.1] - 2026-03-22
 

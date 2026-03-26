@@ -30,8 +30,8 @@ pub(crate) const TRACING_TARGET_SERVICE: &str = "nvisy_sdk::service";
 pub(crate) const TRACING_TARGET_CONFIG: &str = "nvisy_sdk::config";
 
 // Re-export client types
-pub use client::{
+pub use self::client::{
     DEFAULT_BASE_URL, DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, DEFAULT_USER_AGENT, Nvisy, NvisyBuilder,
 };
 // Re-export error types
-pub use error::{Error, Result};
+pub use self::error::{Error, Result};

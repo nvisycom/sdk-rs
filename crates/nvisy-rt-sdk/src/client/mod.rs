@@ -3,8 +3,8 @@
 mod config;
 mod runtime;
 
-pub(crate) use config::RuntimeBuilderError;
-pub use config::{
+pub(crate) use self::config::RuntimeBuilderError;
+pub use self::config::{
     DEFAULT_BASE_URL, DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, DEFAULT_USER_AGENT, RuntimeBuilder,
 };
-pub use runtime::Runtime;
+pub use self::runtime::Runtime;

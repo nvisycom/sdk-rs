@@ -30,4 +30,4 @@
 mod client;
 mod service;
 
-pub use client::MockRuntime;
+pub use self::client::MockRuntime;

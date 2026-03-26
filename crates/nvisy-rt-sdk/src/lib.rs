@@ -32,12 +32,12 @@ pub(crate) const TRACING_TARGET_SERVICE: &str = "nvisy_rt_sdk::service";
 pub(crate) const TRACING_TARGET_CONFIG: &str = "nvisy_rt_sdk::config";
 
 // Re-export client types
-pub use client::{
+pub use self::client::{
     DEFAULT_BASE_URL, DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, DEFAULT_USER_AGENT, Runtime,
     RuntimeBuilder,
 };
+// Re-export error types
+pub use self::error::{Error, Result};
 // Re-export mock types
 #[cfg(feature = "mock")]
-pub use mock::MockRuntime;
-// Re-export error types
-pub use error::{Error, Result};
+pub use self::mock::MockRuntime;
