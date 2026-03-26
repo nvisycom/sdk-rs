@@ -3,8 +3,8 @@
 mod config;
 mod nvisy;
 
-pub(crate) use config::NvisyBuilderError;
-pub use config::{
+pub(crate) use self::config::NvisyBuilderError;
+pub use self::config::{
     DEFAULT_BASE_URL, DEFAULT_MAX_RETRIES, DEFAULT_TIMEOUT, DEFAULT_USER_AGENT, NvisyBuilder,
 };
-pub use nvisy::Nvisy;
+pub use self::nvisy::Nvisy;

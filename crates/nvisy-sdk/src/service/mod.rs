@@ -7,4 +7,4 @@
 
 mod monitors;
 
-pub use monitors::*;
+pub use self::monitors::*;

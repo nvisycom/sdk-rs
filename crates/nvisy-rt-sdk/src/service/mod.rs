@@ -12,9 +12,9 @@ mod runs;
 #[cfg(feature = "stream")]
 mod stream;
 
-pub use contexts::*;
-pub use files::*;
-pub use infra::*;
-pub use runs::*;
+pub use self::contexts::*;
+pub use self::files::*;
+pub use self::infra::*;
+pub use self::runs::*;
 #[cfg(feature = "stream")]
-pub use stream::PageStream;
+pub use self::stream::PageStream;

@@ -2,4 +2,4 @@
 
 mod monitor;
 
-pub use monitor::*;
+pub use self::monitor::*;
