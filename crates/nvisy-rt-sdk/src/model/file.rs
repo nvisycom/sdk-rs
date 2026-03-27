@@ -58,6 +58,27 @@ pub struct FileId {
     pub id: Uuid,
 }
 
+/// Summary of a stored file for listing endpoints.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
+#[serde(rename_all = "camelCase")]
+pub struct FileEntry {
+    /// Identifier of the file.
+    pub id: Uuid,
+    /// Original filename, if provided at upload.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub filename: Option<String>,
+    /// MIME type (supplied or detected).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub content_type: Option<String>,
+    /// Content size in bytes.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub size: Option<u64>,
+    /// SHA-256 hex digest.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sha256: Option<String>,
+}
+
 /// Response body for `GET /api/v1/files/{id}`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
@@ -67,12 +88,16 @@ pub struct File {
     pub id: Uuid,
     /// Base64-encoded file bytes.
     pub content: String,
-    /// MIME type of the file, if provided at upload.
+    /// MIME type (supplied or detected).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub content_type: Option<String>,
     /// Original filename, if provided at upload.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub filename: Option<String>,
+    /// Content size in bytes.
+    pub size: u64,
+    /// SHA-256 hex digest.
+    pub sha256: String,
 }
 
 #[cfg(feature = "base64")]

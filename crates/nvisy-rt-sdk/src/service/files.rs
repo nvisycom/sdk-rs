@@ -7,7 +7,7 @@ use crate::Runtime;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
 use crate::error::Result;
-use crate::model::{File, FileId, NewFile, Page, Pagination};
+use crate::model::{File, FileEntry, FileId, NewFile, Page, Pagination};
 #[cfg(feature = "stream")]
 use crate::service::PageStream;
 
@@ -23,11 +23,11 @@ pub trait FileService {
     fn list_files(
         &self,
         pagination: &Pagination,
-    ) -> impl Future<Output = Result<Page<Uuid>>> + Send;
+    ) -> impl Future<Output = Result<Page<FileEntry>>> + Send;
 
     /// Returns a stream that yields file IDs across all pages.
     #[cfg(feature = "stream")]
-    fn list_files_stream(&self, page_size: Option<u32>) -> PageStream<Uuid>;
+    fn list_files_stream(&self, page_size: Option<u32>) -> PageStream<FileEntry>;
 
     /// Deletes a file by ID.
     fn delete_file(&self, id: Uuid) -> impl Future<Output = Result<()>> + Send;
@@ -57,7 +57,7 @@ impl FileService for Runtime {
         Ok(response.json().await?)
     }
 
-    async fn list_files(&self, pagination: &Pagination) -> Result<Page<Uuid>> {
+    async fn list_files(&self, pagination: &Pagination) -> Result<Page<FileEntry>> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_SERVICE, "listing files");
 
@@ -72,7 +72,7 @@ impl FileService for Runtime {
     }
 
     #[cfg(feature = "stream")]
-    fn list_files_stream(&self, page_size: Option<u32>) -> PageStream<Uuid> {
+    fn list_files_stream(&self, page_size: Option<u32>) -> PageStream<FileEntry> {
         let client = self.clone();
         PageStream::new(
             Box::new(move |pagination| {

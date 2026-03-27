@@ -6,8 +6,8 @@ use uuid::Uuid;
 use super::MockRuntime;
 use crate::error::Result;
 use crate::model::{
-    AnalyticsSnapshot, Context, ContextId, File, FileId, Health, NewContext, NewFile, NewRun, Page,
-    Pagination, RunDetail, RunResult, RunSummary,
+    AnalyticsSnapshot, Context, ContextId, File, FileEntry, FileId, Health, NewContext, NewFile,
+    NewRun, Page, Pagination, RunDetail, RunResult, RunSummary,
 };
 #[cfg(feature = "stream")]
 use crate::service::PageStream;
@@ -36,12 +36,12 @@ impl FileService for MockRuntime {
         (self.on_download_file)(id)
     }
 
-    async fn list_files(&self, pagination: &Pagination) -> Result<Page<Uuid>> {
+    async fn list_files(&self, pagination: &Pagination) -> Result<Page<FileEntry>> {
         (self.on_list_files)(pagination.clone())
     }
 
     #[cfg(feature = "stream")]
-    fn list_files_stream(&self, page_size: Option<u32>) -> PageStream<Uuid> {
+    fn list_files_stream(&self, page_size: Option<u32>) -> PageStream<FileEntry> {
         let handler = &self.on_list_files;
         let page = handler(Pagination::default()).unwrap_or(Page {
             total: 0,
