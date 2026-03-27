@@ -5,8 +5,8 @@ use uuid::Uuid;
 
 use crate::error::{Error, Result};
 use crate::model::{
-    AnalyticsSnapshot, ApiError, Context, ContextId, ErrorKind, File, FileEntry, FileId, Health,
-    NewContext, NewFile, NewRun, Page, Pagination, RunDetail, RunResult, RunSummary,
+    AnalyticsSnapshot, ApiError, Context, ContextEntry, ContextId, ErrorKind, File, FileEntry,
+    FileId, Health, NewContext, NewFile, NewRun, Page, Pagination, RunDetail, RunResult, RunSummary,
 };
 use crate::service::RunQuery;
 
@@ -77,7 +77,7 @@ mock_handlers! {
     // contexts
     on_upload_context:   NewContext => ContextId,
     on_download_context: Uuid => Context,
-    on_list_contexts:    Pagination => Page<Uuid>,
+    on_list_contexts:    Pagination => Page<ContextEntry>,
     on_delete_context:   Uuid => (),
     on_delete_contexts:  () => (),
 

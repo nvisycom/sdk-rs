@@ -6,8 +6,8 @@ use uuid::Uuid;
 use super::MockRuntime;
 use crate::error::Result;
 use crate::model::{
-    AnalyticsSnapshot, Context, ContextId, File, FileEntry, FileId, Health, NewContext, NewFile,
-    NewRun, Page, Pagination, RunDetail, RunResult, RunSummary,
+    AnalyticsSnapshot, Context, ContextEntry, ContextId, File, FileEntry, FileId, Health,
+    NewContext, NewFile, NewRun, Page, Pagination, RunDetail, RunResult, RunSummary,
 };
 #[cfg(feature = "stream")]
 use crate::service::PageStream;
@@ -82,12 +82,12 @@ impl ContextService for MockRuntime {
         (self.on_download_context)(id)
     }
 
-    async fn list_contexts(&self, pagination: &Pagination) -> Result<Page<Uuid>> {
+    async fn list_contexts(&self, pagination: &Pagination) -> Result<Page<ContextEntry>> {
         (self.on_list_contexts)(pagination.clone())
     }
 
     #[cfg(feature = "stream")]
-    fn list_contexts_stream(&self, page_size: Option<u32>) -> PageStream<Uuid> {
+    fn list_contexts_stream(&self, page_size: Option<u32>) -> PageStream<ContextEntry> {
         let handler = &self.on_list_contexts;
         let page = handler(Pagination::default()).unwrap_or(Page {
             total: 0,

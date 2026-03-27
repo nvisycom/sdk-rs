@@ -27,6 +27,19 @@ impl NewContext {
     }
 }
 
+/// Summary of a stored context for listing endpoints.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
+#[serde(rename_all = "camelCase")]
+pub struct ContextEntry {
+    /// Identifier of the context.
+    pub id: Uuid,
+    /// Human-readable label.
+    pub name: String,
+    /// Number of reference-data entries in this context.
+    pub entries: usize,
+}
+
 /// Response body for `POST /api/v1/contexts`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "jsonschema", derive(schemars::JsonSchema))]
