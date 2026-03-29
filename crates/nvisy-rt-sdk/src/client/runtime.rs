@@ -167,12 +167,14 @@ impl Runtime {
         self.inner.timeout
     }
 
+    /// Resolves a path against the base URL.
     pub(crate) fn resolve_url(&self, path: &str) -> Url {
         let mut url = self.inner.base_url.clone();
         url.set_path(&format!("{}{}", url.path().trim_end_matches('/'), path));
         url
     }
 
+    /// Builds an HTTP request with the actor ID header and timeout.
     pub(crate) fn request(&self, method: Method, url: Url) -> RequestBuilder {
         #[cfg(feature = "tracing")]
         tracing::trace!(
@@ -220,6 +222,7 @@ impl Runtime {
         }
     }
 
+    /// Sends an HTTP request and checks the response for errors.
     pub(crate) async fn send(&self, method: Method, path: &str) -> Result<Response> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_CLIENT, %method, path, "sending request");
@@ -238,6 +241,7 @@ impl Runtime {
         self.check_response(response).await
     }
 
+    /// Sends an HTTP request with a JSON body and checks the response for errors.
     pub(crate) async fn send_json<T: Serialize>(
         &self,
         method: Method,

@@ -25,7 +25,7 @@ pub trait FileService {
         pagination: &Pagination,
     ) -> impl Future<Output = Result<Page<FileEntry>>> + Send;
 
-    /// Returns a stream that yields file IDs across all pages.
+    /// Returns a stream that yields file entries across all pages.
     #[cfg(feature = "stream")]
     fn list_files_stream(&self, page_size: Option<u32>) -> PageStream<FileEntry>;
 

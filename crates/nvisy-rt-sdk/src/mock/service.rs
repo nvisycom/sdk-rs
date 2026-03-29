@@ -1,4 +1,7 @@
 //! Service trait implementations for [`MockRuntime`].
+//!
+//! Each trait method delegates to the corresponding `on_*` handler closure.
+//! Stream methods call the handler once and yield all items in a single page.
 
 use serde_json::Value;
 use uuid::Uuid;

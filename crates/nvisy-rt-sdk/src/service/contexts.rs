@@ -28,7 +28,7 @@ pub trait ContextService {
         pagination: &Pagination,
     ) -> impl Future<Output = Result<Page<ContextEntry>>> + Send;
 
-    /// Returns a stream that yields context IDs across all pages.
+    /// Returns a stream that yields context entries across all pages.
     #[cfg(feature = "stream")]
     fn list_contexts_stream(&self, page_size: Option<u32>) -> PageStream<ContextEntry>;
 
