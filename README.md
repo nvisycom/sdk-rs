@@ -1,18 +1,54 @@
 # Nvisy SDK for Rust
 
+[![Crates.io](https://img.shields.io/crates/v/nvisy-sdk?style=flat-square)](https://crates.io/crates/nvisy-sdk)
+[![Documentation](https://img.shields.io/docsrs/nvisy-sdk?style=flat-square)](https://docs.rs/nvisy-sdk)
 [![Build](https://img.shields.io/github/actions/workflow/status/nvisycom/sdk-rs/build.yml?branch=main&label=build%20%26%20test&style=flat-square)](https://github.com/nvisycom/sdk-rs/actions/workflows/build.yml)
 
-Rust client libraries for the [Nvisy](https://nvisy.com/) multimodal redaction platform.
+Rust client for the [Nvisy](https://nvisy.com/) multimodal redaction platform.
 
 Nvisy detects and removes sensitive information across documents, images, and audio.
 It combines deterministic patterns, NER, computer vision, and LLM-driven classification
 into auditable, policy-driven pipelines built for regulated industries such as
 healthcare, legal, government, and financial services.
 
-## Crates
+The Nvisy Server provides authentication, workspace management, persistence,
+and task routing for the platform. Use this crate when connecting through the
+managed Nvisy service.
 
-- [`nvisy-sdk`](crates/nvisy-sdk/): client for the Nvisy Server API (authentication, workspace management, persistence, and task routing)
-- [`nvisy-rt-sdk`](crates/nvisy-rt-sdk/): client for the Nvisy Runtime API (direct redaction task execution)
+## Installation
+
+```toml
+[dependencies]
+nvisy-sdk = { version = "0.1", features = [] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+```
+
+## Quick Start
+
+```rust,no_run
+use nvisy_sdk::{Nvisy, Result};
+use nvisy_sdk::service::MonitorService;
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let client = Nvisy::with_api_key("your-api-key")?;
+
+    // Check service health
+    let health = client.health(None).await?;
+    println!("Status: {:?}", health.status);
+    println!("Checked: {}", health.timestamp);
+
+    Ok(())
+}
+```
+
+See the [`examples/`](examples/) folder for more.
+
+## Features
+
+- `rustls-tls` *(default)*: use rustls for HTTPS
+- `native-tls`: use platform-native TLS (mutually exclusive with `rustls-tls`)
+- `tracing`: emit [tracing](https://docs.rs/tracing) spans and events for HTTP requests and client lifecycle
 
 ## Deployment
 
@@ -35,5 +71,6 @@ MIT License, see [LICENSE.txt](LICENSE.txt)
 ## Support
 
 - **Documentation**: [docs.nvisy.com](https://docs.nvisy.com)
+- **API reference**: [docs.rs/nvisy-sdk](https://docs.rs/nvisy-sdk)
 - **Issues**: [github.com/nvisycom/sdk-rs/issues](https://github.com/nvisycom/sdk-rs/issues)
 - **Email**: [support@nvisy.com](mailto:support@nvisy.com)
