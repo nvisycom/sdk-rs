@@ -1,8 +1,10 @@
-[workspace]
-resolver = "3"
-members = ["crates/*"]
+# https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[workspace.package]
+[package]
+name = "nvisy-sdk"
+description = "Rust client for the Nvisy Server API: authentication, workspace management, and task routing"
+readme = "README.md"
+
 # Release
 version = "0.1.1"
 publish = true
@@ -20,7 +22,25 @@ documentation = "https://docs.nvisy.com"
 keywords = ["nvisy", "redaction", "pii", "sdk", "async"]
 categories = ["api-bindings", "asynchronous"]
 
-[workspace.dependencies]
+[package.metadata.docs.rs]
+features = ["rustls-tls", "tracing"]
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+## Default features enabled by default
+default = ["rustls-tls"]
+
+# TLS backends (mutually exclusive: pick one)
+## Enable rustls for HTTPS requests (default)
+rustls-tls = ["reqwest/rustls"]
+## Enable native-tls for HTTPS requests
+native-tls = ["reqwest/native-tls"]
+
+# Observability
+## Enable tracing support for HTTP requests and client operations
+tracing = ["dep:tracing", "dep:reqwest-tracing"]
+
+[dependencies]
 # HTTP
 reqwest = { version = "0.13", default-features = false, features = ["json", "multipart"] }
 reqwest-middleware = { version = "0.5", features = ["json", "multipart", "query"] }
@@ -38,15 +58,16 @@ uuid = { version = "1.22", features = ["serde", "v4"] }
 # Error handling
 thiserror = { version = "2.0", features = [] }
 
-# Derive macros and utilities
+# Derive macros
 derive_builder = { version = "0.20", features = [] }
-base64 = { version = "0.22", features = [] }
-futures-core = { version = "0.3", features = [] }
-schemars = { version = "1.2", features = ["uuid1"] }
 
 # Observability
-tracing = { version = "0.1", features = [] }
-reqwest-tracing = { version = "0.7", features = [] }
+tracing = { version = "0.1", optional = true, features = [] }
+reqwest-tracing = { version = "0.7", optional = true, features = [] }
 
-# Dev
+[dev-dependencies]
 tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros"] }
+
+[[example]]
+name = "basic"
+path = "examples/basic.rs"
