@@ -11,35 +11,54 @@ It combines deterministic patterns, NER, computer vision, and LLM-driven classif
 into auditable, policy-driven pipelines built for regulated industries such as
 healthcare, legal, government, and financial services.
 
-The Nvisy Server provides authentication, workspace management, persistence,
-and task routing for the platform. Use this crate when connecting through the
-managed Nvisy service.
+> [!WARNING]
+> **Active development: API not stable.** This project is under active
+> development. Public APIs, configuration shapes, and on-disk formats may change
+> without notice between releases. Pin a specific version if you depend on this
+> in production.
 
 ## Installation
 
 ```toml
 [dependencies]
-nvisy-sdk = { version = "0.1", features = [] }
+nvisy-sdk = "0.1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
 ## Quick Start
 
 ```rust,no_run
-use nvisy_sdk::{Nvisy, Result};
 use nvisy_sdk::service::MonitorService;
+use nvisy_sdk::{Nvisy, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let client = Nvisy::with_api_key("your-api-key")?;
+    let client = Nvisy::with_api_key("your-api-token")?;
 
-    // Check service health
     let health = client.health(None).await?;
     println!("Status: {:?}", health.status);
-    println!("Checked: {}", health.timestamp);
 
     Ok(())
 }
+```
+
+The client can also be configured through the builder:
+
+```rust,no_run
+use std::time::Duration;
+
+use nvisy_sdk::{Nvisy, Result};
+
+# fn example() -> Result<()> {
+let client = Nvisy::builder()
+    .with_api_key("your-api-token") // Required
+    .with_base_url("https://api.nvisy.com") // Optional
+    .with_user_agent("MyApp/1.0.0") // Optional
+    .with_timeout(Duration::from_secs(30)) // Optional
+    .with_max_retries(3u32) // Optional
+    .build()?;
+# Ok(())
+# }
 ```
 
 See the [`examples/`](examples/) folder for more.
