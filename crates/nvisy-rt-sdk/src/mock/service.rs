@@ -1,4 +1,7 @@
 //! Service trait implementations for [`MockRuntime`].
+//!
+//! Each trait method delegates to the corresponding `on_*` handler closure.
+//! Stream methods call the handler once and yield all items in a single page.
 
 use serde_json::Value;
 use uuid::Uuid;
@@ -6,8 +9,8 @@ use uuid::Uuid;
 use super::MockRuntime;
 use crate::error::Result;
 use crate::model::{
-    Analytics, Context, ContextId, File, FileId, Health, NewContext, NewFile, NewRun, Page,
-    Pagination, RunDetail, RunResult, RunSummary,
+    AnalyticsSnapshot, Context, ContextEntry, ContextId, File, FileEntry, FileId, Health,
+    NewContext, NewFile, NewRun, Page, Pagination, RunDetail, RunResult, RunSummary,
 };
 #[cfg(feature = "stream")]
 use crate::service::PageStream;
@@ -18,7 +21,7 @@ impl InfraService for MockRuntime {
         (self.on_health)(())
     }
 
-    async fn analytics(&self) -> Result<Analytics> {
+    async fn analytics(&self) -> Result<AnalyticsSnapshot> {
         (self.on_analytics)(())
     }
 
@@ -36,12 +39,12 @@ impl FileService for MockRuntime {
         (self.on_download_file)(id)
     }
 
-    async fn list_files(&self, pagination: &Pagination) -> Result<Page<Uuid>> {
+    async fn list_files(&self, pagination: &Pagination) -> Result<Page<FileEntry>> {
         (self.on_list_files)(pagination.clone())
     }
 
     #[cfg(feature = "stream")]
-    fn list_files_stream(&self, page_size: Option<u32>) -> PageStream<Uuid> {
+    fn list_files_stream(&self, page_size: Option<u32>) -> PageStream<FileEntry> {
         let handler = &self.on_list_files;
         let page = handler(Pagination::default()).unwrap_or(Page {
             total: 0,
@@ -82,12 +85,12 @@ impl ContextService for MockRuntime {
         (self.on_download_context)(id)
     }
 
-    async fn list_contexts(&self, pagination: &Pagination) -> Result<Page<Uuid>> {
+    async fn list_contexts(&self, pagination: &Pagination) -> Result<Page<ContextEntry>> {
         (self.on_list_contexts)(pagination.clone())
     }
 
     #[cfg(feature = "stream")]
-    fn list_contexts_stream(&self, page_size: Option<u32>) -> PageStream<Uuid> {
+    fn list_contexts_stream(&self, page_size: Option<u32>) -> PageStream<ContextEntry> {
         let handler = &self.on_list_contexts;
         let page = handler(Pagination::default()).unwrap_or(Page {
             total: 0,

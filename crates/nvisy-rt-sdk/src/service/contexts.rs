@@ -7,7 +7,7 @@ use crate::Runtime;
 #[cfg(feature = "tracing")]
 use crate::TRACING_TARGET_SERVICE;
 use crate::error::Result;
-use crate::model::{Context, ContextId, NewContext, Page, Pagination};
+use crate::model::{Context, ContextEntry, ContextId, NewContext, Page, Pagination};
 #[cfg(feature = "stream")]
 use crate::service::PageStream;
 
@@ -26,11 +26,11 @@ pub trait ContextService {
     fn list_contexts(
         &self,
         pagination: &Pagination,
-    ) -> impl Future<Output = Result<Page<Uuid>>> + Send;
+    ) -> impl Future<Output = Result<Page<ContextEntry>>> + Send;
 
-    /// Returns a stream that yields context IDs across all pages.
+    /// Returns a stream that yields context entries across all pages.
     #[cfg(feature = "stream")]
-    fn list_contexts_stream(&self, page_size: Option<u32>) -> PageStream<Uuid>;
+    fn list_contexts_stream(&self, page_size: Option<u32>) -> PageStream<ContextEntry>;
 
     /// Deletes a context by ID.
     fn delete_context(&self, id: Uuid) -> impl Future<Output = Result<()>> + Send;
@@ -60,7 +60,7 @@ impl ContextService for Runtime {
         Ok(response.json().await?)
     }
 
-    async fn list_contexts(&self, pagination: &Pagination) -> Result<Page<Uuid>> {
+    async fn list_contexts(&self, pagination: &Pagination) -> Result<Page<ContextEntry>> {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: TRACING_TARGET_SERVICE, "listing contexts");
 
@@ -75,7 +75,7 @@ impl ContextService for Runtime {
     }
 
     #[cfg(feature = "stream")]
-    fn list_contexts_stream(&self, page_size: Option<u32>) -> PageStream<Uuid> {
+    fn list_contexts_stream(&self, page_size: Option<u32>) -> PageStream<ContextEntry> {
         let client = self.clone();
         PageStream::new(
             Box::new(move |pagination| {

@@ -26,8 +26,8 @@ async fn main() -> Result<()> {
 
     // Analytics
     let analytics = client.analytics().await?;
-    println!("Runs:     {}", analytics.total_runs);
-    println!("Active:   {}", analytics.active_runs);
+    println!("Current:  {}", analytics.current_runs);
+    println!("Actors:   {}", analytics.distinct_actors);
 
     Ok(())
 }

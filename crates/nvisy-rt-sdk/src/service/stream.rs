@@ -44,6 +44,7 @@ pub struct PageStream<T> {
 }
 
 impl<T: Send + 'static> PageStream<T> {
+    /// Creates a new page stream with the given fetch function and page size.
     pub(crate) fn new(fetch: FetchFn<T>, page_size: u32) -> Self {
         Self {
             fetch,
