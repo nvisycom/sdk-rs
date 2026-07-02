@@ -8,18 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
-### Added
-
-- `nvisy-rt-sdk`: optional `jsonschema` feature to derive `schemars::JsonSchema` for all models
-- `nvisy-rt-sdk`: optional `mock` feature with `MockRuntime` for testing with configurable responses
-
 ### Changed
 
-- `nvisy-rt-sdk`: rename `NvisyRt` to `Runtime`, `NvisyRtBuilder` to `RuntimeBuilder`
+- Flatten the Cargo workspace into a single root `nvisy-sdk` package (`src/` and `examples/` moved to the repo root)
 
 ### Removed
 
-- `nvisy-rt-sdk`: `Error::Reqwest` variant (reqwest errors now routed through `Error::Http`)
+- `nvisy-rt-sdk` crate (client for the Nvisy Runtime API)
 
 ## [0.1.1] - 2026-03-22
 
